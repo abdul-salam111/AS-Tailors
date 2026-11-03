@@ -19,7 +19,9 @@ class SplashView extends StatelessWidget {
       child: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashAuthenticated) {
-            context.goNamed(RouteNames.signin);
+            context.goNamed(RouteNames.home);
+          } else if (state is SplashNeedsShop) {
+            context.goNamed(RouteNames.createShop);
           } else if (state is SplashUnauthenticated) {
             context.goNamed(RouteNames.signin);
           }

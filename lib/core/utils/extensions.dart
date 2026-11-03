@@ -20,12 +20,10 @@ extension ContextExtensions on BuildContext {
   Brightness get platformBrightness => MediaQuery.of(this).platformBrightness;
 
   // Check if the device is in landscape orientation
-  bool get isLandscape =>
-      MediaQuery.of(this).orientation == Orientation.landscape;
+  bool get isLandscape => MediaQuery.of(this).orientation == Orientation.landscape;
 
   // Check if the device is in portrait orientation
-  bool get isPortrait =>
-      MediaQuery.of(this).orientation == Orientation.portrait;
+  bool get isPortrait => MediaQuery.of(this).orientation == Orientation.portrait;
 
   // Get the current locale
   Locale get locale => Localizations.localeOf(this);
@@ -33,8 +31,7 @@ extension ContextExtensions on BuildContext {
   // Get the current navigator state
   NavigatorState get navigator => Navigator.of(this);
 
-  BouncingScrollPhysics get bouncingScrollPhysics =>
-      const BouncingScrollPhysics();
+  BouncingScrollPhysics get bouncingScrollPhysics => const BouncingScrollPhysics();
 
   NeverScrollableScrollPhysics get neverScrollableScrollPhysics =>
       const NeverScrollableScrollPhysics();
@@ -93,9 +90,7 @@ extension StringExtensions on String {
 
   // Check if the string is a valid URL
   bool get isValidUrl {
-    final urlRegex = RegExp(
-      r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$',
-    );
+    final urlRegex = RegExp(r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$');
     return urlRegex.hasMatch(this);
   }
 

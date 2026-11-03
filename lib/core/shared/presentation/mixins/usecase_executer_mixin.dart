@@ -37,7 +37,7 @@ import '../../../constants/app_enums.dart';
 ///     return executeUsecase(
 ///       emit: emit,
 ///       currentState: state,
-///       usecase: () => signinUsecase(LoginUserById(...)),
+///       usecase: () => signinUsecase(SignInParams(...)),
 ///       stateBuilder: (status, {data, error}) =>
 ///           state.copyWith(apiStatus: status, signinEntity: data, message: error),
 ///     );
@@ -49,20 +49,13 @@ mixin UsecaseExecuterMixin<Event, State> on Bloc<Event, State> {
     required Emitter<State> emit,
     required State currentState,
     required Future<Either<Failure, T>> Function() usecase,
-    required State Function(
-      ApiStatus status, {
-      T? data,
-      String? error,
-      Failure? failure,
-    })
-        stateBuilder,
+    required State Function(ApiStatus status, {T? data, String? error, Failure? failure})
+    stateBuilder,
   }) async {
     emit(stateBuilder(ApiStatus.LOADING));
     final result = await usecase();
     result.fold(
-      (failure) => emit(
-        stateBuilder(ApiStatus.FAILURE, error: failure.message, failure: failure),
-      ),
+      (failure) => emit(stateBuilder(ApiStatus.FAILURE, error: failure.message, failure: failure)),
       (data) => emit(stateBuilder(ApiStatus.SUCCESS, data: data)),
     );
   }

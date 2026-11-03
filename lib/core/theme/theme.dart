@@ -119,11 +119,7 @@ class AppThemes {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
 
-    dividerTheme: const DividerThemeData(
-      color: AppColors.dividerLight,
-      thickness: 1,
-      space: 1,
-    ),
+    dividerTheme: const DividerThemeData(color: AppColors.dividerLight, thickness: 1, space: 1),
 
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.surfaceElevatedLight,
@@ -249,11 +245,7 @@ class AppThemes {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
 
-    dividerTheme: const DividerThemeData(
-      color: AppColors.dividerDark,
-      thickness: 1,
-      space: 1,
-    ),
+    dividerTheme: const DividerThemeData(color: AppColors.dividerDark, thickness: 1, space: 1),
 
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.surfaceElevatedDark,
@@ -275,36 +267,12 @@ class AppThemes {
       fontWeight: FontWeight.w400,
       letterSpacing: -0.25,
     ),
-    displayMedium: GoogleFonts.roboto(
-      color: color,
-      fontSize: 45,
-      fontWeight: FontWeight.w400,
-    ),
-    displaySmall: GoogleFonts.roboto(
-      color: color,
-      fontSize: 36,
-      fontWeight: FontWeight.w400,
-    ),
-    headlineLarge: GoogleFonts.roboto(
-      color: color,
-      fontSize: 32,
-      fontWeight: FontWeight.w400,
-    ),
-    headlineMedium: GoogleFonts.roboto(
-      color: color,
-      fontSize: 28,
-      fontWeight: FontWeight.w400,
-    ),
-    headlineSmall: GoogleFonts.roboto(
-      color: color,
-      fontSize: 24,
-      fontWeight: FontWeight.w400,
-    ),
-    titleLarge: GoogleFonts.roboto(
-      color: color,
-      fontSize: 22,
-      fontWeight: FontWeight.w500,
-    ),
+    displayMedium: GoogleFonts.roboto(color: color, fontSize: 45, fontWeight: FontWeight.w400),
+    displaySmall: GoogleFonts.roboto(color: color, fontSize: 36, fontWeight: FontWeight.w400),
+    headlineLarge: GoogleFonts.roboto(color: color, fontSize: 32, fontWeight: FontWeight.w400),
+    headlineMedium: GoogleFonts.roboto(color: color, fontSize: 28, fontWeight: FontWeight.w400),
+    headlineSmall: GoogleFonts.roboto(color: color, fontSize: 24, fontWeight: FontWeight.w400),
+    titleLarge: GoogleFonts.roboto(color: color, fontSize: 22, fontWeight: FontWeight.w500),
     titleMedium: GoogleFonts.roboto(
       color: color,
       fontSize: 16,

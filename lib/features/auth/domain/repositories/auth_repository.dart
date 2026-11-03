@@ -4,6 +4,12 @@ import '../entities/signin_params.dart';
 import '../entities/signup_params.dart';
 
 abstract interface class IAuthRepository {
-  Future<Either<Failure, SigninEntity>> signInById(SignInParams params);
-  Future<Either<Failure, SigninEntity>> signup(SignupParams params);
+  Future<Either<Failure, AuthEntity>> signIn(SignInParams params);
+  Future<Either<Failure, AuthEntity>> signUp(SignupParams params);
+  Future<Either<Failure, void>> signOut();
+
+  /// Resolves the current Supabase session (if any) into an [AuthEntity],
+  /// including shop membership. `Right(null)` means nobody is signed in —
+  /// that's a valid outcome, not a failure.
+  Future<Either<Failure, AuthEntity?>> getCurrentSession();
 }

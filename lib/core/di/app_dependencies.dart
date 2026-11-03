@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/api_endpoints.dart';
 import '../networks/interceptors/auth_interceptor.dart';
-import '../services/session_manager.dart';
 import 'register_auth.dart';
 import 'register_core.dart';
 import 'register_network.dart';
+import 'register_shop.dart';
 import 'register_splash.dart';
 import 'register_supabase.dart';
 
@@ -19,13 +20,14 @@ Future<void> setupLocator() async {
   await registerNetwork();
   await registerCore();
 
-  // Inserted at index 0 so the auth token is attached before the cache
+  // Inserted at index 0 so the auth header is attached before the cache
   // interceptor (added in registerNetwork()) evaluates the request.
   sl<Dio>().interceptors.insert(
     0,
-    AuthInterceptor(sessionController: sl<SessionController>(), appToken: ApiEndPoints.appToken),
+    AuthInterceptor(supabaseClient: sl<SupabaseClient>(), appToken: ApiEndPoints.appToken),
   );
 
-  await registerSplash();
   await registerAuth();
+  await registerShop();
+  await registerSplash();
 }

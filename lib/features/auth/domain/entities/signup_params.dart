@@ -3,9 +3,5 @@ class SignupParams {
   final String email;
   final String password;
 
-  const SignupParams({
-    required this.name,
-    required this.email,
-    required this.password,
-  });
+  const SignupParams({required this.name, required this.email, required this.password});
 }

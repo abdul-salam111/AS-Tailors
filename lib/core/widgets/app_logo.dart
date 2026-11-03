@@ -12,9 +12,7 @@ class AppLogo extends StatelessWidget {
     return Container(
       height: height,
       width: width,
-      decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage(AppIcons.logo)),
-      ),
+      decoration: const BoxDecoration(image: DecorationImage(image: AssetImage(AppIcons.logo))),
     );
   }
 }

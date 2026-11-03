@@ -199,6 +199,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have signed up successfully!'**
   String get youHaveSignedUpSuccessfully;
+
+  /// No description provided for @createShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your Shop'**
+  String get createShop;
+
+  /// No description provided for @shopName.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop Name'**
+  String get shopName;
+
+  /// No description provided for @enterYourShopName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your shop name'**
+  String get enterYourShopName;
+
+  /// No description provided for @createShopBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Shop'**
+  String get createShopBtn;
+
+  /// No description provided for @shopCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop created successfully!'**
+  String get shopCreatedSuccessfully;
+
+  /// No description provided for @dashboardComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard — coming soon'**
+  String get dashboardComingSoon;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOut;
 }
 
 class _AppLocalizationsDelegate

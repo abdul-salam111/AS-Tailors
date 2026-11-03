@@ -142,21 +142,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     Widget? effectiveSuffix;
     if (widget.obscureText) {
       effectiveSuffix = IconButton(
-        icon: Icon(
-          isObscure ? Iconsax.eye_slash : Iconsax.eye,
-          color: context.grey500,
-          size: 20,
-        ),
+        icon: Icon(isObscure ? Iconsax.eye_slash : Iconsax.eye, color: context.grey500, size: 20),
         onPressed: () => setState(() => isObscure = !isObscure),
       );
     } else if (_isValidating) {
       effectiveSuffix = const Padding(
         padding: EdgeInsets.all(14),
-        child: SizedBox(
-          width: 16,
-          height: 16,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
+        child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
       );
     } else {
       effectiveSuffix = widget.suffixIcon;
@@ -213,10 +205,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             suffixIcon: effectiveSuffix,
             fillColor: defaultFillColor,
             filled: true,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 14,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: defaultBorderColor),

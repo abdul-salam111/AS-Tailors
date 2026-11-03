@@ -1,35 +1,54 @@
-import '../../../../../core/constants/const_exports.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../../core/shared/shared_exports.dart';
-import '../../models/request_models/login_user_by_id/login_user_by_id.dart';
-import '../../models/request_models/signup_user/signup_user.dart';
-import '../../models/response_models/user_token/user_token.dart';
+import '../../models/shop_membership_model.dart';
 
 abstract interface class IAuthRemoteDatasource {
-  Future<UserToken> loginUserById({required LoginUserById loginUserById});
-  Future<UserToken> signup({required SignupUser signupUser});
+  Future<AuthResponse> signInWithPassword({required String email, required String password});
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    required String fullName,
+  });
+  Future<void> signOut();
+
+  /// The currently signed-in Supabase user, if any. Synchronous — reflects
+  /// the session Supabase already restored during `Supabase.initialize`.
+  User? get currentUser;
+
+  /// This user's `shop_members` row, if they belong to a shop yet.
+  Future<ShopMembershipModel?> fetchMembership(String userId);
 }
 
-class AuthRemoteDatasourceImpl extends BaseRemoteDatasource
-    implements IAuthRemoteDatasource {
-  AuthRemoteDatasourceImpl({required super.dioHelper});
+class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRemoteDatasource {
+  const AuthRemoteDatasourceImpl({required super.client});
 
   @override
-  Future<UserToken> loginUserById({
-    required LoginUserById loginUserById,
-  }) async {
-    return post(
-      url: ApiEndPoints.loginByUid,
-      parser: (json) => UserToken.fromJson(json as Map<String, dynamic>),
-      body: loginUserById.toJson(),
-    );
-  }
+  Future<AuthResponse> signInWithPassword({required String email, required String password}) =>
+      guard(() => client.auth.signInWithPassword(email: email, password: password));
 
   @override
-  Future<UserToken> signup({required SignupUser signupUser}) async {
-    return post(
-      url: ApiEndPoints.signupUser,
-      parser: (json) => UserToken.fromJson(json as Map<String, dynamic>),
-      body: signupUser.toJson(),
-    );
-  }
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    required String fullName,
+  }) => guard(
+    () => client.auth.signUp(email: email, password: password, data: {'full_name': fullName}),
+  );
+
+  @override
+  Future<void> signOut() => guard(() => client.auth.signOut());
+
+  @override
+  User? get currentUser => client.auth.currentUser;
+
+  @override
+  Future<ShopMembershipModel?> fetchMembership(String userId) => maybeSingle(
+    query: () => client
+        .from('shop_members')
+        .select('shop_id, role')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .maybeSingle(),
+    parser: ShopMembershipModel.fromJson,
+  );
 }

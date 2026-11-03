@@ -155,8 +155,7 @@ T? safeToEnum<T>(dynamic value, List<T> enumValues, {T? defaultValue}) {
   if (value is String) {
     try {
       return enumValues.firstWhere(
-        (e) =>
-            e.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+        (e) => e.toString().split('.').last.toLowerCase() == value.toLowerCase(),
         orElse: () => defaultValue ?? enumValues.first,
       );
     } catch (e) {
@@ -191,11 +190,7 @@ String? safeJsonEncode(dynamic value, {String? defaultValue}) {
 }
 
 // Helper method to safely get nested value from Map
-T? safeGetNested<T>(
-  Map<dynamic, dynamic>? map,
-  List<String> keys, {
-  T? defaultValue,
-}) {
+T? safeGetNested<T>(Map<dynamic, dynamic>? map, List<String> keys, {T? defaultValue}) {
   if (map == null || keys.isEmpty) return defaultValue;
 
   dynamic current = map;

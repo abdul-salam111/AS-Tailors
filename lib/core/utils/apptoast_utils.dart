@@ -5,20 +5,11 @@ import 'package:another_flushbar/flushbar.dart';
 
 import '../theme/colors.dart';
 
-
 // ============================================================================
 // TOAST POSITION ENUM 📍
 // ============================================================================
 
-enum ToastPosition {
-  top,
-  bottom,
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-  center,
-}
+enum ToastPosition { top, bottom, topLeft, topRight, bottomLeft, bottomRight, center }
 
 // ============================================================================
 // TOAST TYPE ENUM 🎨
@@ -95,9 +86,7 @@ class AppToastsUtils {
       onTap: onTap != null ? (_) => onTap() : null,
       showProgressIndicator: showProgressIndicator,
       progressIndicatorBackgroundColor: AppColors.whiteFaded,
-      progressIndicatorValueColor: AlwaysStoppedAnimation<Color>(
-        textColor ?? AppColors.white,
-      ),
+      progressIndicatorValueColor: AlwaysStoppedAnimation<Color>(textColor ?? AppColors.white),
       maxWidth: maxWidth,
     )..show(context).then((_) => _currentFlushbar = null);
   }
@@ -113,8 +102,14 @@ class AppToastsUtils {
     ToastPosition position = ToastPosition.top,
     Duration duration = const Duration(seconds: 3),
   }) {
-    show(context, message: message, title: title, type: ToastType.success,
-        position: position, duration: duration);
+    show(
+      context,
+      message: message,
+      title: title,
+      type: ToastType.success,
+      position: position,
+      duration: duration,
+    );
   }
 
   static void showError(
@@ -124,8 +119,14 @@ class AppToastsUtils {
     ToastPosition position = ToastPosition.top,
     Duration duration = const Duration(seconds: 3),
   }) {
-    show(context, message: message, title: title, type: ToastType.error,
-        position: position, duration: duration);
+    show(
+      context,
+      message: message,
+      title: title,
+      type: ToastType.error,
+      position: position,
+      duration: duration,
+    );
   }
 
   static void showWarning(
@@ -135,8 +136,14 @@ class AppToastsUtils {
     ToastPosition position = ToastPosition.top,
     Duration duration = const Duration(seconds: 3),
   }) {
-    show(context, message: message, title: title, type: ToastType.warning,
-        position: position, duration: duration);
+    show(
+      context,
+      message: message,
+      title: title,
+      type: ToastType.warning,
+      position: position,
+      duration: duration,
+    );
   }
 
   static void showInfo(
@@ -146,8 +153,14 @@ class AppToastsUtils {
     ToastPosition position = ToastPosition.top,
     Duration duration = const Duration(seconds: 3),
   }) {
-    show(context, message: message, title: title, type: ToastType.info,
-        position: position, duration: duration);
+    show(
+      context,
+      message: message,
+      title: title,
+      type: ToastType.info,
+      position: position,
+      duration: duration,
+    );
   }
 
   // ========================================================================
@@ -202,11 +215,7 @@ class AppToastsUtils {
   static void showErrorBottomRight(BuildContext context, String message) =>
       showError(context, message, position: ToastPosition.bottomRight);
 
-  static void showCenter(
-    BuildContext context,
-    String message, {
-    ToastType type = ToastType.info,
-  }) {
+  static void showCenter(BuildContext context, String message, {ToastType type = ToastType.info}) {
     show(context, message: message, type: type, position: ToastPosition.center);
   }
 
@@ -260,8 +269,14 @@ class AppToastsUtils {
     ToastType type = ToastType.info,
     ToastPosition position = ToastPosition.top,
   }) {
-    show(context, message: message, type: type, position: position,
-        duration: const Duration(days: 1), isDismissible: true);
+    show(
+      context,
+      message: message,
+      type: type,
+      position: position,
+      duration: const Duration(days: 1),
+      isDismissible: true,
+    );
   }
 
   static void showLong(
@@ -270,8 +285,13 @@ class AppToastsUtils {
     ToastType type = ToastType.info,
     ToastPosition position = ToastPosition.top,
   }) {
-    show(context, message: message, type: type, position: position,
-        duration: const Duration(seconds: 5));
+    show(
+      context,
+      message: message,
+      type: type,
+      position: position,
+      duration: const Duration(seconds: 5),
+    );
   }
 
   static void showShort(
@@ -280,8 +300,13 @@ class AppToastsUtils {
     ToastType type = ToastType.info,
     ToastPosition position = ToastPosition.top,
   }) {
-    show(context, message: message, type: type, position: position,
-        duration: const Duration(seconds: 1));
+    show(
+      context,
+      message: message,
+      type: type,
+      position: position,
+      duration: const Duration(seconds: 1),
+    );
   }
 
   // ========================================================================
@@ -299,11 +324,7 @@ class AppToastsUtils {
           icon: Icons.check_circle,
         );
       case ToastType.error:
-        return _ToastConfig(
-          title: 'Error',
-          backgroundColor: AppColors.error,
-          icon: Icons.error,
-        );
+        return _ToastConfig(title: 'Error', backgroundColor: AppColors.error, icon: Icons.error);
       case ToastType.warning:
         return _ToastConfig(
           title: 'Warning',
@@ -311,11 +332,7 @@ class AppToastsUtils {
           icon: Icons.warning,
         );
       case ToastType.info:
-        return _ToastConfig(
-          title: 'Info',
-          backgroundColor: AppColors.info,
-          icon: Icons.info,
-        );
+        return _ToastConfig(title: 'Info', backgroundColor: AppColors.info, icon: Icons.info);
       case ToastType.custom:
         return _ToastConfig(
           title: '',
@@ -389,11 +406,7 @@ class _ToastConfig {
   final Color backgroundColor;
   final IconData icon;
 
-  _ToastConfig({
-    required this.title,
-    required this.backgroundColor,
-    required this.icon,
-  });
+  _ToastConfig({required this.title, required this.backgroundColor, required this.icon});
 }
 
 class _PositionConfig {

@@ -17,5 +17,13 @@
   "alreadyHaveAnAccount": "پہلے سے اکاؤنٹ ہے؟",
   "dontHaveAnAccount": "اکاؤنٹ نہیں ہے؟",
   "youHaveLoggedInSuccessfully": "آپ کامیابی سے سائن ان ہو گئے ہیں!",
-  "youHaveSignedUpSuccessfully": "آپ کامیابی سے سائن اپ ہو گئے ہیں!"
+  "youHaveSignedUpSuccessfully": "آپ کامیابی سے سائن اپ ہو گئے ہیں!",
+
+  "createShop": "اپنی دکان بنائیں",
+  "shopName": "دکان کا نام",
+  "enterYourShopName": "اپنی دکان کا نام درج کریں",
+  "createShopBtn": "دکان بنائیں",
+  "shopCreatedSuccessfully": "دکان کامیابی سے بن گئی!",
+  "dashboardComingSoon": "ڈیش بورڈ جلد آ رہا ہے",
+  "signOut": "سائن آؤٹ"
 }

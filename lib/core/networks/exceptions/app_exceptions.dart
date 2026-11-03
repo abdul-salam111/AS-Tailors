@@ -1,5 +1,3 @@
-
-
 import '../../constants/app_conts.dart';
 
 class AppException implements Exception {

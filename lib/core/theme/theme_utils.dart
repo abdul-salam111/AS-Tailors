@@ -53,19 +53,15 @@ extension AppColorExtension on BuildContext {
   Color get critical => AppColors.critical;
 
   // Background (theme-aware)
-  Color get background =>
-      isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
+  Color get background => isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
   Color get surface => isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
   Color get surfaceElevated =>
       isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevatedLight;
 
   // Text (theme-aware)
-  Color get textPrimary =>
-      isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-  Color get textSecondary =>
-      isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-  Color get textDisabled =>
-      isDark ? AppColors.textDisabledDark : AppColors.textDisabledLight;
+  Color get textPrimary => isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+  Color get textSecondary => isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+  Color get textDisabled => isDark ? AppColors.textDisabledDark : AppColors.textDisabledLight;
 
   // Borders (theme-aware)
   Color get border => isDark ? AppColors.borderDark : AppColors.borderLight;

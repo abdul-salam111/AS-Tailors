@@ -16,11 +16,7 @@ extension CurrencyFormatting on num {
   }
 
   /// Format with custom currency symbol: formatCurrency(symbol: '₹')
-  String formatCurrency({
-    String symbol = '\$',
-    String locale = 'en_US',
-    int decimalDigits = 2,
-  }) {
+  String formatCurrency({String symbol = '\$', String locale = 'en_US', int decimalDigits = 2}) {
     return NumberFormat.currency(
       locale: locale,
       symbol: symbol,
@@ -45,19 +41,12 @@ extension CurrencyFormatting on num {
 
   /// Compact currency: 1000 -> $1K, 1000000 -> $1M
   String get asCompactCurrency {
-    return NumberFormat.compactCurrency(
-      locale: "en_US",
-      symbol: "\$",
-    ).format(this);
+    return NumberFormat.compactCurrency(locale: "en_US", symbol: "\$").format(this);
   }
 
   /// Format as Pakistani Rupees: 1000 -> ₨1,000
   String get asPKR {
-    return NumberFormat.currency(
-      locale: "en_US",
-      symbol: "₨",
-      decimalDigits: 0,
-    ).format(this);
+    return NumberFormat.currency(locale: "en_US", symbol: "₨", decimalDigits: 0).format(this);
   }
 
   /// Format as Euros: 1000 -> €1,000.00
@@ -120,8 +109,7 @@ extension StringToNumber on String {
   int toIntOr(int defaultValue) => int.tryParse(this) ?? defaultValue;
 
   /// Parse to double or return default
-  double toDoubleOr(double defaultValue) =>
-      double.tryParse(this) ?? defaultValue;
+  double toDoubleOr(double defaultValue) => double.tryParse(this) ?? defaultValue;
 
   /// Remove commas and parse: "1,000" -> 1000
   int? get parseNumber {

@@ -14,8 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | State management | flutter_bloc (`Bloc`, `Cubit`) |
 | DI | GetIt service locator (`sl`) |
 | Navigation | go_router (`GoRouter`, `GoRoute`) |
-| Backend | Supabase (`supabase_flutter`) — Postgres + Auth + Storage + RLS; client registered as `sl<SupabaseClient>()`, see §1a |
-| HTTP | Dio via `DioHelper` + `BaseRemoteDatasource` (legacy template REST layer — see §1a) |
+| Backend | Supabase (`supabase_flutter`) — Postgres + Auth + Storage + RLS. Primary data/auth backend; see §5a for the datasource pattern and §9 for the schema |
+| HTTP | Dio via `DioHelper` + `BaseRemoteDatasource` — reserved for non-Supabase external HTTP only (§9); not used for this app's own data/auth anymore |
 | Models | Freezed + json_serializable |
 | Error handling | fpdart `Either<Failure, T>` |
 | Storage | `flutter_secure_storage` via `LocalStorage` singleton |
@@ -63,68 +63,71 @@ only, not committed to git). Summary for quick orientation:
 
 ### Where this codebase diverges from the SRS today
 
-The repo currently has the generic Flutter-template architecture (Dio/
-REST, custom Bearer-token auth) from before the SRS existed. That's fine
-as scaffolding, but it is **not** the target architecture for real AS
-Tailors features. Resolve these before building customer/order/payment
-screens — confirmed by inspection, not assumption:
+The repo started from the generic Flutter-template architecture (Dio/REST,
+custom Bearer-token auth) from before the SRS existed. The identity/auth
+foundation has since been rebuilt against Supabase for real (see §5a/§9) —
+items 1–3 and 4 below are resolved. What's still open:
 
-1. **Backend**: §9 (Network Layer) and the §5 "Adding a Feature" walkthrough
-   still teach a Dio + `BaseRemoteDatasource` REST pattern. The SRS stack
-   (§8.1) calls for `supabase_flutter` as the primary data/auth SDK, with
-   Dio reserved for non-Supabase HTTP only. **Partially resolved**:
-   `Supabase.initialize(url: Env.supabaseUrl, publishableKey:
-   Env.supabasePublishableKey)` now runs in `main()` before
-   `setupLocator()`, and `core/di/register_supabase.dart` registers
-   `sl<SupabaseClient>()` (credentials added via `.env` +
-   `Env.supabaseUrl`/`Env.supabasePublishableKey`, following the usual
-   envied flow — see SECRETS.txt). **Still open**: no datasource yet
-   actually queries Supabase — the real per-feature pattern (direct
-   `supabase.from()/rpc()` calls, likely wrapped in a thin
-   `SupabaseRemoteDatasource` analogous to `BaseRemoteDatasource`) still
-   needs to be designed before scaffolding the first real feature with
-   `mason make create_feature`.
-2. **Auth**: `AuthInterceptor` + `SessionController`
-   (`core/services/session_manager.dart`) hand-roll Bearer-token storage
-   via `flutter_secure_storage`. Supabase Auth issues/refreshes its own
-   session and `supabase_flutter` persists it internally — the existing
-   `auth` feature (sign in/up usecases hitting a generic `/auth` REST
-   endpoint) will need rebuilding against `Supabase.instance.client.auth`,
-   not patching.
-3. **Authorization/roles**: `AppRoutes.router`'s redirect guard only checks
-   `SessionController.isLoggedIn` (boolean). The SRS requires per-role
-   access (owner/admin/tailor/staff — §3, §11.1); `SessionEntity` has no
-   role field yet and there's no route/widget-level permission gating.
-4. **Localization**: ARB files are `app_en.arb` + `app_es.arb` (Spanish) —
-   a template leftover. The SRS requires English + **Urdu**, including RTL
-   layout and Urdu receipt-font testing (FR-014). Swap `app_es.arb` for
-   `app_ur.arb` before any real localized copy is written.
-5. **Offline/local persistence**: §15 wants cached reads, local order
-   drafts and a sync queue (`local_id`/`server_id`/`sync_status`/
-   `idempotency_key`/`retry_count`). Nothing in the current stack provides
-   structured local storage — `flutter_secure_storage` is key-value only.
-   `ConnectivityCubit`/`ConnectivityBanner` (§7b) only signal online/
-   offline; they don't queue writes. A local DB (SRS suggests Drift or
-   sqflite) is needed before offline drafts can be built.
-6. **Printing**: no `core/printer` module, no ESC/POS package, nothing in
-   DI. §14 is a whole subsystem (Bluetooth discovery/pairing, 58mm/80mm
-   layouts, Urdu glyph rendering, print-job status tracked separately from
-   receipt generation) that doesn't exist yet.
-7. **Money as floating point**: `currency_utils.dart`'s formatters operate
-   on `num`/`double`. That's fine for *display* formatting, but once real
-   order/payment totals are implemented, do the arithmetic (subtotal/
-   discount/balance) server-side (Postgres `NUMERIC`) and treat
-   client-side values as display-only — never accumulate money in
-   `double` across multiple operations.
-8. **Multi-tenancy**: every table in §9 is `shop_id`-scoped behind RLS.
-   There's no shop-scoping convention established yet in this codebase
-   (the template's single-tenant "product" example has no owner/shop
-   concept) — new repositories should rely on RLS rather than
-   re-implementing shop filtering client-side.
+1. ✅ **Backend — resolved.** `Supabase.initialize()` runs in `main()`;
+   `sl<SupabaseClient>()` is registered (`core/di/register_supabase.dart`).
+   The reusable per-feature datasource pattern is `BaseSupabaseDatasource`
+   (`core/shared/datasource/base_supabase_datasource.dart`) — see §5a for
+   the full worked example and when to use it instead of
+   `BaseRemoteDatasource`.
+2. ✅ **Auth — resolved.** The `auth` feature is rebuilt against
+   `Supabase.instance.client.auth` (`IAuthRemoteDatasource` in
+   `features/auth/data/datasources/`). `SessionController`
+   (`core/services/session_manager.dart`) no longer hand-rolls token
+   storage — `isLoggedIn` reads `SupabaseClient.auth.currentSession`
+   directly; it only caches the *resolved* `SessionEntity` (identity +
+   shop membership) for synchronous reads like the router guard. Note the
+   pre-existing bug this replaced: the old flow never actually called
+   `saveSession` anywhere, so "successful" sign-in never persisted —
+   the router would silently bounce the user back to sign-in forever.
+3. ✅ **Authorization/roles — resolved.** `ShopRole` enum
+   (`core/constants/app_enums.dart`, values `owner`/`admin`/`tailor`/
+   `staff` — lower-case to match the Postgres enum 1:1). `SessionEntity`
+   carries `shopId`/`role`; `AppRoutes.router`'s redirect guard checks both
+   `isLoggedIn` and `hasShop` (see §8). Fine-grained per-action permission
+   checks (e.g. "can Admin issue a refund") still need a concrete decision
+   per SRS §3's vague "Admin = operational administration as explicitly
+   granted by owner" — don't infer a permission matrix, ask when it
+   matters.
+4. ✅ **Localization — resolved.** `app_es.arb` → `app_ur.arb`; see §13a.
+5. **Offline/local persistence** — still open. §15 wants cached reads,
+   local order drafts and a sync queue (`local_id`/`server_id`/
+   `sync_status`/`idempotency_key`/`retry_count`). Nothing in the stack
+   provides structured local storage — `flutter_secure_storage` is
+   key-value only. `ConnectivityCubit`/`ConnectivityBanner` (§7b) only
+   signal online/offline; they don't queue writes. A local DB (SRS
+   suggests Drift or sqflite) is needed before offline drafts can be
+   built.
+6. **Printing** — still open. No `core/printer` module, no ESC/POS
+   package, nothing in DI. §14 is a whole subsystem (Bluetooth
+   discovery/pairing, 58mm/80mm layouts, Urdu glyph rendering, print-job
+   status tracked separately from receipt generation) that doesn't exist
+   yet.
+7. **Money as floating point** — still open. `currency_utils.dart`'s
+   formatters operate on `num`/`double`. That's fine for *display*
+   formatting, but once real order/payment totals are implemented, do the
+   arithmetic (subtotal/discount/balance) server-side (Postgres `NUMERIC`,
+   via RPC functions — see `bootstrap_shop()` in
+   `supabase/migrations/0001_identity_and_shops.sql` as the pattern to
+   follow) and treat client-side values as display-only — never
+   accumulate money in `double` across multiple operations.
+8. ✅ **Multi-tenancy — foundation resolved, convention established.**
+   `supabase/migrations/0001_identity_and_shops.sql` has `shops`,
+   `shop_members`, RLS policies, and reusable RLS helper functions
+   (`is_shop_member()`, `my_shop_ids()`) every future feature-table policy
+   should call instead of re-deriving the same subquery. On the Flutter
+   side: **scope every query to the signed-in user's shop** via
+   `sl<SessionController>().session.shopId` — don't re-implement shop
+   filtering client-side when RLS already enforces it server-side; the
+   client-side scoping is about building correct queries, not security.
 
-None of the above blocks small UI/branding work. The first real domain
-feature (customers, most likely) should resolve #1 and #2 first —
-everything else (orders, payments, printing) builds on that foundation.
+None of the above blocks small UI/branding work. The next real domain
+feature (customers, most likely per SRS priority) builds directly on #1–3
+and #8 — see §5a before scaffolding it.
 
 ---
 
@@ -195,32 +198,40 @@ Short version: `cp .env.example .env`, fill in real values, then
 ## 3. DIRECTORY STRUCTURE
 
 ```
+supabase/
+├── migrations/0001_identity_and_shops.sql  # profiles/shops/shop_members/audit_logs + RLS, see §9
+└── README.md                         # How to apply a migration (no CLI linked yet — paste into SQL Editor)
 lib/
-├── main.dart                         # Entry: setupLocator() → Bloc.observer → BlocProvider<ThemeBloc>
+├── main.dart                         # Entry: Supabase.initialize() → setupLocator() → runApp
 ├── core/
 │   ├── constants/                    # API endpoints, app constants, enums (ApiStatus), icons/images
 │   │   ├── env.dart                  # @Envied secrets class — committed, see SECRETS.txt
 │   │   └── env.g.dart                # generated, gitignored (embeds local .env values)
 │   ├── di/
 │   │   ├── app_dependencies.dart     # setupLocator() orchestrator + global `sl` GetIt instance
-│   │   ├── register_network.dart     # Dio + DioHelper (with DioCacheInterceptor)
+│   │   ├── register_supabase.dart    # sl<SupabaseClient>() — needs Supabase.initialize() called first in main()
+│   │   ├── register_network.dart     # Dio + DioHelper (with DioCacheInterceptor) — non-Supabase HTTP only
 │   │   ├── register_core.dart        # LocalStorage, SessionController, ConnectivityService
-│   │   ├── register_splash.dart      # SplashCubit
-│   │   ├── register_auth.dart        # Auth DS → Repo → Usecase → Bloc (factory)
-│   │   └── register_supabase.dart    # sl<SupabaseClient>() — needs Supabase.initialize() called first in main()
-│   ├── local_storage/storage.dart    # LocalStorage singleton + StorageKeys
+│   │   ├── register_auth.dart        # Auth DS → Repo → Usecase → Bloc; ISessionResolver impl; SplashServices
+│   │   ├── register_shop.dart        # Shop DS → Repo → Usecase → Bloc (factory) — see §5a worked example
+│   │   └── register_splash.dart      # SplashCubit
+│   ├── local_storage/storage.dart    # LocalStorage singleton + StorageKeys (app prefs only — isDarkMode, locale)
+│   ├── localization/locale_cubit.dart  # LocaleCubit — persisted language selection, see §13a
 │   ├── networks/
-│   │   ├── exceptions/app_exceptions.dart  # AppException hierarchy
-│   │   ├── interceptors/auth_interceptor.dart
+│   │   ├── exceptions/app_exceptions.dart  # Backend-agnostic AppException hierarchy
+│   │   ├── exceptions/supabase_exception_mapper.dart  # Supabase/Postgrest/Auth/Storage errors → AppException
+│   │   ├── interceptors/auth_interceptor.dart  # Dio only — injects live Supabase JWT or static app token
 │   │   └── network_manager/dio_helper.dart  # HTTP verbs; useAppToken flag
 │   ├── services/
-│   │   ├── session_manager.dart      # SessionController (plain Dart, DI via GetIt)
-│   │   ├── session_entity.dart
+│   │   ├── session_manager.dart      # SessionController — isLoggedIn from Supabase session; caches SessionEntity
+│   │   ├── session_entity.dart       # userId/email/shopId/role — core-level, feature-agnostic
+│   │   ├── session_resolver.dart     # ISessionResolver port (dependency inversion — see §1a item 2)
 │   │   ├── splash_services.dart
 │   │   ├── connectivity_service.dart # Thin wrapper over internet_connection_checker_plus
 │   │   └── connectivity_cubit.dart   # App-wide online/offline Cubit<bool>, drives ConnectivityBanner
 │   ├── shared/
-│   │   ├── datasource/base_datasource.dart   # BaseRemoteDatasource (typed HTTP helpers)
+│   │   ├── datasource/base_datasource.dart   # BaseRemoteDatasource — Dio/REST (external HTTP only)
+│   │   ├── datasource/base_supabase_datasource.dart  # BaseSupabaseDatasource — the Supabase pattern, see §5a
 │   │   ├── domain/
 │   │   │   ├── failures/failure.dart         # Failure hierarchy (pure Dart)
 │   │   │   ├── repository/base_repository.dart  # BaseRepository.execute() error wrapper
@@ -248,11 +259,15 @@ lib/
 │   │   └── type_conversion.dart      # safeToInt/Double/String/Bool/List/Map/DateTime/Color/Enum…
 │   └── widgets/                      # Reusable UI components
 ├── features/
+│   ├── auth/                         # Supabase Auth — sign in/up/out, session+shop-membership resolution
+│   ├── shop/                         # Shop onboarding/bootstrap — canonical §5a Supabase-feature example
+│   ├── home/                         # Placeholder landing screen (FR-011 dashboard not built yet)
+│   ├── splash/                       # Session/shop resolution on launch, routes accordingly
 │   └── <feature>/
 │       ├── <feature>_exports.dart    # Barrel export
 │       ├── data/
-│       │   ├── datasources/          # Extends BaseRemoteDatasource
-│       │   ├── models/{request_models,response_models}/   # Freezed
+│       │   ├── datasources/          # Extends BaseSupabaseDatasource (§5a) or BaseRemoteDatasource (§5)
+│       │   ├── models/                       # Freezed — {request_models,response_models}/ for REST features
 │       │   └── repositories_impl/   # Extends BaseRepository
 │       ├── domain/
 │       │   ├── entities/
@@ -263,7 +278,7 @@ lib/
 │           └── views/
 ├── l10n/                             # ARB source files + generated/, see §13a
 │   ├── app_en.arb
-│   ├── app_es.arb
+│   ├── app_ur.arb
 │   └── generated/
 └── routes/
     ├── route_names.dart              # RouteNames string constants (named routes)
@@ -479,11 +494,116 @@ GoRoute(
 
 ---
 
+## 5a. ADDING A SUPABASE-BACKED FEATURE
+
+Use this instead of §5 whenever a feature's data lives in this app's own
+Supabase project (which is almost every real AS Tailors feature —
+customers, measurements, orders, payments, ...). Reach for §5's Dio
+pattern only when a feature genuinely calls an external non-Supabase HTTP
+API. Domain layer (Step 1), BLoC (Step 4), DI *shape* (Step 5), view
+(Step 6) and routing (Step 7) are identical to §5 — only the datasource
+and repository differ, shown here using the real `shop` feature
+(`features/shop/`) as the worked reference instead of a hypothetical
+"product".
+
+### Datasource — extend `BaseSupabaseDatasource`, not `BaseRemoteDatasource`
+```dart
+// data/datasources/shop_remote_datasource/shop_remote_datasource.dart
+abstract interface class IShopRemoteDatasource {
+  Future<ShopModel> bootstrapShop({required String name, ...});
+}
+
+class ShopRemoteDatasourceImpl extends BaseSupabaseDatasource
+    implements IShopRemoteDatasource {
+  const ShopRemoteDatasourceImpl({required super.client});
+
+  @override
+  Future<ShopModel> bootstrapShop({required String name, ...}) => rpc(
+        function: 'bootstrap_shop',
+        params: {'p_name': name, ...},
+        parser: (data) => ShopModel.fromJson(data as Map<String, dynamic>),
+      );
+}
+```
+`BaseSupabaseDatasource` (`core/shared/datasource/base_supabase_datasource.dart`)
+gives you `single()`/`maybeSingle()`/`list()` for `client.from(table)...`
+queries, `rpc()` for Postgres functions, `mutate()` for writes with no
+return value, and `guard()` as a catch-all for anything else (`client.auth.*`,
+`client.storage.*`). Every one of them funnels exceptions through
+`mapSupabaseException` (`core/networks/exceptions/supabase_exception_mapper.dart`)
+onto the *same* `AppException` hierarchy `BaseRemoteDatasource` throws —
+`BaseRepository.execute()`, `Failure`, and `AppFailureMapper` don't change
+at all regardless of which base class a datasource extends. See
+`features/auth/data/datasources/auth_remote_datasource/auth_remote_datasource.dart`
+for a fuller example (`single`/`maybeSingle`/`guard` all in use).
+
+**Prefer an RPC function over composing a multi-step write from several
+table calls on the client** — especially anything touching money (orders,
+payments). Put the atomicity/validation in Postgres (`security definer`
+function, `NUMERIC` arithmetic, `raise exception` for invalid states), not
+in Dart. `bootstrap_shop()` in
+`supabase/migrations/0001_identity_and_shops.sql` is the pattern: validate
+→ insert → audit-log, all in one transaction, callable only by
+`authenticated`, unreachable by direct table writes because the table has
+no client-facing insert policy.
+
+### Repository — identical shape to §5, just a different datasource type
+```dart
+// data/repositories_impl/shop_repository_impl.dart
+class ShopRepositoryImpl extends BaseRepository implements IShopRepository {
+  final IShopRemoteDatasource _dataSource;
+  ShopRepositoryImpl({required IShopRemoteDatasource dataSource}) : _dataSource = dataSource;
+
+  @override
+  Future<Either<Failure, ShopEntity>> createShop(CreateShopParams params) => execute(
+        call: () async {
+          final model = await _dataSource.bootstrapShop(name: params.name, ...);
+          return ShopEntity(id: model.id, ...);
+        },
+      );
+}
+```
+
+### Shop-scoping every query
+Every feature table is `shop_id`-scoped behind RLS (§1a item 8, §9, §11).
+Two rules:
+- **Filter by shop on the client too**, via
+  `sl<SessionController>().session.shopId` — e.g.
+  `client.from('customers').select().eq('shop_id', shopId)`. RLS is the
+  actual security boundary (don't skip writing it), but client-side
+  filtering is still what makes your queries *correct* (right page of
+  results) rather than relying on RLS to silently narrow an unscoped
+  query.
+- **Write the RLS policy using the shared helpers** —
+  `is_shop_member(shop_id)` / `is_shop_member(shop_id, array['owner','admin']::shop_role[])`
+  / `shop_id in (select my_shop_ids())` — instead of re-deriving the
+  membership subquery per table. See
+  `supabase/migrations/0001_identity_and_shops.sql` for these functions
+  and §11.1 for which role gets which access per data area.
+
+### DI registration — same shape as §6, swap the datasource constructor arg
+```dart
+// core/di/register_shop.dart
+Future<void> registerShop() async {
+  sl.registerLazySingleton<IShopRemoteDatasource>(
+    () => ShopRemoteDatasourceImpl(client: sl()), // sl<SupabaseClient>(), not dioHelper: sl()
+  );
+  sl.registerLazySingleton<IShopRepository>(() => ShopRepositoryImpl(dataSource: sl()));
+  sl.registerLazySingleton<CreateShopUsecase>(() => CreateShopUsecase(repository: sl()));
+  sl.registerFactory<CreateShopBloc>(() => CreateShopBloc(createShopUsecase: sl()));
+}
+```
+Call `await registerShop()` from `setupLocator()` in `app_dependencies.dart`,
+after `registerAuth()` (most features will need `SessionController`'s
+resolved shop/role, which `registerAuth()` populates the resolver for).
+
+---
+
 ## 6. DEPENDENCY INJECTION (GetIt)
 
 | Scope | Method | Typical use |
 |---|---|---|
-| Network / Core | `sl.registerLazySingleton` | Dio, DioHelper, LocalStorage, SessionController |
+| Network / Core | `sl.registerLazySingleton` | SupabaseClient, Dio, DioHelper, LocalStorage, SessionController |
 | Data (DS/Repo/Usecase) | `sl.registerLazySingleton` | One instance app-wide |
 | BLoC per screen | `sl.registerFactory` | Fresh instance each navigation |
 
@@ -592,13 +712,17 @@ context.pushNamed(RouteNames.product, queryParameters: {'id': id});
 final args = state.extra as Map<String, dynamic>;
 ```
 
-`AppRoutes.router` has a `redirect` guard — checks `sl<SessionController>().isLoggedIn` and redirects unauthenticated users to `RoutePaths.signin`. Add new protected routes inside `routes` list; add public ones to `_publicRoutes`.
+`AppRoutes.router` has a `redirect` guard — checks `sl<SessionController>().isLoggedIn` (from the live Supabase session) and `.hasShop` (from the cached `SessionEntity`, populated by splash/sign-in), redirecting to `RoutePaths.signin` or `RoutePaths.createShop` as appropriate. Add new protected routes inside `routes` list; add public ones to `_publicRoutes`. Note the guard is synchronous and `hasShop` only reflects whatever was last resolved — it's correct for normal in-app navigation (splash always resolves first) but won't be accurate for a cold deep-link straight into a protected route before splash runs; that's a known gap, not yet solved.
 
 Never use `Navigator.push()`.
 
 ---
 
 ## 9. NETWORK LAYER
+
+**This section is Dio/REST — for Supabase-backed features (the common
+case now), use §5a and `BaseSupabaseDatasource` instead.** Dio stays in
+the stack for genuine external HTTP APIs that aren't Supabase.
 
 ### `DioHelper` — low-level verbs
 > **Parameter names are `url:` and `requestBody:`.**
@@ -628,7 +752,7 @@ await uploadFile(url: ..., fieldName: 'avatar', filePath: '/path/file.jpg')
 await uploadMultipleFiles(url: ..., fieldName: 'files', filePaths: [...])
 ```
 
-`AuthInterceptor` (`lib/core/networks/interceptors/auth_interceptor.dart`) only implements `onRequest` — it auto-attaches the `Bearer` token on every request (unless `useAppToken: true`, which injects a static app token instead). **It does not implement `onError`** — there is no automatic session-clear/logout on a 401 response anywhere in this codebase today. Don't assume 401 handling exists; if you need it, it has to be added.
+`AuthInterceptor` (`lib/core/networks/interceptors/auth_interceptor.dart`) only implements `onRequest` — it auto-attaches a `Bearer` token on every request (unless `useAppToken: true`, which injects a static app token instead). The default token is read live from `SupabaseClient.auth.currentSession?.accessToken` (not cached), for the rare case a Dio call needs to forward the user's Supabase JWT to an external service. **It does not implement `onError`** — there is no automatic session-clear/logout on a 401 response anywhere in this codebase today. Don't assume 401 handling exists; if you need it, it has to be added.
 
 Base URL and the static app token come from `Env.baseUrl`/`Env.appToken`
 (`lib/core/constants/api_endpoints.dart`), sourced from `.env` — see SECRETS.txt.
@@ -638,8 +762,13 @@ Don't hardcode a URL directly in `ApiEndPoints`; set it in `.env` instead.
 
 ## 10. ERROR HANDLING CHAIN
 
+Two entry points, one shared chain from `BaseRepository.execute()` onward
+— this is exactly why datasources funnel everything onto the same
+`AppException` hierarchy regardless of backend (§5a):
+
 ```
-DioException → AppException  (in DioHelper._handleDioError)
+DioException → AppException              (DioHelper._handleDioError, §9)
+Supabase/Postgrest/Auth/Storage error → AppException  (mapSupabaseException, §5a)
     → BaseRepository.execute() catches AppException → Left(Failure)
     → UsecaseExecuterMixin folds Either → emits ApiStatus.FAILURE with error message
     → BlocConsumer listener shows toast / dialog based on AppFailureMapper
@@ -667,6 +796,19 @@ context.read<ThemeBloc>().add(const ToggleTheme());
 context.read<ThemeBloc>().add(SetTheme(isDark: true));
 context.read<ThemeBloc>().add(const LoadTheme());   // called on startup
 ```
+`ThemeToggleButton` (`core/widgets/theme_toggle_button.dart`) is a
+ready-made sun/moon `IconButton` wired to this — drop it into any
+`CustomAppBar(actions: [...])` rather than hand-rolling another one.
+
+`AppColors.primary`/`secondary`/`tertiary` **are** the AS Tailors brand
+palette (teal/gold/charcoal — SRS §27), not arbitrary Material defaults;
+see the `BRAND IDENTITY` section at the top of `core/theme/colors.dart`
+(`brandTeal`/`brandTealDeep`/`brandTealTint`/`brandGold`/`brandGoldDark`/
+`brandGoldLight`/`brandCharcoal`/`brandIvory`) for the canonical hex
+values — `primary`/`secondary`/`tertiary` are just aliases onto those, so
+reference the `brand*` names directly when a brand-specific surface (like
+the splash screen) needs a value outside the three-tier primary/secondary/
+tertiary shape.
 
 **Context color extensions** (`theme_utils.dart`):
 ```dart
@@ -688,14 +830,18 @@ Colors: `AppColors.*`. Never hardcode `Colors.*` or raw font sizes.
 
 ## 12. LOCAL STORAGE
 
+App preferences only — **no auth tokens live here anymore.** Supabase
+Auth owns session storage/refresh internally (see §1a item 2); don't add
+a token key back to this list for any reason.
+
 ```dart
-await storage.setValues(StorageKeys.token, accessToken);
-final token = await storage.readValues(StorageKeys.token);  // String?
-await storage.clearValues(StorageKeys.token);
+await storage.setValues(StorageKeys.isDarkMode, 'true');
+final isDark = await storage.readValues(StorageKeys.isDarkMode);  // String?
+await storage.clearValues(StorageKeys.isDarkMode);
 await storage.clearAll();
 ```
 
-`StorageKeys`: `loggedIn`, `token`, `refreshToken`, `userId`, `userDetails`, `isDarkMode`
+`StorageKeys`: `isDarkMode`, `locale`
 
 ---
 
@@ -880,11 +1026,11 @@ exception messages that get overridden by `AppFailureMapper` anyway).
 ```
 lib/l10n/
 ├── app_en.arb          # template-arb-file — source of truth for keys
-├── app_es.arb           # add one ARB file per locale, same keys
+├── app_ur.arb           # Urdu — SRS FR-014 requires English + Urdu, RTL
 └── generated/           # committed, regenerated by `flutter pub get`
     ├── app_localizations.dart
     ├── app_localizations_en.dart
-    └── app_localizations_es.dart
+    └── app_localizations_ur.dart
 ```
 
 Config lives in `l10n.yaml` at the repo root. `generate: true` under
@@ -908,6 +1054,20 @@ Text(context.l10n.signIn)
 `AppLocalizations.localizationsDelegates` / `.supportedLocales` into
 `MaterialApp.router` — new locales only need a new ARB file, nothing else
 in `main.dart` changes.
+
+**Which locale is active** is driven by `LocaleCubit`
+(`core/localization/locale_cubit.dart`, provided in `main.dart` alongside
+`ThemeBloc`) — `Cubit<Locale?>`, persisted the same way as dark mode
+(`StorageKeys.locale`). `null` means "follow the device locale."
+`LanguageToggleButton` (`core/widgets/language_toggle_button.dart`) is the
+ready-made EN/اردو toggle — it's a direct two-way swap rather than a
+picker since only two locales exist today; revisit that if a third locale
+is ever added. RTL for Urdu is automatic once the locale is active —
+Flutter derives text direction from the locale, no extra config.
+
+```dart
+context.read<LocaleCubit>().setLocale(const Locale('ur'));
+```
 
 ---
 
@@ -1045,8 +1205,9 @@ tearDown(() => bloc.close());
 - [ ] No Data layer imports in Presentation
 - [ ] Domain layer: zero Flutter/Dio/GetIt/BLoC imports
 - [ ] All repository methods return `Future<Either<Failure, T>>`
-- [ ] Datasources extend `BaseRemoteDatasource`; repositories extend `BaseRepository`
+- [ ] Datasources extend `BaseSupabaseDatasource` (§5a, the common case) or `BaseRemoteDatasource` (§5, external HTTP only); repositories extend `BaseRepository` either way
 - [ ] BLoCs registered as `sl.registerFactory` (not `registerLazySingleton`)
+- [ ] New Supabase tables: RLS enabled, `shop_id`-scoped, policy written with `is_shop_member()`/`my_shop_ids()` (§9, §5a) — not just a client-side filter
 
 **UI**
 - [ ] No raw `ElevatedButton`, `TextField`, `AppBar`, `CircularProgressIndicator` in feature views
@@ -1065,9 +1226,15 @@ tearDown(() => bloc.close());
 
 ---
 
-*Last updated: 2026-11-03 — added §1a Product Context summarizing the AS
-Tailors SRS v1.3 and the architecture gaps (Supabase, auth, roles,
-localization, offline, printing, money handling, multi-tenancy) to resolve
-before building real business features. Previous update (2026-08-28): added
-pagination pattern, offline banner, localization scaffold, and
-envied-based secrets management (see SECRETS.txt).*
+*Last updated: 2026-11-04 — rebuilt the `auth` feature against Supabase
+Auth for real (fixing a pre-existing bug where sign-in never persisted
+its session), added the `BaseSupabaseDatasource` pattern (§5a) and the
+`shops`/`shop_members`/`audit_logs` + RLS schema
+(`supabase/migrations/0001_identity_and_shops.sql`), closing §1a items
+1–4 and establishing the shop-scoping convention (item 8) every future
+feature builds on. Added the `shop` (onboarding) and `home` (placeholder)
+features to make the auth → shop → home flow concretely testable.
+Previous update (2026-11-03): added §1a Product Context summarizing the AS
+Tailors SRS v1.3. Earlier (2026-08-28): added pagination pattern, offline
+banner, localization scaffold, and envied-based secrets management (see
+SECRETS.txt).*

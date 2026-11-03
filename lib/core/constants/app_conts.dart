@@ -15,8 +15,7 @@ class AppConstants {
   static const Duration splashDuration = Duration(seconds: 2);
   // ─── Auth ──────────────────────────────────────────────
   static const String signInBtn = 'SignIn';
-  static const String youHaveLoggedInSuccessfully =
-      'You have logged in successfully!';
+  static const String youHaveLoggedInSuccessfully = 'You have logged in successfully!';
   static const String signIn = 'Sign In';
   static const String enterYourEmail = 'Enter your email';
   static const String enterYourPassword = 'Enter your password';
@@ -24,8 +23,7 @@ class AppConstants {
   static const String password = 'Password';
   static const String signUpBtn = 'Sign Up';
   static const String signUp = 'Sign Up';
-  static const String youHaveSignedUpSuccessfully =
-      'You have signed up successfully!';
+  static const String youHaveSignedUpSuccessfully = 'You have signed up successfully!';
   static const String name = 'Name';
   static const String enterYourName = 'Enter your name';
   static const String confirmPassword = 'Confirm Password';
@@ -34,13 +32,9 @@ class AppConstants {
   static const String dontHaveAnAccount = "Don't have an account?";
 
   // ─── Storage Keys ─────────────────────────────────────
-  static const String keyLoggedIn     = 'loggedIn';
-  static const String keyToken        = 'token';
-  static const String keyRefreshToken = 'refreshToken';
-  static const String keyUserId       = 'userId';
-  static const String keyUserDetails  = 'userDetails';
-  static const String keyIsDarkMode   = 'isDarkMode';
-  static const String keyLocale       = 'locale';
+  // Auth session keys were removed — Supabase Auth owns session storage.
+  static const String keyIsDarkMode = 'isDarkMode';
+  static const String keyLocale = 'locale';
 
   // ─── Network Exceptions ────────────────────────────────
   static const String unexpectedError = 'An unexpected error occurred';

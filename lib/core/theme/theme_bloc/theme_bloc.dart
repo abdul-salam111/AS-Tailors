@@ -7,8 +7,7 @@ import '../../local_storage/storage.dart';
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   final LocalStorage localStorage;
 
-  ThemeBloc({required this.localStorage})
-      : super(const ThemeState(isDarkMode: false)) {
+  ThemeBloc({required this.localStorage}) : super(const ThemeState(isDarkMode: false)) {
     on<LoadTheme>(_onLoadTheme);
     on<ToggleTheme>(_onToggleTheme);
     on<SetTheme>(_onSetTheme);
@@ -21,10 +20,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     _updateSystemUIOverlay(isDark);
   }
 
-  Future<void> _onToggleTheme(
-    ToggleTheme event,
-    Emitter<ThemeState> emit,
-  ) async {
+  Future<void> _onToggleTheme(ToggleTheme event, Emitter<ThemeState> emit) async {
     final newValue = !state.isDarkMode;
     await localStorage.setValues(StorageKeys.isDarkMode, newValue.toString());
     emit(state.copyWith(isDarkMode: newValue));

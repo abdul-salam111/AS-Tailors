@@ -139,11 +139,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
               border: Border.all(color: context.border),
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
-                BoxShadow(
-                  color: context.shadow,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
+                BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 2)),
               ],
             ),
             child: _filteredItems.isEmpty
@@ -152,9 +148,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                       padding: const EdgeInsets.all(16),
                       child: Text(
                         'No items found',
-                        style: context.bodySmall.copyWith(
-                          color: context.textSecondary,
-                        ),
+                        style: context.bodySmall.copyWith(color: context.textSecondary),
                       ),
                     ),
                   )
@@ -162,11 +156,8 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                     shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     itemCount: _filteredItems.length,
-                    separatorBuilder: (_, __) => Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: context.divider,
-                    ),
+                    separatorBuilder: (_, __) =>
+                        Divider(height: 1, thickness: 1, color: context.divider),
                     itemBuilder: (context, index) {
                       final item = _filteredItems[index];
                       final isSelected = widget.controller.text == item;
@@ -180,8 +171,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                           item,
                           style: context.bodyMedium.copyWith(
                             color: isSelected ? context.primary : context.textPrimary,
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
                         trailing: isSelected

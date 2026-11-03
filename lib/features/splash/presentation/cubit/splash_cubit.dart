@@ -6,12 +6,18 @@ class SplashCubit extends Cubit<SplashState> {
   final SplashServices _splashServices;
 
   SplashCubit({required SplashServices splashServices})
-      : _splashServices = splashServices,
-        super(const SplashInitial());
+    : _splashServices = splashServices,
+      super(const SplashInitial());
 
   Future<void> checkAuthStatus() async {
     await Future<void>.delayed(const Duration(seconds: 2));
-    final isLoggedIn = await _splashServices.checkLoginStatus();
-    emit(isLoggedIn ? const SplashAuthenticated() : const SplashUnauthenticated());
+    final session = await _splashServices.resolveSession();
+    if (session == null) {
+      emit(const SplashUnauthenticated());
+    } else if (!session.hasShop) {
+      emit(const SplashNeedsShop());
+    } else {
+      emit(const SplashAuthenticated());
+    }
   }
 }

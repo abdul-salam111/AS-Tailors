@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: Form(child: child)));
+  Widget wrap(Widget child) => MaterialApp(
+    home: Scaffold(body: Form(child: child)),
+  );
 
   testWidgets('runs asyncValidator after the debounce and shows the error', (tester) async {
     await tester.pumpWidget(
@@ -59,12 +61,7 @@ void main() {
 
   testWidgets('external errorText overrides validator and is shown immediately', (tester) async {
     await tester.pumpWidget(
-      wrap(
-        CustomTextFormField(
-          errorText: 'Email already registered',
-          validator: (_) => null,
-        ),
-      ),
+      wrap(CustomTextFormField(errorText: 'Email already registered', validator: (_) => null)),
     );
 
     final formFieldState = tester.state<FormFieldState<String>>(find.byType(TextFormField));

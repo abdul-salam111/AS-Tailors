@@ -41,11 +41,7 @@ class CustomSearchField extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         hintText: hintText,
         hintStyle: context.bodySmall.copyWith(color: context.textSecondary),
-        prefixIcon: Icon(
-          Iconsax.search_normal,
-          color: context.grey500,
-          size: 20,
-        ),
+        prefixIcon: Icon(Iconsax.search_normal, color: context.grey500, size: 20),
         filled: true,
         fillColor: defaultFillColor,
 

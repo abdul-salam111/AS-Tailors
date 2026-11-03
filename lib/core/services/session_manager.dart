@@ -1,39 +1,31 @@
-import '../local_storage/storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'session_entity.dart';
 
+/// In-memory cache of the resolved [SessionEntity] (identity + shop
+/// membership), synchronously readable for the router's redirect guard.
+///
+/// Raw auth session storage/refresh is owned entirely by
+/// `Supabase.instance.client.auth` (persisted securely by the SDK itself —
+/// see `main.dart`'s `Supabase.initialize`), so this class doesn't
+/// duplicate token handling. [isLoggedIn] reflects Supabase's session
+/// directly; [session]/[hasShop] reflect the last value populated via
+/// [setSession], since shop membership isn't something Supabase's own
+/// session object knows about.
 class SessionController {
-  final LocalStorage _localStorage;
+  final SupabaseClient supabaseClient;
 
-  SessionController({required LocalStorage localStorage})
-      : _localStorage = localStorage;
+  SessionController({required this.supabaseClient});
 
   SessionEntity _session = SessionEntity.empty;
-  bool get isLoggedIn => _session.isValid;
   SessionEntity get session => _session;
 
-  Future<void> saveSession(SessionEntity session) async {
-    _session = session;
-    await _localStorage.setValues(StorageKeys.loggedIn, 'true');
-    await _localStorage.setValues(StorageKeys.token, session.accessToken);
-    if (session.refreshToken != null) {
-      await _localStorage.setValues(StorageKeys.refreshToken, session.refreshToken!);
-    }
-  }
+  bool get isLoggedIn => supabaseClient.auth.currentSession != null;
+  bool get hasShop => _session.hasShop;
 
-  Future<void> loadSession() async {
-    final token = await _localStorage.readValues(StorageKeys.token);
-    final refreshToken = await _localStorage.readValues(StorageKeys.refreshToken);
-    final loggedIn = await _localStorage.readValues(StorageKeys.loggedIn);
-    if (loggedIn == 'true' && token != null && token.isNotEmpty) {
-      _session = SessionEntity(accessToken: token, refreshToken: refreshToken);
-    }
-  }
+  void setSession(SessionEntity session) => _session = session;
 
   Future<void> clearSession() async {
     _session = SessionEntity.empty;
-    await _localStorage.clearValues(StorageKeys.loggedIn);
-    await _localStorage.clearValues(StorageKeys.token);
-    await _localStorage.clearValues(StorageKeys.refreshToken);
-    await _localStorage.clearValues(StorageKeys.userDetails);
+    await supabaseClient.auth.signOut();
   }
 }

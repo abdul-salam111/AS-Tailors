@@ -12,9 +12,7 @@ abstract class BaseRepository {
   /// Execute repository call with automatic error handling.
   /// Maps infrastructure [AppException] subtypes to domain [Failure] subtypes,
   /// keeping the domain layer free of infrastructure concerns.
-  Future<Either<Failure, T>> execute<T>({
-    required Future<T> Function() call,
-  }) async {
+  Future<Either<Failure, T>> execute<T>({required Future<T> Function() call}) async {
     try {
       return Right(await call());
     } on UnauthorizedException catch (e) {

@@ -2,8 +2,6 @@ import 'package:astailors/core/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
-
 void main() {
   testWidgets('CustomButton shows its label and reports taps', (tester) async {
     var tapped = false;
@@ -11,10 +9,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: CustomButton(
-            label: 'Submit',
-            onPressed: () => tapped = true,
-          ),
+          body: CustomButton(label: 'Submit', onPressed: () => tapped = true),
         ),
       ),
     );
@@ -33,11 +28,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: CustomButton(
-            label: 'Submit',
-            onPressed: () {},
-            isLoading: true,
-          ),
+          body: CustomButton(label: 'Submit', onPressed: () {}, isLoading: true),
         ),
       ),
     );

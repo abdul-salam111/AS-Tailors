@@ -29,8 +29,8 @@ void main() {
     expect(label, 'Sign In');
   });
 
-  testWidgets('resolves Spanish strings for the es locale', (tester) async {
-    final label = await pumpAndReadSignIn(tester, const Locale('es'));
-    expect(label, 'Iniciar sesión');
+  testWidgets('resolves Urdu strings for the ur locale', (tester) async {
+    final label = await pumpAndReadSignIn(tester, const Locale('ur'));
+    expect(label, 'سائن ان');
   });
 }

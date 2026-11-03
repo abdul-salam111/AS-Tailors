@@ -1,7 +1,5 @@
-
 import 'package:astailors/core/shared/shared_exports.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 
 void main() {
   group('PaginationCubit', () {
@@ -14,9 +12,7 @@ void main() {
       final expectation = expectLater(
         cubit.stream,
         emitsInOrder([
-          predicate<PaginationState<int>>(
-            (s) => s.status == PaginationStatus.loadingFirstPage,
-          ),
+          predicate<PaginationState<int>>((s) => s.status == PaginationStatus.loadingFirstPage),
           predicate<PaginationState<int>>(
             (s) =>
                 s.status == PaginationStatus.success &&

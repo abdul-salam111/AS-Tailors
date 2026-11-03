@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/colors.dart';
 
-
 extension StringValidationExtensions on String {
   // ========================================================================
   // EMAIL & CONTACT VALIDATIONS 📧
@@ -276,9 +275,7 @@ class Validator {
   /// Validate required field
   static String? validateRequired(String? value, {String? fieldName}) {
     if (value == null || value.trim().isEmpty) {
-      return fieldName == null
-          ? 'This field is required'
-          : '$fieldName is required';
+      return fieldName == null ? 'This field is required' : '$fieldName is required';
     }
     return null;
   }
@@ -414,11 +411,7 @@ class Validator {
   // ========================================================================
 
   /// Validate minimum length
-  static String? validateMinLength(
-    String? value,
-    int minLength, {
-    String? fieldName,
-  }) {
+  static String? validateMinLength(String? value, int minLength, {String? fieldName}) {
     if (value == null || value.isEmpty) {
       return '${fieldName ?? 'Field'} is required';
     }
@@ -429,11 +422,7 @@ class Validator {
   }
 
   /// Validate maximum length
-  static String? validateMaxLength(
-    String? value,
-    int maxLength, {
-    String? fieldName,
-  }) {
+  static String? validateMaxLength(String? value, int maxLength, {String? fieldName}) {
     if (value == null || value.isEmpty) {
       return '${fieldName ?? 'Field'} is required';
     }
@@ -460,11 +449,7 @@ class Validator {
   }
 
   /// Validate exact length
-  static String? validateExactLength(
-    String? value,
-    int length, {
-    String? fieldName,
-  }) {
+  static String? validateExactLength(String? value, int length, {String? fieldName}) {
     if (value == null || value.isEmpty) {
       return '${fieldName ?? 'Field'} is required';
     }
@@ -501,12 +486,7 @@ class Validator {
   }
 
   /// Validate number range
-  static String? validateNumberRange(
-    String? value,
-    num min,
-    num max, {
-    String? fieldName,
-  }) {
+  static String? validateNumberRange(String? value, num min, num max, {String? fieldName}) {
     if (value == null || value.isEmpty) {
       return '${fieldName ?? 'Field'} is required';
     }
@@ -683,11 +663,7 @@ class Validator {
   // ========================================================================
 
   /// Validate with custom regex
-  static String? validateRegex(
-    String? value,
-    String pattern,
-    String errorMessage,
-  ) {
+  static String? validateRegex(String? value, String pattern, String errorMessage) {
     if (value == null || value.isEmpty) {
       return 'Field is required';
     }
@@ -703,10 +679,7 @@ class Validator {
   // ========================================================================
 
   /// Validate multiple conditions (returns first error)
-  static String? validateMultiple(
-    String? value,
-    List<String? Function(String?)> validators,
-  ) {
+  static String? validateMultiple(String? value, List<String? Function(String?)> validators) {
     for (final validator in validators) {
       final error = validator(value);
       if (error != null) return error;
@@ -715,9 +688,7 @@ class Validator {
   }
 
   /// Combine validators with AND logic
-  static String? Function(String?) combineAnd(
-    List<String? Function(String?)> validators,
-  ) {
+  static String? Function(String?) combineAnd(List<String? Function(String?)> validators) {
     return (value) {
       for (final validator in validators) {
         final error = validator(value);
@@ -761,8 +732,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
         Text(
           strength > 0 ? labels[strength - 1] : 'Enter password',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: strength > 0 ? colors[strength] : AppColors.grey400,
-              ),
+            color: strength > 0 ? colors[strength] : AppColors.grey400,
+          ),
         ),
       ],
     );

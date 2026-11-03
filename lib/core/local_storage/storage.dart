@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../constants/app_conts.dart';
 
-
 class LocalStorage {
   // ─── Singleton ────────────────────────────────────────────────────────────
   static final LocalStorage _instance = LocalStorage._internal();
@@ -19,9 +18,7 @@ class LocalStorage {
     migrateOnAlgorithmChange: true,
   );
 
-  static const _iosOptions = IOSOptions(
-    accessibility: KeychainAccessibility.first_unlock,
-  );
+  static const _iosOptions = IOSOptions(accessibility: KeychainAccessibility.first_unlock);
 
   // ─── Storage Instance ─────────────────────────────────────────────────────
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
@@ -36,16 +33,12 @@ class LocalStorage {
           .timeout(
             const Duration(seconds: 5),
             onTimeout: () {
-              debugPrint(
-                '[LocalStorage] init() health-check timed out — resetting storage.',
-              );
+              debugPrint('[LocalStorage] init() health-check timed out — resetting storage.');
               return false;
             },
           );
     } on PlatformException catch (e) {
-      debugPrint(
-        '[LocalStorage] init() Keystore corrupt on launch: $e — clearing all.',
-      );
+      debugPrint('[LocalStorage] init() Keystore corrupt on launch: $e — clearing all.');
       await clearAll();
     } catch (e) {
       debugPrint('[LocalStorage] init() unexpected error: $e');
@@ -55,9 +48,7 @@ class LocalStorage {
   // ─── WRITE ────────────────────────────────────────────────────────────────
   Future<bool> setValues(String key, String value) async {
     try {
-      await _storage
-          .write(key: key, value: value)
-          .timeout(const Duration(seconds: 5));
+      await _storage.write(key: key, value: value).timeout(const Duration(seconds: 5));
       return true;
     } on PlatformException catch (e) {
       debugPrint('[LocalStorage] Write PlatformException for "$key": $e');
@@ -68,15 +59,11 @@ class LocalStorage {
         debugPrint('[LocalStorage] Write retry succeeded for "$key".');
         return true;
       } catch (retryError) {
-        debugPrint(
-          '[LocalStorage] Write retry also failed for "$key": $retryError',
-        );
+        debugPrint('[LocalStorage] Write retry also failed for "$key": $retryError');
         return false;
       }
     } on TimeoutException {
-      debugPrint(
-        '[LocalStorage] Write timed out for "$key" — likely Keystore deadlock.',
-      );
+      debugPrint('[LocalStorage] Write timed out for "$key" — likely Keystore deadlock.');
       return false;
     } catch (e) {
       debugPrint('[LocalStorage] Write error for "$key": $e');
@@ -92,9 +79,7 @@ class LocalStorage {
           .timeout(
             const Duration(seconds: 5),
             onTimeout: () {
-              debugPrint(
-                '[LocalStorage] Read timed out for "$key" — Keystore hang avoided.',
-              );
+              debugPrint('[LocalStorage] Read timed out for "$key" — Keystore hang avoided.');
               return null;
             },
           );
@@ -148,17 +133,9 @@ class LocalStorage {
   }
 }
 
+/// Note: no auth token keys here — Supabase Auth owns session storage
+/// itself (see `SessionController`). This is for app preferences only.
 class StorageKeys {
-  static const String loggedIn     = AppConstants.keyLoggedIn;
-  static const String token        = AppConstants.keyToken;
-  static const String refreshToken = AppConstants.keyRefreshToken;
-  static const String userId       = AppConstants.keyUserId;
-  static const String userDetails  = AppConstants.keyUserDetails;
-  static const String isDarkMode   = AppConstants.keyIsDarkMode;
-  static const String locale       = AppConstants.keyLocale;
-}
-
-extension LocalStorageGetters on LocalStorage {
-  Future<String?> get userId async => readValues(StorageKeys.userId);
-  Future<String?> get userToken async => readValues(StorageKeys.token);
+  static const String isDarkMode = AppConstants.keyIsDarkMode;
+  static const String locale = AppConstants.keyLocale;
 }

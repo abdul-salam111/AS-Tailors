@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../theme/colors.dart';
 import '../widgets/loading_indicator.dart';
 
-
 /////////////////////////////////////  WIDGETS EXTENSIONS ////////////////////////////////////////
 extension WidgetExtensions on Widget {
   // Add padding to a widget
@@ -208,12 +207,7 @@ extension WidgetExtensions on Widget {
   }
 
   // Add constrained box
-  Widget constrained({
-    double? minWidth,
-    double? maxWidth,
-    double? minHeight,
-    double? maxHeight,
-  }) {
+  Widget constrained({double? minWidth, double? maxWidth, double? minHeight, double? maxHeight}) {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: minWidth ?? 0.0,
@@ -226,10 +220,7 @@ extension WidgetExtensions on Widget {
   }
 
   // Add fitted box
-  Widget fitted({
-    BoxFit fit = BoxFit.contain,
-    Alignment alignment = Alignment.center,
-  }) {
+  Widget fitted({BoxFit fit = BoxFit.contain, Alignment alignment = Alignment.center}) {
     return FittedBox(fit: fit, alignment: alignment, child: this);
   }
 
@@ -321,15 +312,8 @@ extension WidgetExtensions on Widget {
   }
 
   // Add baseline alignment
-  Widget baseline({
-    required double baseline,
-    required TextBaseline baselineType,
-  }) {
-    return Baseline(
-      baseline: baseline,
-      baselineType: baselineType,
-      child: this,
-    );
+  Widget baseline({required double baseline, required TextBaseline baselineType}) {
+    return Baseline(baseline: baseline, baselineType: baselineType, child: this);
   }
 
   // Add absorb pointer (disable touch events)
@@ -424,9 +408,7 @@ class KeyboardDismisser extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: dismissOnTap ? () => FocusScope.of(context).unfocus() : null,
-      onVerticalDragStart: dismissOnVerticalDrag
-          ? (_) => FocusScope.of(context).unfocus()
-          : null,
+      onVerticalDragStart: dismissOnVerticalDrag ? (_) => FocusScope.of(context).unfocus() : null,
       behavior: HitTestBehavior.translucent,
       child: child,
     );
@@ -457,9 +439,7 @@ class LoadingOverlay extends StatelessWidget {
         if (isLoading)
           Container(
             color: overlayColor ?? AppColors.overlayMedium,
-            child: Center(
-              child: loadingWidget ?? const LoadingIndicator(size: 30),
-            ),
+            child: Center(child: loadingWidget ?? const LoadingIndicator(size: 30)),
           ),
       ],
     );
@@ -469,8 +449,7 @@ class LoadingOverlay extends StatelessWidget {
 // ============== Responsive Builder ==============
 
 class ResponsiveBuilder extends StatelessWidget {
-  final Widget Function(BuildContext context, BoxConstraints constraints)?
-  builder;
+  final Widget Function(BuildContext context, BoxConstraints constraints)? builder;
   final Widget Function(BuildContext context)? mobile;
   final Widget Function(BuildContext context)? tablet;
   final Widget Function(BuildContext context)? desktop;
@@ -498,9 +477,7 @@ class ResponsiveBuilder extends StatelessWidget {
         if (constraints.maxWidth < mobileBreakpoint) {
           return mobile?.call(context) ?? const SizedBox.shrink();
         } else if (constraints.maxWidth < tabletBreakpoint) {
-          return tablet?.call(context) ??
-              mobile?.call(context) ??
-              const SizedBox.shrink();
+          return tablet?.call(context) ?? mobile?.call(context) ?? const SizedBox.shrink();
         } else {
           return desktop?.call(context) ??
               tablet?.call(context) ??
@@ -629,18 +606,12 @@ class EmptyStateWidget extends StatelessWidget {
         children: [
           if (icon != null) Icon(icon, size: iconSize, color: AppColors.grey400),
           const SizedBox(height: 16),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
+          Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
           if (subtitle != null) ...[
             const SizedBox(height: 8),
             Text(
               subtitle!,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey400),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.grey400),
               textAlign: TextAlign.center,
             ),
           ],
@@ -658,12 +629,7 @@ class ErrorStateWidget extends StatelessWidget {
   final VoidCallback? onRetry;
   final IconData icon;
 
-  const ErrorStateWidget({
-    super.key,
-    this.message,
-    this.onRetry,
-    this.icon = Icons.error_outline,
-  });
+  const ErrorStateWidget({super.key, this.message, this.onRetry, this.icon = Icons.error_outline});
 
   @override
   Widget build(BuildContext context) {
@@ -714,15 +680,13 @@ class ShimmerLoading extends StatefulWidget {
   State<ShimmerLoading> createState() => _ShimmerLoadingState();
 }
 
-class _ShimmerLoadingState extends State<ShimmerLoading>
-    with SingleTickerProviderStateMixin {
+class _ShimmerLoadingState extends State<ShimmerLoading> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration)
-      ..repeat();
+    _controller = AnimationController(vsync: this, duration: widget.duration)..repeat();
   }
 
   @override
@@ -742,11 +706,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
           blendMode: BlendMode.srcATop,
           shaderCallback: (bounds) {
             return LinearGradient(
-              colors: [
-                widget.baseColor,
-                widget.highlightColor,
-                widget.baseColor,
-              ],
+              colors: [widget.baseColor, widget.highlightColor, widget.baseColor],
               stops: const [0.0, 0.5, 1.0],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -782,8 +742,7 @@ class AsyncBuilder<T> extends StatelessWidget {
       future: future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return loading?.call(context) ??
-              const Center(child: LoadingIndicator(size: 30));
+          return loading?.call(context) ?? const Center(child: LoadingIndicator(size: 30));
         }
 
         if (snapshot.hasError) {
@@ -825,10 +784,8 @@ class StreamBuilderWrapper<T> extends StatelessWidget {
       stream: stream,
       initialData: initialData,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return loading?.call(context) ??
-              const Center(child: LoadingIndicator(size: 30));
+        if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+          return loading?.call(context) ?? const Center(child: LoadingIndicator(size: 30));
         }
 
         if (snapshot.hasError) {
@@ -894,10 +851,7 @@ class _DebouncedTextFieldState extends State<DebouncedTextField> {
       controller: widget.controller,
       decoration:
           widget.decoration ??
-          InputDecoration(
-            hintText: widget.hintText,
-            border: const OutlineInputBorder(),
-          ),
+          InputDecoration(hintText: widget.hintText, border: const OutlineInputBorder()),
       onChanged: _onSearchChanged,
       keyboardType: widget.keyboardType,
       maxLines: widget.maxLines,
@@ -1000,21 +954,12 @@ class CardWrapper extends StatelessWidget {
       color: color,
       elevation: elevation,
       margin: margin,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: Padding(
-        padding: padding ?? const EdgeInsets.all(16.0),
-        child: child,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
+      child: Padding(padding: padding ?? const EdgeInsets.all(16.0), child: child),
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: card,
-      );
+      return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(borderRadius), child: card);
     }
 
     return card;
@@ -1088,12 +1033,7 @@ class PullToRefreshWrapper extends StatelessWidget {
   final Widget child;
   final Color? color;
 
-  const PullToRefreshWrapper({
-    super.key,
-    required this.onRefresh,
-    required this.child,
-    this.color,
-  });
+  const PullToRefreshWrapper({super.key, required this.onRefresh, required this.child, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1118,10 +1058,7 @@ class StatusBarColor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: color,
-        statusBarIconBrightness: brightness,
-      ),
+      value: SystemUiOverlayStyle(statusBarColor: color, statusBarIconBrightness: brightness),
       child: child,
     );
   }
@@ -1153,9 +1090,7 @@ class GradientContainer extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: colors, begin: begin, end: end),
-        borderRadius: borderRadius != null
-            ? BorderRadius.circular(borderRadius!)
-            : null,
+        borderRadius: borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
       ),
       child: child,
     );
@@ -1170,13 +1105,7 @@ class PlaceholderBox extends StatelessWidget {
   final Color? color;
   final String? text;
 
-  const PlaceholderBox({
-    super.key,
-    this.width,
-    this.height,
-    this.color,
-    this.text,
-  });
+  const PlaceholderBox({super.key, this.width, this.height, this.color, this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -1185,10 +1114,7 @@ class PlaceholderBox extends StatelessWidget {
       height: height ?? 200,
       color: color ?? AppColors.grey300,
       child: Center(
-        child: Text(
-          text ?? 'Placeholder',
-          style: const TextStyle(color: AppColors.grey600),
-        ),
+        child: Text(text ?? 'Placeholder', style: const TextStyle(color: AppColors.grey600)),
       ),
     );
   }

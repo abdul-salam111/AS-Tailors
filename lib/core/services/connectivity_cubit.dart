@@ -11,8 +11,8 @@ class ConnectivityCubit extends Cubit<bool> {
   StreamSubscription<InternetStatus>? _subscription;
 
   ConnectivityCubit({required ConnectivityService connectivityService})
-      : _connectivityService = connectivityService,
-        super(false) {
+    : _connectivityService = connectivityService,
+      super(false) {
     _checkInitialStatus();
     _subscription = _connectivityService.onStatusChange.listen((status) {
       emit(status == InternetStatus.disconnected);

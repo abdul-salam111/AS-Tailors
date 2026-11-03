@@ -21,5 +21,13 @@
   "alreadyHaveAnAccount": "Already have an account?",
   "dontHaveAnAccount": "Don't have an account?",
   "youHaveLoggedInSuccessfully": "You have logged in successfully!",
-  "youHaveSignedUpSuccessfully": "You have signed up successfully!"
+  "youHaveSignedUpSuccessfully": "You have signed up successfully!",
+
+  "createShop": "Create Your Shop",
+  "shopName": "Shop Name",
+  "enterYourShopName": "Enter your shop name",
+  "createShopBtn": "Create Shop",
+  "shopCreatedSuccessfully": "Shop created successfully!",
+  "dashboardComingSoon": "Dashboard — coming soon",
+  "signOut": "Sign Out"
 }

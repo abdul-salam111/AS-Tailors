@@ -58,4 +58,25 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get youHaveSignedUpSuccessfully => 'آپ کامیابی سے سائن اپ ہو گئے ہیں!';
+
+  @override
+  String get createShop => 'اپنی دکان بنائیں';
+
+  @override
+  String get shopName => 'دکان کا نام';
+
+  @override
+  String get enterYourShopName => 'اپنی دکان کا نام درج کریں';
+
+  @override
+  String get createShopBtn => 'دکان بنائیں';
+
+  @override
+  String get shopCreatedSuccessfully => 'دکان کامیابی سے بن گئی!';
+
+  @override
+  String get dashboardComingSoon => 'ڈیش بورڈ جلد آ رہا ہے';
+
+  @override
+  String get signOut => 'سائن آؤٹ';
 }

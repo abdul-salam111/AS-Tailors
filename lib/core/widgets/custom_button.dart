@@ -62,9 +62,9 @@ class CustomButton extends StatelessWidget {
     this.iconColor,
     this.isLoading = false,
     this.fontSize = 16,
-  })  : _variant = _ButtonVariant.outline,
-        backgroundColor = AppColors.transparent,
-        elevation = 0;
+  }) : _variant = _ButtonVariant.outline,
+       backgroundColor = AppColors.transparent,
+       elevation = 0;
 
   const CustomButton.text({
     super.key,
@@ -80,17 +80,17 @@ class CustomButton extends StatelessWidget {
     this.iconColor,
     this.isLoading = false,
     this.fontSize = 16,
-  })  : _variant = _ButtonVariant.text,
-        backgroundColor = AppColors.transparent,
-        elevation = 0,
-        outlineColor = null,
-        outlineWidth = 0;
+  }) : _variant = _ButtonVariant.text,
+       backgroundColor = AppColors.transparent,
+       elevation = 0,
+       outlineColor = null,
+       outlineWidth = 0;
 
   @override
   Widget build(BuildContext context) {
     final resolvedBg = backgroundColor ?? AppColors.primary;
-    final resolvedText = textColor ??
-        (_variant == _ButtonVariant.filled ? AppColors.white : AppColors.primary);
+    final resolvedText =
+        textColor ?? (_variant == _ButtonVariant.filled ? AppColors.white : AppColors.primary);
     final resolvedIcon = iconColor ?? resolvedText;
     final resolvedOutline = outlineColor ?? AppColors.primary;
 
@@ -114,10 +114,10 @@ class CustomButton extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: resolvedText,
-                      fontSize: fontSize.toDouble(),
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: resolvedText,
+                  fontSize: fontSize.toDouble(),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (suffixIcon != null) ...[
                 const SizedBox(width: 8),

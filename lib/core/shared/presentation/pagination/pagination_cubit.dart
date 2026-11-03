@@ -25,13 +25,10 @@ class PaginationCubit<T> extends Cubit<PaginationState<T>> {
   final Future<Either<Failure, List<T>>> Function(int page) fetchPage;
   final int pageSize;
 
-  PaginationCubit({required this.fetchPage, this.pageSize = 20})
-      : super(const PaginationState());
+  PaginationCubit({required this.fetchPage, this.pageSize = 20}) : super(const PaginationState());
 
   Future<void> fetchFirstPage() async {
-    emit(
-      state.copyWith(status: PaginationStatus.loadingFirstPage, page: 0, failure: null),
-    );
+    emit(state.copyWith(status: PaginationStatus.loadingFirstPage, page: 0, failure: null));
     final result = await fetchPage(1);
     result.fold(
       (failure) => emit(state.copyWith(status: PaginationStatus.failure, failure: failure)),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/const_exports.dart';
+import '../../../../../core/services/session_entity.dart';
+import '../../../../../core/services/session_manager.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/di/di_exports.dart';
 import '../../../../../core/widgets/widgets_exports.dart';
@@ -36,8 +38,19 @@ class _SignInBodyState extends State<_SignInBody> {
   Widget build(BuildContext context) {
     return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) {
-        if (state.apiStatus == ApiStatus.SUCCESS) {
+        if (state.apiStatus == ApiStatus.SUCCESS && state.signinEntity != null) {
+          final auth = state.signinEntity!;
+          sl<SessionController>().setSession(
+            SessionEntity(
+              userId: auth.userId,
+              email: auth.email,
+              fullName: auth.fullName,
+              shopId: auth.shopId,
+              role: auth.role,
+            ),
+          );
           AppToastsUtils.showSuccessTop(context, context.l10n.youHaveLoggedInSuccessfully);
+          context.go(auth.hasShop ? RoutePaths.home : RoutePaths.createShop);
         }
         if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
           final error = AppFailureMapper.map(state.failure!);

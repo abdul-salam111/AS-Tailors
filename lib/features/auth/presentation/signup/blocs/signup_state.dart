@@ -4,7 +4,7 @@ import '../../../../../core/shared/domain/failures/failure.dart';
 import '../../../domain/entities/auth_entity.dart';
 
 class SignupState extends Equatable {
-  final SigninEntity? signupEntity;
+  final AuthEntity? signupEntity;
   final String? message;
   final Failure? failure;
   final ApiStatus apiStatus;
@@ -25,7 +25,7 @@ class SignupState extends Equatable {
   });
 
   SignupState copyWith({
-    SigninEntity? signupEntity,
+    AuthEntity? signupEntity,
     String? message,
     Failure? failure,
     ApiStatus? apiStatus,
@@ -48,13 +48,13 @@ class SignupState extends Equatable {
 
   @override
   List<Object?> get props => [
-        signupEntity,
-        message,
-        failure,
-        apiStatus,
-        name,
-        email,
-        password,
-        confirmPassword,
-      ];
+    signupEntity,
+    message,
+    failure,
+    apiStatus,
+    name,
+    email,
+    password,
+    confirmPassword,
+  ];
 }

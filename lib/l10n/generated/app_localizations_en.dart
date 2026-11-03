@@ -58,4 +58,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youHaveSignedUpSuccessfully => 'You have signed up successfully!';
+
+  @override
+  String get createShop => 'Create Your Shop';
+
+  @override
+  String get shopName => 'Shop Name';
+
+  @override
+  String get enterYourShopName => 'Enter your shop name';
+
+  @override
+  String get createShopBtn => 'Create Shop';
+
+  @override
+  String get shopCreatedSuccessfully => 'Shop created successfully!';
+
+  @override
+  String get dashboardComingSoon => 'Dashboard — coming soon';
+
+  @override
+  String get signOut => 'Sign Out';
 }

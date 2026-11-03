@@ -6,11 +6,9 @@ void showLoadingPopup(BuildContext context, {String message = "Please wait..."})
     barrierDismissible: false,
     builder: (BuildContext context) {
       return PopScope(
-        onPopInvokedWithResult: (_,_) async => false,
+        onPopInvokedWithResult: (_, _) async => false,
         child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -18,10 +16,7 @@ void showLoadingPopup(BuildContext context, {String message = "Please wait..."})
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 20),
-                Text(
-                  message,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                Text(message, style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),

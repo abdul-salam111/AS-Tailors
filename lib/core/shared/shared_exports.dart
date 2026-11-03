@@ -4,6 +4,7 @@ export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:fpdart/fpdart.dart' hide State;
 
 export 'datasource/base_datasource.dart';
+export 'datasource/base_supabase_datasource.dart';
 export 'domain/failures/failure.dart';
 export 'domain/repository/base_repository.dart';
 export 'domain/usecases/pagination_params.dart';

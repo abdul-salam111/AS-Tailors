@@ -13,11 +13,11 @@ class DioHelper {
   /// Pass [useAppToken] to opt out of the [AuthInterceptor] token injection —
   /// use this for public endpoints (login, register, forgot-password, etc.).
   Options _buildOptions({bool useAppToken = false}) => Options(
-        receiveDataWhenStatusError: true,
-        contentType: 'application/json',
-        responseType: ResponseType.json,
-        extra: useAppToken ? {'useAppToken': true} : {},
-      );
+    receiveDataWhenStatusError: true,
+    contentType: 'application/json',
+    responseType: ResponseType.json,
+    extra: useAppToken ? {'useAppToken': true} : {},
+  );
 
   Future<dynamic> getApi({
     required String url,
@@ -230,22 +230,18 @@ class DioHelper {
         case 429:
           return TooManyRequestsException(errorMessage ?? 'Too many requests');
         case 500:
-          return InternalServerErrorException(
-              errorMessage ?? 'Internal server error');
+          return InternalServerErrorException(errorMessage ?? 'Internal server error');
         case 502:
           return ServiceUnavailableException(errorMessage ?? 'Bad gateway');
         case 503:
-          return ServiceUnavailableException(
-              errorMessage ?? 'Service unavailable');
+          return ServiceUnavailableException(errorMessage ?? 'Service unavailable');
         case 504:
           return RequestTimeoutException(errorMessage ?? 'Gateway timeout');
         default:
           if (statusCode >= 400 && statusCode < 500) {
-            return BadRequestException(
-                errorMessage ?? 'Client error: $statusCode');
+            return BadRequestException(errorMessage ?? 'Client error: $statusCode');
           }
-          return InternalServerErrorException(
-              errorMessage ?? 'Server error: $statusCode');
+          return InternalServerErrorException(errorMessage ?? 'Server error: $statusCode');
       }
     }
 
