@@ -41,7 +41,7 @@ abstract class BaseRemoteDatasource {
         requestBody: body,
         useAppToken: useAppToken,
       );
-      return (response as List<dynamic>).map<T>((final json) => parser(json)).toList();
+      return (response as List<dynamic>).map<T>((json) => parser(json)).toList();
     } on AppException {
       rethrow;
     } catch (e) {
@@ -83,7 +83,7 @@ abstract class BaseRemoteDatasource {
         queryParameters: queryParams,
         useAppToken: useAppToken,
       );
-      return (response as List<dynamic>).map<T>((final json) => parser(json)).toList();
+      return (response as List<dynamic>).map<T>((json) => parser(json)).toList();
     } on AppException {
       rethrow;
     } catch (e) {
@@ -125,7 +125,7 @@ abstract class BaseRemoteDatasource {
         requestBody: body,
         useAppToken: useAppToken,
       );
-      return (response as List<dynamic>).map<T>((final json) => parser(json)).toList();
+      return (response as List<dynamic>).map<T>((json) => parser(json)).toList();
     } on AppException {
       rethrow;
     } catch (e) {
@@ -188,7 +188,7 @@ abstract class BaseRemoteDatasource {
         queryParameters: queryParams,
         useAppToken: useAppToken,
       );
-      return (response as List<dynamic>).map<T>((final json) => parser(json)).toList();
+      return (response as List<dynamic>).map<T>((json) => parser(json)).toList();
     } on AppException {
       rethrow;
     } catch (e) {
