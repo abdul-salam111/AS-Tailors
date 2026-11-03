@@ -1,4 +1,11 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../../core/constants/env.dart';
+import '../../../../../core/networks/exceptions/app_exceptions.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../models/shop_membership_model.dart';
 
@@ -9,6 +16,19 @@ abstract interface class IAuthRemoteDatasource {
     required String password,
     required String fullName,
   });
+
+  /// Native Google account picker, then exchanges the resulting ID token
+  /// for a Supabase session. Requires `GOOGLE_SERVER_CLIENT_ID` to be
+  /// configured (`.env`) and the matching provider enabled in the
+  /// Supabase dashboard — see SECRETS.txt.
+  Future<AuthResponse> signInWithGoogle();
+
+  /// Native "Sign in with Apple" sheet, then exchanges the resulting
+  /// identity token for a Supabase session. Requires the Apple provider
+  /// to be configured in the Supabase dashboard and the capability
+  /// enabled in Xcode — see SECRETS.txt.
+  Future<AuthResponse> signInWithApple();
+
   Future<void> signOut();
 
   /// The currently signed-in Supabase user, if any. Synchronous — reflects
@@ -20,7 +40,9 @@ abstract interface class IAuthRemoteDatasource {
 }
 
 class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRemoteDatasource {
-  const AuthRemoteDatasourceImpl({required super.client});
+  AuthRemoteDatasourceImpl({required super.client});
+
+  Future<void>? _googleInit;
 
   @override
   Future<AuthResponse> signInWithPassword({required String email, required String password}) =>
@@ -34,6 +56,37 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
   }) => guard(
     () => client.auth.signUp(email: email, password: password, data: {'full_name': fullName}),
   );
+
+  @override
+  Future<AuthResponse> signInWithGoogle() => guard(() async {
+    await (_googleInit ??= GoogleSignIn.instance.initialize(
+      serverClientId: Env.googleServerClientId.isEmpty ? null : Env.googleServerClientId,
+    ));
+    final account = await GoogleSignIn.instance.authenticate();
+    final idToken = account.authentication.idToken;
+    if (idToken == null) {
+      throw const UnauthorizedException('Google sign-in did not return an ID token.');
+    }
+    return client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+  });
+
+  @override
+  Future<AuthResponse> signInWithApple() => guard(() async {
+    final rawNonce = _generateNonce();
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+      nonce: _sha256(rawNonce),
+    );
+    final idToken = credential.identityToken;
+    if (idToken == null) {
+      throw const UnauthorizedException('Apple sign-in did not return an identity token.');
+    }
+    return client.auth.signInWithIdToken(
+      provider: OAuthProvider.apple,
+      idToken: idToken,
+      nonce: rawNonce,
+    );
+  });
 
   @override
   Future<void> signOut() => guard(() => client.auth.signOut());
@@ -52,3 +105,12 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
     parser: ShopMembershipModel.fromJson,
   );
 }
+
+const _nonceCharset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+
+String _generateNonce([int length = 32]) {
+  final random = Random.secure();
+  return List.generate(length, (_) => _nonceCharset[random.nextInt(_nonceCharset.length)]).join();
+}
+
+String _sha256(String input) => sha256.convert(utf8.encode(input)).toString();

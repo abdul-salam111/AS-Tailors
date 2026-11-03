@@ -200,6 +200,66 @@ abstract class AppLocalizations {
   /// **'You have signed up successfully!'**
   String get youHaveSignedUpSuccessfully;
 
+  /// No description provided for @signInTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tailoring business, organized.'**
+  String get signInTagline;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage orders, customers and payments.'**
+  String get signInSubtitle;
+
+  /// No description provided for @contactOwnerForAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'This shop already has an owner. Please contact them for a staff account.'**
+  String get contactOwnerForAccess;
+
+  /// No description provided for @signUpTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your shop\'s owner account.'**
+  String get signUpTagline;
+
+  /// No description provided for @createYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get createYourAccount;
+
+  /// No description provided for @signUpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be the owner of this shop once you sign up.'**
+  String get signUpSubtitle;
+
+  /// No description provided for @shopAlreadyExistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This shop is already set up'**
+  String get shopAlreadyExistsTitle;
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Sign In'**
+  String get backToSignIn;
+
+  /// No description provided for @orContinueWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Or continue with'**
+  String get orContinueWith;
+
   /// No description provided for @createShop.
   ///
   /// In en, this message translates to:
@@ -241,6 +301,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign Out'**
   String get signOut;
+
+  /// No description provided for @customers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get customers;
+
+  /// No description provided for @searchCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or phone'**
+  String get searchCustomers;
+
+  /// No description provided for @noCustomersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers yet'**
+  String get noCustomersYet;
+
+  /// No description provided for @addYourFirstCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first customer to get started'**
+  String get addYourFirstCustomer;
+
+  /// No description provided for @addCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Customer'**
+  String get addCustomer;
+
+  /// No description provided for @addCustomerBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Customer'**
+  String get addCustomerBtn;
+
+  /// No description provided for @editCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Customer'**
+  String get editCustomer;
+
+  /// No description provided for @customerDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Details'**
+  String get customerDetails;
+
+  /// No description provided for @customerFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get customerFullName;
+
+  /// No description provided for @enterCustomerFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter customer\'s full name'**
+  String get enterCustomerFullName;
+
+  /// No description provided for @phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phone;
+
+  /// No description provided for @enterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @whatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsapp;
+
+  /// No description provided for @enterWhatsappNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter WhatsApp number'**
+  String get enterWhatsappNumber;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @enterAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter address'**
+  String get enterAddress;
+
+  /// No description provided for @notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notes;
+
+  /// No description provided for @enterNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add any notes'**
+  String get enterNotes;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @customerCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer added successfully!'**
+  String get customerCreatedSuccessfully;
+
+  /// No description provided for @customerUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer updated successfully!'**
+  String get customerUpdatedSuccessfully;
+
+  /// No description provided for @archiveCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive Customer'**
+  String get archiveCustomer;
+
+  /// No description provided for @archiveCustomerConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived customers are hidden from the directory but their order history is kept. You can\'t undo this from here.'**
+  String get archiveCustomerConfirmation;
+
+  /// No description provided for @customerArchivedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer archived'**
+  String get customerArchivedSuccessfully;
+
+  /// No description provided for @archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archived;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
 }
 
 class _AppLocalizationsDelegate

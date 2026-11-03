@@ -36,6 +36,10 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   envied: ^1.1.1
   supabase_flutter: ^2.18.3
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.2.0
+  font_awesome_flutter: ^11.0.0
+  crypto: ^3.0.8
 
 dev_dependencies:
   flutter_test:

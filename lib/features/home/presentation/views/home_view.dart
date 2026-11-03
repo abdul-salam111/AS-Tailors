@@ -50,6 +50,14 @@ class _HomeViewState extends State<HomeView> {
           children: [
             Text(context.l10n.dashboardComingSoon, style: context.titleMedium),
             heightBox(24),
+            CustomButton(
+              label: context.l10n.customers,
+              prefixIcon: Iconsax.people,
+              radius: 10,
+              width: 220,
+              onPressed: () => context.push(RoutePaths.customers),
+            ),
+            heightBox(16),
             CustomButton.outline(
               label: context.l10n.signOut,
               isLoading: _signingOut,

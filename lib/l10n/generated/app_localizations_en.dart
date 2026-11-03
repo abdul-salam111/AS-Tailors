@@ -60,6 +60,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get youHaveSignedUpSuccessfully => 'You have signed up successfully!';
 
   @override
+  String get signInTagline => 'Your tailoring business, organized.';
+
+  @override
+  String get welcomeBack => 'Welcome back';
+
+  @override
+  String get signInSubtitle =>
+      'Sign in to manage orders, customers and payments.';
+
+  @override
+  String get contactOwnerForAccess =>
+      'This shop already has an owner. Please contact them for a staff account.';
+
+  @override
+  String get signUpTagline => 'Set up your shop\'s owner account.';
+
+  @override
+  String get createYourAccount => 'Create your account';
+
+  @override
+  String get signUpSubtitle =>
+      'You\'ll be the owner of this shop once you sign up.';
+
+  @override
+  String get shopAlreadyExistsTitle => 'This shop is already set up';
+
+  @override
+  String get backToSignIn => 'Back to Sign In';
+
+  @override
+  String get orContinueWith => 'Or continue with';
+
+  @override
   String get createShop => 'Create Your Shop';
 
   @override
@@ -79,4 +112,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signOut => 'Sign Out';
+
+  @override
+  String get customers => 'Customers';
+
+  @override
+  String get searchCustomers => 'Search by name or phone';
+
+  @override
+  String get noCustomersYet => 'No customers yet';
+
+  @override
+  String get addYourFirstCustomer => 'Add your first customer to get started';
+
+  @override
+  String get addCustomer => 'Add Customer';
+
+  @override
+  String get addCustomerBtn => 'Add Customer';
+
+  @override
+  String get editCustomer => 'Edit Customer';
+
+  @override
+  String get customerDetails => 'Customer Details';
+
+  @override
+  String get customerFullName => 'Full Name';
+
+  @override
+  String get enterCustomerFullName => 'Enter customer\'s full name';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get enterPhoneNumber => 'Enter phone number';
+
+  @override
+  String get whatsapp => 'WhatsApp';
+
+  @override
+  String get enterWhatsappNumber => 'Enter WhatsApp number';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get enterAddress => 'Enter address';
+
+  @override
+  String get notes => 'Notes';
+
+  @override
+  String get enterNotes => 'Add any notes';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get customerCreatedSuccessfully => 'Customer added successfully!';
+
+  @override
+  String get customerUpdatedSuccessfully => 'Customer updated successfully!';
+
+  @override
+  String get archiveCustomer => 'Archive Customer';
+
+  @override
+  String get archiveCustomerConfirmation =>
+      'Archived customers are hidden from the directory but their order history is kept. You can\'t undo this from here.';
+
+  @override
+  String get customerArchivedSuccessfully => 'Customer archived';
+
+  @override
+  String get archived => 'Archived';
+
+  @override
+  String get cancel => 'Cancel';
 }

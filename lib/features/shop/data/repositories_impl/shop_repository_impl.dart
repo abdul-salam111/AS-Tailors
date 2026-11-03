@@ -27,4 +27,7 @@ class ShopRepositoryImpl extends BaseRepository implements IShopRepository {
       );
     },
   );
+
+  @override
+  Future<Either<Failure, bool>> checkShopExists() => execute(call: () => _dataSource.shopExists());
 }

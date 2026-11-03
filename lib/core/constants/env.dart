@@ -18,4 +18,10 @@ abstract class Env {
 
   @EnviedField(varName: 'SUPABASE_PUBLISHABLE_KEY')
   static final String supabasePublishableKey = _Env.supabasePublishableKey;
+
+  /// Web OAuth client ID (Google Cloud Console) — the audience Supabase's
+  /// Google provider validates the ID token against. Blank until
+  /// configured; see `.env.example` and SECRETS.txt.
+  @EnviedField(varName: 'GOOGLE_SERVER_CLIENT_ID', defaultValue: '')
+  static final String googleServerClientId = _Env.googleServerClientId;
 }

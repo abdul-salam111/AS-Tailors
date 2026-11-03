@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | DI | GetIt service locator (`sl`) |
 | Navigation | go_router (`GoRouter`, `GoRoute`) |
 | Backend | Supabase (`supabase_flutter`) — Postgres + Auth + Storage + RLS. Primary data/auth backend; see §5a for the datasource pattern and §9 for the schema |
+| OAuth | `google_sign_in` + `sign_in_with_apple` → Supabase `signInWithIdToken` — native Google/Apple sign-in, needs `.env` + dashboard + native platform config (see SECRETS.txt) before it works end to end |
 | HTTP | Dio via `DioHelper` + `BaseRemoteDatasource` — reserved for non-Supabase external HTTP only (§9); not used for this app's own data/auth anymore |
 | Models | Freezed + json_serializable |
 | Error handling | fpdart `Either<Failure, T>` |
@@ -125,9 +126,17 @@ items 1–3 and 4 below are resolved. What's still open:
    filtering client-side when RLS already enforces it server-side; the
    client-side scoping is about building correct queries, not security.
 
-None of the above blocks small UI/branding work. The next real domain
-feature (customers, most likely per SRS priority) builds directly on #1–3
-and #8 — see §5a before scaffolding it.
+None of the above blocks small UI/branding work. The first real domain
+feature — **customer management (FR-003, SRS §23.4)** — is built: see the
+`customer` feature (`features/customer/`) and
+`supabase/migrations/0002_customers.sql`. It's the second worked §5a
+example after `shop`, and is a better template for a typical CRUD feature
+since `shop` is unusually RPC-heavy (first-owner bootstrap is a special
+case). The next domain feature per SRS §19.1 priority is **measurements**
+(garment categories + templates + customer measurement profiles), which
+builds on `customers` — see §9 for the `measurement_templates`/
+`measurement_template_fields`/`measurement_profiles`/`measurement_values`
+shape before starting it.
 
 ---
 
@@ -200,6 +209,7 @@ Short version: `cp .env.example .env`, fill in real values, then
 ```
 supabase/
 ├── migrations/0001_identity_and_shops.sql  # profiles/shops/shop_members/audit_logs + RLS, see §9
+├── migrations/0002_customers.sql     # customers table + phone normalization + RLS, see §9/§5a
 └── README.md                         # How to apply a migration (no CLI linked yet — paste into SQL Editor)
 lib/
 ├── main.dart                         # Entry: Supabase.initialize() → setupLocator() → runApp
@@ -261,6 +271,7 @@ lib/
 ├── features/
 │   ├── auth/                         # Supabase Auth — sign in/up/out, session+shop-membership resolution
 │   ├── shop/                         # Shop onboarding/bootstrap — canonical §5a Supabase-feature example
+│   ├── customer/                     # Customer directory (FR-003) — plain-CRUD §5a example (vs shop's RPC-heavy one)
 │   ├── home/                         # Placeholder landing screen (FR-011 dashboard not built yet)
 │   ├── splash/                       # Session/shop resolution on launch, routes accordingly
 │   └── <feature>/
@@ -1226,9 +1237,45 @@ tearDown(() => bloc.close());
 
 ---
 
-*Last updated: 2026-11-04 — rebuilt the `auth` feature against Supabase
-Auth for real (fixing a pre-existing bug where sign-in never persisted
-its session), added the `BaseSupabaseDatasource` pattern (§5a) and the
+*Last updated: 2026-11-04 (later same day) — redesigned the sign-in/
+sign-up screens to match a specific reference app's structure/animation/
+UX (full-bleed `AuthGradientBackground` wash re-tinted with AS Tailors'
+teal/gold instead of the reference's palette, a bottom sheet that
+`AnimatedPositioned`-expands to cover the hero when any field gains
+focus and settles back on blur, and a staggered fade-slide-up entrance
+driven by `EntranceChoreography` — see
+`features/auth/presentation/widgets/`). Added native Google/Apple
+sign-in (`google_sign_in`/`sign_in_with_apple` → Supabase
+`signInWithIdToken`) via `SignInWithGoogleUsecase`/
+`SignInWithAppleUsecase`, surfaced as `SocialSignInButtons` on both
+screens — these call `completeSignIn()` directly rather than going
+through `SignInBloc`/`SignupBloc`, since a single OAuth round-trip has
+no form-field state to track (same reasoning as `HomeView`'s direct
+sign-out call). Needs `GOOGLE_SERVER_CLIENT_ID` in `.env` plus Supabase
+dashboard provider config and native platform setup (Android SHA-1,
+iOS URL scheme, Apple Sign In capability) before it actually works end
+to end — see SECRETS.txt. The "does a shop already exist" gating added
+earlier the same day was reverted per explicit instruction — sign-up
+stays public for now, pending a decision on the owner-creates-staff
+model (§1a item 3); the already-built `CheckShopExistsUsecase` and
+`supabase/migrations/0003_shop_exists.sql` are unused but ready.
+
+*Earlier that day: added the `customer` feature (FR-003, SRS
+§23.4): full CRUD + search + archive against a new `customers` table
+(`supabase/migrations/0002_customers.sql`, with trigger-based phone
+normalization and shop-scoped RLS open to every active shop member, not
+just owner/admin). This is the second §5a worked example and a better
+template than `shop` for an ordinary CRUD feature, since `shop` is
+unusually RPC-heavy. Along the way, fixed a genuine pre-existing bug: two
+different `EmptyStateWidget`/`ErrorStateWidget` classes existed
+(`core/widgets/` and `core/utils/widget_utils.dart`), which silently broke
+`find.byType()` in `api_status_builder_test.dart` whenever both barrels
+were imported together — removed the dead duplicates in
+`widget_utils.dart` so only the `core/widgets/` versions (the ones
+`ApiStatusBuilder`/`PaginatedListView` actually render) exist.
+Earlier the same day: rebuilt the `auth` feature against Supabase Auth for
+real (fixing a pre-existing bug where sign-in never persisted its
+session), added the `BaseSupabaseDatasource` pattern (§5a) and the
 `shops`/`shop_members`/`audit_logs` + RLS schema
 (`supabase/migrations/0001_identity_and_shops.sql`), closing §1a items
 1–4 and establishing the shop-scoping convention (item 8) every future

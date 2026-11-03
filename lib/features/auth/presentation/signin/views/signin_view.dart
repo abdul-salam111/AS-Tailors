@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/const_exports.dart';
-import '../../../../../core/services/session_entity.dart';
-import '../../../../../core/services/session_manager.dart';
-import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/di/di_exports.dart';
-import '../../../../../core/widgets/widgets_exports.dart';
+import '../../../../../core/shared/shared_exports.dart';
+import '../../../../../core/theme/theme_exports.dart';
 import '../../../../../core/utils/utils_exports.dart';
+import '../../../../../core/widgets/widgets_exports.dart';
 import '../../../../../routes/routes_exports.dart';
+import '../../widgets/auth_gradient_background.dart';
+import '../../widgets/complete_sign_in.dart';
+import '../../widgets/entrance_choreography.dart';
+import '../../widgets/social_sign_in_buttons.dart';
 import '../blocs/signin_bloc.dart';
 import '../blocs/signin_event.dart';
 import '../blocs/signin_state.dart';
+
+const _sheetExpandDuration = Duration(milliseconds: 320);
+// How far below the status bar the sheet rests when nothing is focused —
+// roughly the height of the logo + title + subtitle hero it sits over.
+const _sheetCollapsedOffset = 260.0;
 
 /// Public entry point for the Sign-In screen.
 /// Provides [SignInBloc] to the subtree and delegates UI to [_SignInBody].
@@ -22,8 +30,17 @@ class SignInView extends StatelessWidget {
   }
 }
 
-/// Private body widget — owns the [GlobalKey<FormState>] which must
-/// survive rebuilds, hence [StatefulWidget] is appropriate here.
+/// Private body widget — owns the [GlobalKey<FormState>], the focus
+/// nodes driving the sheet's expand/collapse animation, and the
+/// staggered entrance choreography, hence [StatefulWidget] +
+/// [TickerProviderStateMixin].
+///
+/// Sign-up is public for now (no "does a shop already exist" gating) —
+/// SRS §3's intended staff-onboarding model (owner creates staff accounts
+/// directly) is still an open decision; see `CheckShopExistsUsecase`
+/// (`features/shop/domain/usecases/check_shop_exists_usecase.dart`) and
+/// `supabase/migrations/0003_shop_exists.sql`, which are already built and
+/// ready to wire back in once that's decided.
 class _SignInBody extends StatefulWidget {
   const _SignInBody();
 
@@ -31,123 +48,295 @@ class _SignInBody extends StatefulWidget {
   State<_SignInBody> createState() => _SignInBodyState();
 }
 
-class _SignInBodyState extends State<_SignInBody> {
+class _SignInBodyState extends State<_SignInBody> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  late final _entrance = EntranceChoreography(this);
+  bool _isFormExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailFocusNode.addListener(_handleFocusChange);
+    _passwordFocusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _emailFocusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    _passwordFocusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    _entrance.dispose();
+    super.dispose();
+  }
+
+  // The sheet expands to cover the hero while any field is focused, and
+  // settles back down once focus clears (UnfocusWrapper's outside tap).
+  void _handleFocusChange() {
+    final expanded = _emailFocusNode.hasFocus || _passwordFocusNode.hasFocus;
+    if (expanded != _isFormExpanded) {
+      setState(() => _isFormExpanded = expanded);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SignInBloc, SignInState>(
-      listener: (context, state) {
-        if (state.apiStatus == ApiStatus.SUCCESS && state.signinEntity != null) {
-          final auth = state.signinEntity!;
-          sl<SessionController>().setSession(
-            SessionEntity(
-              userId: auth.userId,
-              email: auth.email,
-              fullName: auth.fullName,
-              shopId: auth.shopId,
-              role: auth.role,
+    return UnfocusWrapper(
+      child: Scaffold(
+        body: BlocListener<SignInBloc, SignInState>(
+          listenWhen: (previous, current) => previous.apiStatus != current.apiStatus,
+          listener: (context, state) {
+            if (state.apiStatus == ApiStatus.SUCCESS && state.signinEntity != null) {
+              completeSignIn(context, state.signinEntity!);
+            }
+            if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
+              AppToastsUtils.showErrorTop(context, AppFailureMapper.map(state.failure!).message);
+            }
+          },
+          child: Stack(
+            children: [
+              Positioned.fill(child: AuthGradientBackground(child: _buildHero(context))),
+              AnimatedPositioned(
+                duration: _sheetExpandDuration,
+                curve: Curves.easeOutCubic,
+                top: _isFormExpanded
+                    ? 0
+                    : MediaQuery.paddingOf(context).top + _sheetCollapsedOffset,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildSheet(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHero(BuildContext context) {
+    final logoAnim = _entrance.interval(0.0, 0.45);
+    final titleAnim = _entrance.interval(0.1, 0.55);
+    final subtitleAnim = _entrance.interval(0.18, 0.6);
+
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [LanguageToggleButton(), ThemeToggleButton()],
+              ),
             ),
-          );
-          AppToastsUtils.showSuccessTop(context, context.l10n.youHaveLoggedInSuccessfully);
-          context.go(auth.hasShop ? RoutePaths.home : RoutePaths.createShop);
-        }
-        if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
-          final error = AppFailureMapper.map(state.failure!);
-          switch (error.display) {
-            case ErrorDisplay.dialog:
-              showDialog<void>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(context.l10n.signIn),
-                  content: Text(error.message),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
+            heightBox(4),
+            AnimatedBuilder(
+              animation: logoAnim,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: logoAnim.value,
+                  child: Transform.scale(scale: 0.7 + (0.3 * logoAnim.value), child: child),
+                );
+              },
+              child: const _LogoCard(),
+            ),
+            heightBox(20),
+            _entrance.fadeSlideUp(
+              titleAnim,
+              Text(
+                context.l10n.appName,
+                style: context.headlineLarge.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            heightBox(8),
+            _entrance.fadeSlideUp(
+              subtitleAnim,
+              Text(
+                context.l10n.signInTagline,
+                textAlign: TextAlign.center,
+                style: context.bodyMedium.copyWith(color: context.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context) {
+    return _entrance.fadeSlideUp(
+      _entrance.interval(0.22, 0.65),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: context.surfaceElevated,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(32),
+            topRight: Radius.circular(32),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.brandTeal.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, -6),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: _isFormExpanded,
+          bottom: false,
+          child: Column(
+            children: [
+              heightBox(10),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: context.border,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-              );
-            case ErrorDisplay.toast:
-            case ErrorDisplay.inline:
-            case ErrorDisplay.fullScreen:
-              AppToastsUtils.showErrorTop(context, error.message);
-          }
-        }
-      },
-      builder: (context, state) {
-        return UnfocusWrapper(
-          child: Scaffold(
-            appBar: CustomAppBar(
-              title: context.l10n.signIn,
-              actions: const [LanguageToggleButton(), ThemeToggleButton()],
+              ),
+              Expanded(child: SingleChildScrollView(child: _buildForm(context))),
+              _entrance.fadeSlideUp(_entrance.interval(0.64, 1.0), _buildFooterLink(context)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            heightBox(18),
+            _entrance.fadeSlideUp(
+              _entrance.interval(0.3, 0.65),
+              Text(
+                context.l10n.welcomeBack,
+                style: context.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+              ),
             ),
-            body: Center(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    const AppLogo(),
-                    heightBox(context.screenHeight * 0.1),
-                    BlocBuilder<SignInBloc, SignInState>(
-                      buildWhen: (p, n) => p.email != n.email,
-                      builder: (context, state) {
-                        return CustomTextFormField(
-                          prefixIcon: Iconsax.sms,
-                          label: context.l10n.email,
-                          keyboardType: TextInputType.emailAddress,
-                          hintText: context.l10n.enterYourEmail,
-                          onChanged: (email) {
-                            context.read<SignInBloc>().add(EmailChangedEvent(email));
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    BlocBuilder<SignInBloc, SignInState>(
-                      buildWhen: (p, n) => p.password != n.password,
-                      builder: (context, state) {
-                        return CustomTextFormField(
-                          onChanged: (password) {
-                            context.read<SignInBloc>().add(PasswordChangedEvent(password));
-                          },
-                          obscureText: true,
-                          prefixIcon: Iconsax.lock,
-                          label: context.l10n.password,
-                          hintText: context.l10n.enterYourPassword,
-                          keyboardType: TextInputType.visiblePassword,
-                        );
-                      },
-                    ),
-                    heightBox(context.screenHeight * 0.05),
-                    BlocBuilder<SignInBloc, SignInState>(
-                      buildWhen: (p, n) => p.apiStatus != n.apiStatus,
-                      builder: (context, state) {
-                        return CustomButton(
-                          isLoading: state.apiStatus == ApiStatus.LOADING,
-                          label: context.l10n.signInBtn,
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              context.read<SignInBloc>().add(SignInSubmitted());
-                            }
-                          },
-                          radius: 10,
-                        );
-                      },
-                    ),
-                    heightBox(16),
-                    CustomButton.text(
-                      label: context.l10n.dontHaveAnAccount,
-                      onPressed: () => context.go(RoutePaths.signup),
-                    ),
-                  ],
+            heightBox(20),
+            _entrance.fadeSlideUp(
+              _entrance.interval(0.34, 0.72),
+              BlocBuilder<SignInBloc, SignInState>(
+                buildWhen: (p, n) => p.email != n.email,
+                builder: (context, state) => CustomTextFormField(
+                  prefixIcon: Iconsax.sms,
+                  label: context.l10n.email,
+                  keyboardType: TextInputType.emailAddress,
+                  hintText: context.l10n.enterYourEmail,
+                  focusNode: _emailFocusNode,
+                  onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                  onChanged: (email) => context.read<SignInBloc>().add(EmailChangedEvent(email)),
                 ),
               ),
             ),
+            heightBox(14),
+            _entrance.fadeSlideUp(
+              _entrance.interval(0.42, 0.8),
+              BlocBuilder<SignInBloc, SignInState>(
+                buildWhen: (p, n) => p.password != n.password,
+                builder: (context, state) => CustomTextFormField(
+                  onChanged: (password) =>
+                      context.read<SignInBloc>().add(PasswordChangedEvent(password)),
+                  obscureText: true,
+                  prefixIcon: Iconsax.lock,
+                  label: context.l10n.password,
+                  hintText: context.l10n.enterYourPassword,
+                  keyboardType: TextInputType.visiblePassword,
+                  focusNode: _passwordFocusNode,
+                ),
+              ),
+            ),
+            heightBox(18),
+            _entrance.fadeSlideUp(
+              _entrance.interval(0.58, 0.94),
+              BlocBuilder<SignInBloc, SignInState>(
+                buildWhen: (p, n) => p.apiStatus != n.apiStatus,
+                builder: (context, state) => CustomButton(
+                  isLoading: state.apiStatus == ApiStatus.LOADING,
+                  label: context.l10n.signInBtn,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      context.read<SignInBloc>().add(SignInSubmitted());
+                    }
+                  },
+                  radius: 14,
+                  height: 54,
+                ),
+              ),
+            ),
+            heightBox(20),
+            _entrance.fadeSlideUp(_entrance.interval(0.6, 0.96), const SocialSignInButtons()),
+            heightBox(16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterLink(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(context.l10n.dontHaveAnAccount, style: context.bodySmall),
+              TextButton(
+                onPressed: () => context.go(RoutePaths.signup),
+                child: Text(
+                  context.l10n.signUp,
+                  style: context.bodySmall.copyWith(
+                    color: context.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+}
+
+class _LogoCard extends StatelessWidget {
+  const _LogoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      height: 88,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.brandTeal.withValues(alpha: 0.2),
+            blurRadius: 24,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: const AppLogo(),
     );
   }
 }

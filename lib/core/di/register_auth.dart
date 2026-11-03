@@ -18,6 +18,10 @@ Future<void> registerAuth() async {
   // UseCases
   sl.registerLazySingleton<SignInUsecase>(() => SignInUsecase(repository: sl()));
   sl.registerLazySingleton<SignupUsecase>(() => SignupUsecase(repository: sl()));
+  sl.registerLazySingleton<SignInWithGoogleUsecase>(
+    () => SignInWithGoogleUsecase(repository: sl()),
+  );
+  sl.registerLazySingleton<SignInWithAppleUsecase>(() => SignInWithAppleUsecase(repository: sl()));
   sl.registerLazySingleton<SignOutUsecase>(() => SignOutUsecase(repository: sl()));
   sl.registerLazySingleton<GetCurrentSessionUsecase>(
     () => GetCurrentSessionUsecase(repository: sl()),

@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../core/di/di_exports.dart';
 import '../core/services/session_manager.dart';
 import '../features/auth/auth_exports.dart';
+import '../features/customer/customer_exports.dart';
 import '../features/home/home_exports.dart';
 import '../features/shop/shop_exports.dart';
 import '../features/splash/splash_exports.dart';
@@ -71,6 +72,26 @@ class AppRoutes {
         path: RoutePaths.home,
         name: RouteNames.home,
         builder: (context, state) => const HomeView(),
+      ),
+      GoRoute(
+        path: RoutePaths.customers,
+        name: RouteNames.customers,
+        builder: (context, state) => const CustomerListView(),
+      ),
+      GoRoute(
+        path: RoutePaths.addCustomer,
+        name: RouteNames.addCustomer,
+        builder: (context, state) => const CustomerFormView(),
+      ),
+      GoRoute(
+        path: RoutePaths.customerDetail,
+        name: RouteNames.customerDetail,
+        builder: (context, state) => CustomerDetailView(customerId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: RoutePaths.editCustomer,
+        name: RouteNames.editCustomer,
+        builder: (context, state) => CustomerFormView(customer: state.extra as CustomerEntity?),
       ),
     ],
   );

@@ -8,4 +8,7 @@ abstract interface class IShopRepository {
   /// if a shop already exists (single-shop deployment, SRS §1.4) or if the
   /// caller already belongs to one.
   Future<Either<Failure, ShopEntity>> createShop(CreateShopParams params);
+
+  /// See `IShopRemoteDatasource.shopExists` — callable before login.
+  Future<Either<Failure, bool>> checkShopExists();
 }

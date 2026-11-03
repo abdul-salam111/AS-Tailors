@@ -15,4 +15,6 @@ export './domain/entities/signup_params.dart';
 export './domain/usecases/get_current_session_usecase.dart';
 export './domain/usecases/sign_out_usecase.dart';
 export './domain/usecases/signin_usecase.dart';
+export './domain/usecases/signin_with_apple_usecase.dart';
+export './domain/usecases/signin_with_google_usecase.dart';
 export './domain/usecases/signup_usecase.dart';

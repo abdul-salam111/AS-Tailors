@@ -1,0 +1,22 @@
+// Customer feature barrel — public API for other layers/features to import.
+export 'data/datasources/customer_remote_datasource/customer_remote_datasource.dart';
+export 'data/repositories_impl/customer_repository_impl.dart';
+export 'domain/entities/create_customer_params.dart';
+export 'domain/entities/customer_entity.dart';
+export 'domain/entities/get_customers_params.dart';
+export 'domain/entities/update_customer_params.dart';
+export 'domain/repositories/customer_repository.dart';
+export 'domain/usecases/archive_customer_usecase.dart';
+export 'domain/usecases/create_customer_usecase.dart';
+export 'domain/usecases/get_customer_by_id_usecase.dart';
+export 'domain/usecases/get_customers_usecase.dart';
+export 'domain/usecases/update_customer_usecase.dart';
+export 'presentation/customer_detail/blocs/customer_detail_bloc.dart';
+export 'presentation/customer_detail/blocs/customer_detail_event.dart';
+export 'presentation/customer_detail/blocs/customer_detail_state.dart';
+export 'presentation/customer_detail/views/customer_detail_view.dart';
+export 'presentation/customer_form/blocs/customer_form_bloc.dart';
+export 'presentation/customer_form/blocs/customer_form_event.dart';
+export 'presentation/customer_form/blocs/customer_form_state.dart';
+export 'presentation/customer_form/views/customer_form_view.dart';
+export 'presentation/customer_list/views/customer_list_view.dart';

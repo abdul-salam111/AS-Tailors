@@ -44,6 +44,30 @@ class AuthRepositoryImpl extends BaseRepository implements IAuthRepository {
   );
 
   @override
+  Future<Either<Failure, AuthEntity>> signInWithGoogle() => execute(
+    call: () async {
+      final response = await _dataSource.signInWithGoogle();
+      final user = response.user;
+      if (user == null) {
+        throw const UnauthorizedException('Google sign-in did not return a user.');
+      }
+      return _buildEntity(user);
+    },
+  );
+
+  @override
+  Future<Either<Failure, AuthEntity>> signInWithApple() => execute(
+    call: () async {
+      final response = await _dataSource.signInWithApple();
+      final user = response.user;
+      if (user == null) {
+        throw const UnauthorizedException('Apple sign-in did not return a user.');
+      }
+      return _buildEntity(user);
+    },
+  );
+
+  @override
   Future<Either<Failure, void>> signOut() => execute(call: _dataSource.signOut);
 
   @override

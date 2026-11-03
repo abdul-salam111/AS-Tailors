@@ -32,6 +32,15 @@ deliberately deferred — see CLAUDE.md §1a item 8), and the
 `bootstrap_shop()` RPC that provisions the first owner/shop (SRS §3's
 "controlled setup process").
 
-Feature tables (customers, measurement templates, orders, payments, ...)
-belong in their own numbered migrations as those features get built — see
-SRS §9.2 for the full table inventory this will eventually grow into.
+Feature tables (measurement templates, orders, payments, ...) belong in
+their own numbered migrations as those features get built — see SRS §9.2
+for the full table inventory this will eventually grow into.
+
+## What's in 0002
+
+The `customers` table (SRS §9.3, §23.4): shop-scoped customer directory,
+walk-ins supported without a Supabase Auth account (`profile_id` nullable),
+`normalize_phone()` + a trigger that keeps `normalized_phone` in sync with
+`phone` for duplicate-detection search, and RLS that lets any active shop
+member (not just owner/admin) read/create/update customers — no delete
+policy, since archiving (`is_active = false`) is the only removal path.

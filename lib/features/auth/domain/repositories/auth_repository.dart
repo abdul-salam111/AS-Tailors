@@ -6,6 +6,8 @@ import '../entities/signup_params.dart';
 abstract interface class IAuthRepository {
   Future<Either<Failure, AuthEntity>> signIn(SignInParams params);
   Future<Either<Failure, AuthEntity>> signUp(SignupParams params);
+  Future<Either<Failure, AuthEntity>> signInWithGoogle();
+  Future<Either<Failure, AuthEntity>> signInWithApple();
   Future<Either<Failure, void>> signOut();
 
   /// Resolves the current Supabase session (if any) into an [AuthEntity],

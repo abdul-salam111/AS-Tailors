@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../theme/colors.dart';
+import '../widgets/error_state_widget.dart';
 import '../widgets/loading_indicator.dart';
 
 /////////////////////////////////////  WIDGETS EXTENSIONS ////////////////////////////////////////
@@ -580,83 +581,12 @@ class PaddingWrapper extends StatelessWidget {
   }
 }
 
-// ============== Empty State Widget ==============
-
-class EmptyStateWidget extends StatelessWidget {
-  final IconData? icon;
-  final String title;
-  final String? subtitle;
-  final Widget? action;
-  final double iconSize;
-
-  const EmptyStateWidget({
-    super.key,
-    this.icon,
-    required this.title,
-    this.subtitle,
-    this.action,
-    this.iconSize = 80,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) Icon(icon, size: iconSize, color: AppColors.grey400),
-          const SizedBox(height: 16),
-          Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
-          if (subtitle != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              subtitle!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.grey400),
-              textAlign: TextAlign.center,
-            ),
-          ],
-          if (action != null) ...[const SizedBox(height: 24), action!],
-        ],
-      ),
-    );
-  }
-}
-
-// ============== Error State Widget ==============
-
-class ErrorStateWidget extends StatelessWidget {
-  final String? message;
-  final VoidCallback? onRetry;
-  final IconData icon;
-
-  const ErrorStateWidget({super.key, this.message, this.onRetry, this.icon = Icons.error_outline});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 80, color: AppColors.error),
-          const SizedBox(height: 16),
-          Text(
-            message ?? 'Something went wrong',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          if (onRetry != null) ...[
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
+// Empty/error state widgets live in core/widgets/empty_state_widget.dart and
+// core/widgets/error_state_widget.dart — those are the ones ApiStatusBuilder
+// and PaginatedListView actually render. Duplicate classes used to exist
+// here too; they were dead weight that silently shadowed the real ones
+// whenever a file imported both barrels (see git history / CLAUDE.md
+// changelog for the api_status_builder_test.dart fix this enabled).
 
 // ============== Shimmer Loading ==============
 
