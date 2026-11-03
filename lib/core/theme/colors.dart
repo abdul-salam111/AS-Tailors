@@ -26,6 +26,25 @@ class AppColors {
   static const Color tertiaryLight = Color(0xFF5B47C9);
 
   // ============================================
+  // BRAND IDENTITY (AS Tailors official mark — SRS §27)
+  // ============================================
+  // Approved alongside the AS Tailors logo artwork. Used for brand-specific
+  // surfaces (e.g. the splash screen) without disturbing the app's existing
+  // Material color scheme above.
+
+  /// Official brand teal — matches the logo's sewing-machine/lettering.
+  static const Color brandTeal = Color(0xFF07A6A3);
+
+  /// Warm metallic gold — tailoring accent, matches the logo's thread detail.
+  static const Color brandGold = Color(0xFFC9A24A);
+
+  /// Deep charcoal — neutral typography / dark brand surfaces.
+  static const Color brandCharcoal = Color(0xFF263238);
+
+  /// Warm ivory — light brand surfaces.
+  static const Color brandIvory = Color(0xFFF7F5EF);
+
+  // ============================================
   // NEUTRAL COLORS
   // ============================================
 

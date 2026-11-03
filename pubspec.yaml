@@ -35,6 +35,7 @@ dependencies:
   dio_cache_interceptor: ^3.4.4
   pretty_dio_logger: ^1.4.0
   envied: ^1.1.1
+  supabase_flutter: ^2.18.3
 
 dev_dependencies:
   flutter_test:
