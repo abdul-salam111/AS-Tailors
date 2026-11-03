@@ -16,10 +16,7 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<SignupBloc>(),
-      child: const _SignUpBody(),
-    );
+    return BlocProvider(create: (_) => sl<SignupBloc>(), child: const _SignUpBody());
   }
 }
 
@@ -40,10 +37,7 @@ class _SignUpBodyState extends State<_SignUpBody> {
     return BlocConsumer<SignupBloc, SignupState>(
       listener: (context, state) {
         if (state.apiStatus == ApiStatus.SUCCESS) {
-          AppToastsUtils.showSuccessTop(
-            context,
-            context.l10n.youHaveSignedUpSuccessfully,
-          );
+          AppToastsUtils.showSuccessTop(context, context.l10n.youHaveSignedUpSuccessfully);
           context.go(RoutePaths.signin);
         }
         if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
@@ -73,7 +67,10 @@ class _SignUpBodyState extends State<_SignUpBody> {
       builder: (context, state) {
         return UnfocusWrapper(
           child: Scaffold(
-            appBar: CustomAppBar(title: context.l10n.signUp),
+            appBar: CustomAppBar(
+              title: context.l10n.signUp,
+              actions: const [LanguageToggleButton(), ThemeToggleButton()],
+            ),
             body: Center(
               child: Form(
                 key: _formKey,
@@ -91,9 +88,7 @@ class _SignUpBodyState extends State<_SignUpBody> {
                           hintText: context.l10n.enterYourName,
                           validator: Validator.validateName,
                           onChanged: (name) {
-                            context.read<SignupBloc>().add(
-                              NameChangedEvent(name),
-                            );
+                            context.read<SignupBloc>().add(NameChangedEvent(name));
                           },
                         );
                       },
@@ -109,9 +104,7 @@ class _SignUpBodyState extends State<_SignUpBody> {
                           hintText: context.l10n.enterYourEmail,
                           validator: Validator.validateEmail,
                           onChanged: (email) {
-                            context.read<SignupBloc>().add(
-                              SignupEmailChangedEvent(email),
-                            );
+                            context.read<SignupBloc>().add(SignupEmailChangedEvent(email));
                           },
                         );
                       },
@@ -122,9 +115,7 @@ class _SignUpBodyState extends State<_SignUpBody> {
                       builder: (context, state) {
                         return CustomTextFormField(
                           onChanged: (password) {
-                            context.read<SignupBloc>().add(
-                              SignupPasswordChangedEvent(password),
-                            );
+                            context.read<SignupBloc>().add(SignupPasswordChangedEvent(password));
                           },
                           obscureText: true,
                           prefixIcon: Iconsax.lock,
@@ -138,8 +129,7 @@ class _SignUpBodyState extends State<_SignUpBody> {
                     const SizedBox(height: 16),
                     BlocBuilder<SignupBloc, SignupState>(
                       buildWhen: (p, n) =>
-                          p.confirmPassword != n.confirmPassword ||
-                          p.password != n.password,
+                          p.confirmPassword != n.confirmPassword || p.password != n.password,
                       builder: (context, state) {
                         return CustomTextFormField(
                           onChanged: (confirmPassword) {

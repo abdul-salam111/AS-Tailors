@@ -1,0 +1,21 @@
+{
+  "@@locale": "ur",
+
+  "appName": "AS Tailors",
+  "signIn": "سائن ان",
+  "signInBtn": "سائن ان",
+  "signUp": "سائن اپ",
+  "signUpBtn": "سائن اپ",
+  "email": "ای میل",
+  "password": "پاسورڈ",
+  "name": "نام",
+  "confirmPassword": "پاسورڈ کی تصدیق کریں",
+  "enterYourEmail": "اپنا ای میل درج کریں",
+  "enterYourPassword": "اپنا پاسورڈ درج کریں",
+  "enterYourName": "اپنا نام درج کریں",
+  "enterYourConfirmPassword": "پاسورڈ دوبارہ درج کریں",
+  "alreadyHaveAnAccount": "پہلے سے اکاؤنٹ ہے؟",
+  "dontHaveAnAccount": "اکاؤنٹ نہیں ہے؟",
+  "youHaveLoggedInSuccessfully": "آپ کامیابی سے سائن ان ہو گئے ہیں!",
+  "youHaveSignedUpSuccessfully": "آپ کامیابی سے سائن اپ ہو گئے ہیں!"
+}

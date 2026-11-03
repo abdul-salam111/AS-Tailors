@@ -155,6 +155,7 @@ class StorageKeys {
   static const String userId       = AppConstants.keyUserId;
   static const String userDetails  = AppConstants.keyUserDetails;
   static const String isDarkMode   = AppConstants.keyIsDarkMode;
+  static const String locale       = AppConstants.keyLocale;
 }
 
 extension LocalStorageGetters on LocalStorage {

@@ -40,6 +40,7 @@ class AppConstants {
   static const String keyUserId       = 'userId';
   static const String keyUserDetails  = 'userDetails';
   static const String keyIsDarkMode   = 'isDarkMode';
+  static const String keyLocale       = 'locale';
 
   // ─── Network Exceptions ────────────────────────────────
   static const String unexpectedError = 'An unexpected error occurred';

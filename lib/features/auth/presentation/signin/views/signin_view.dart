@@ -9,8 +9,6 @@ import '../blocs/signin_bloc.dart';
 import '../blocs/signin_event.dart';
 import '../blocs/signin_state.dart';
 
-
-
 /// Public entry point for the Sign-In screen.
 /// Provides [SignInBloc] to the subtree and delegates UI to [_SignInBody].
 class SignInView extends StatelessWidget {
@@ -18,10 +16,7 @@ class SignInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<SignInBloc>(),
-      child: const _SignInBody(),
-    );
+    return BlocProvider(create: (_) => sl<SignInBloc>(), child: const _SignInBody());
   }
 }
 
@@ -42,10 +37,7 @@ class _SignInBodyState extends State<_SignInBody> {
     return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) {
         if (state.apiStatus == ApiStatus.SUCCESS) {
-          AppToastsUtils.showSuccessTop(
-            context,
-            context.l10n.youHaveLoggedInSuccessfully,
-          );
+          AppToastsUtils.showSuccessTop(context, context.l10n.youHaveLoggedInSuccessfully);
         }
         if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
           final error = AppFailureMapper.map(state.failure!);
@@ -74,7 +66,10 @@ class _SignInBodyState extends State<_SignInBody> {
       builder: (context, state) {
         return UnfocusWrapper(
           child: Scaffold(
-            appBar: CustomAppBar(title: context.l10n.signIn),
+            appBar: CustomAppBar(
+              title: context.l10n.signIn,
+              actions: const [LanguageToggleButton(), ThemeToggleButton()],
+            ),
             body: Center(
               child: Form(
                 key: _formKey,
@@ -91,9 +86,7 @@ class _SignInBodyState extends State<_SignInBody> {
                           keyboardType: TextInputType.emailAddress,
                           hintText: context.l10n.enterYourEmail,
                           onChanged: (email) {
-                            context.read<SignInBloc>().add(
-                              EmailChangedEvent(email),
-                            );
+                            context.read<SignInBloc>().add(EmailChangedEvent(email));
                           },
                         );
                       },
@@ -104,9 +97,7 @@ class _SignInBodyState extends State<_SignInBody> {
                       builder: (context, state) {
                         return CustomTextFormField(
                           onChanged: (password) {
-                            context.read<SignInBloc>().add(
-                              PasswordChangedEvent(password),
-                            );
+                            context.read<SignInBloc>().add(PasswordChangedEvent(password));
                           },
                           obscureText: true,
                           prefixIcon: Iconsax.lock,

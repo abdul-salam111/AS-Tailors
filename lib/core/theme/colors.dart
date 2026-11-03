@@ -7,42 +7,54 @@ class AppColors {
   AppColors._(); // Private constructor to prevent instantiation
 
   // ============================================
-  // BRAND COLORS
+  // BRAND IDENTITY (AS Tailors official palette — SRS §27 + brand guide)
   // ============================================
-
-  /// Primary brand color - Main actions, CTAs
-  static const Color primary = Color(0xFFFF8F2D);
-  static const Color primaryDark = Color(0xFFE67A1A);
-  static const Color primaryLight = Color(0xFFFFA558);
-
-  /// Secondary brand color - Accents, highlights
-  static const Color secondary = Color(0xFFDED2FA);
-  static const Color secondaryDark = Color(0xFFC5B5E8);
-  static const Color secondaryLight = Color(0xFFEDE7FC);
-
-  /// Tertiary brand color - Alternative accents
-  static const Color tertiary = Color(0xFF3927AD);
-  static const Color tertiaryDark = Color(0xFF2A1C7B);
-  static const Color tertiaryLight = Color(0xFF5B47C9);
-
-  // ============================================
-  // BRAND IDENTITY (AS Tailors official mark — SRS §27)
-  // ============================================
-  // Approved alongside the AS Tailors logo artwork. Used for brand-specific
-  // surfaces (e.g. the splash screen) without disturbing the app's existing
-  // Material color scheme above.
+  // Canonical hex values for the approved brand palette. The Material
+  // color scheme below (primary/secondary/tertiary) is derived from these
+  // — don't redeclare the literals elsewhere.
 
   /// Official brand teal — matches the logo's sewing-machine/lettering.
   static const Color brandTeal = Color(0xFF07A6A3);
 
-  /// Warm metallic gold — tailoring accent, matches the logo's thread detail.
-  static const Color brandGold = Color(0xFFC9A24A);
+  /// Teal deep — darker brand teal for pressed/emphasis states.
+  static const Color brandTealDeep = Color(0xFF087C78);
+
+  /// Teal tint — pale brand teal for containers/tinted surfaces.
+  static const Color brandTealTint = Color(0xFFDDF5F3);
+
+  /// Gold accent — tailoring accent, matches the logo's thread detail.
+  static const Color brandGold = Color(0xFFD5AD62);
+
+  /// Darker gold for pressed/emphasis states.
+  static const Color brandGoldDark = Color(0xFFB98A31);
+
+  /// Pale gold tint for containers/tinted surfaces.
+  static const Color brandGoldLight = Color(0xFFE8D3AA);
 
   /// Deep charcoal — neutral typography / dark brand surfaces.
   static const Color brandCharcoal = Color(0xFF263238);
 
   /// Warm ivory — light brand surfaces.
   static const Color brandIvory = Color(0xFFF7F5EF);
+
+  // ============================================
+  // BRAND COLORS (Material color scheme)
+  // ============================================
+
+  /// Primary brand color - Main actions, CTAs
+  static const Color primary = brandTeal;
+  static const Color primaryDark = brandTealDeep;
+  static const Color primaryLight = brandTealTint;
+
+  /// Secondary brand color - Accents, highlights
+  static const Color secondary = brandGold;
+  static const Color secondaryDark = brandGoldDark;
+  static const Color secondaryLight = brandGoldLight;
+
+  /// Tertiary brand color - deep-neutral accent (SRS §27 supporting palette)
+  static const Color tertiary = brandCharcoal;
+  static const Color tertiaryDark = Color(0xFF161C20);
+  static const Color tertiaryLight = Color(0xFF536E7B);
 
   // ============================================
   // NEUTRAL COLORS
@@ -96,7 +108,7 @@ class AppColors {
   // ============================================
 
   static const Color backgroundLight = white;
-  static const Color backgroundDark = black;
+  static const Color backgroundDark = grey900;
 
   /// Surface colors for cards, sheets
   static const Color surfaceLight = grey50;

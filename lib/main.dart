@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/env.dart';
 import 'core/di/di_exports.dart';
+import 'core/localization/locale_cubit.dart';
 import 'core/services/connectivity_cubit.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/shared/presentation/bloc_observer/app_bloc_observer.dart';
@@ -66,23 +67,29 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => ThemeBloc(localStorage: sl())..add(const LoadTheme())),
+        BlocProvider(create: (context) => LocaleCubit(localStorage: sl())..loadLocale()),
         BlocProvider(
           create: (context) => ConnectivityCubit(connectivityService: sl<ConnectivityService>()),
         ),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
-        builder: (context, state) {
-          return MaterialApp.router(
-            title: 'Flutter Project',
-            theme: AppThemes.lightTheme,
-            darkTheme: AppThemes.darkTheme,
-            themeMode: state.themeMode,
-            debugShowCheckedModeBanner: false,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            routerConfig: AppRoutes.router,
-            builder: (context, child) =>
-                ConnectivityBanner(child: child ?? const SizedBox.shrink()),
+        builder: (context, themeState) {
+          return BlocBuilder<LocaleCubit, Locale?>(
+            builder: (context, locale) {
+              return MaterialApp.router(
+                onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+                theme: AppThemes.lightTheme,
+                darkTheme: AppThemes.darkTheme,
+                themeMode: themeState.themeMode,
+                locale: locale,
+                debugShowCheckedModeBanner: false,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                routerConfig: AppRoutes.router,
+                builder: (context, child) =>
+                    ConnectivityBanner(child: child ?? const SizedBox.shrink()),
+              );
+            },
           );
         },
       ),
