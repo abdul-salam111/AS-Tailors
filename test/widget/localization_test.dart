@@ -1,5 +1,5 @@
+import 'package:astailors/core/utils/utils_exports.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_template/core/utils/localization_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

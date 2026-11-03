@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_template/core/theme/colors.dart';
+
+import '../theme/colors.dart';
 import 'loading_indicator.dart';
 
 enum _ButtonVariant { filled, outline, text }

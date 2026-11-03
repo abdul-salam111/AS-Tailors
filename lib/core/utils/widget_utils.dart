@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_template/core/theme/colors.dart';
-import 'package:flutter_template/core/widgets/loading_indicator.dart';
+
+import '../theme/colors.dart';
+import '../widgets/loading_indicator.dart';
+
 
 /////////////////////////////////////  WIDGETS EXTENSIONS ////////////////////////////////////////
 extension WidgetExtensions on Widget {

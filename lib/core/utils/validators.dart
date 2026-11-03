@@ -3,7 +3,9 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:flutter_template/core/theme/colors.dart';
+
+import '../theme/colors.dart';
+
 
 extension StringValidationExtensions on String {
   // ========================================================================

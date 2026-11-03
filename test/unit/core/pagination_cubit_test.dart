@@ -1,8 +1,7 @@
-import 'package:flutter_template/core/shared/domain/failures/failure.dart';
-import 'package:flutter_template/core/shared/presentation/pagination/pagination_cubit.dart';
-import 'package:flutter_template/core/shared/presentation/pagination/pagination_state.dart';
+
+import 'package:astailors/core/shared/shared_exports.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
+
 
 void main() {
   group('PaginationCubit', () {

@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:astailors/core/services/connectivity_cubit.dart';
+import 'package:astailors/core/services/services_exports.dart';
+import 'package:astailors/core/widgets/connectivity_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_template/core/services/connectivity_cubit.dart';
-import 'package:flutter_template/core/services/connectivity_service.dart';
-import 'package:flutter_template/core/widgets/connectivity_banner.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 

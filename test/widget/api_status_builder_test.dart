@@ -1,10 +1,9 @@
+import 'package:astailors/core/constants/app_enums.dart';
+import 'package:astailors/core/shared/domain/failures/failure.dart';
+import 'package:astailors/core/utils/widget_utils.dart';
+import 'package:astailors/core/widgets/api_status_builder.dart';
+import 'package:astailors/core/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_template/core/constants/app_enums.dart';
-import 'package:flutter_template/core/shared/domain/failures/failure.dart';
-import 'package:flutter_template/core/widgets/api_status_builder.dart';
-import 'package:flutter_template/core/widgets/empty_state_widget.dart';
-import 'package:flutter_template/core/widgets/error_state_widget.dart';
-import 'package:flutter_template/core/widgets/loading_indicator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

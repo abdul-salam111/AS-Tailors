@@ -1,8 +1,8 @@
+import 'package:astailors/core/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_template/core/widgets/custom_button.dart';
-import 'package:flutter_template/core/widgets/loading_indicator.dart';
+
 
 void main() {
   testWidgets('CustomButton shows its label and reports taps', (tester) async {
