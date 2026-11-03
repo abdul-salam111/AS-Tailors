@@ -1,0 +1,25 @@
+{
+  "@@locale": "en",
+
+  "appName": "Flutter App",
+  "@appName": {
+    "description": "The application's display name"
+  },
+
+  "signIn": "Sign In",
+  "signInBtn": "SignIn",
+  "signUp": "Sign Up",
+  "signUpBtn": "Sign Up",
+  "email": "Email",
+  "password": "Password",
+  "name": "Name",
+  "confirmPassword": "Confirm Password",
+  "enterYourEmail": "Enter your email",
+  "enterYourPassword": "Enter your password",
+  "enterYourName": "Enter your name",
+  "enterYourConfirmPassword": "Re-enter your password",
+  "alreadyHaveAnAccount": "Already have an account?",
+  "dontHaveAnAccount": "Don't have an account?",
+  "youHaveLoggedInSuccessfully": "You have logged in successfully!",
+  "youHaveSignedUpSuccessfully": "You have signed up successfully!"
+}

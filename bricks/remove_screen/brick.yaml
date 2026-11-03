@@ -1,0 +1,28 @@
+name: remove_screen
+description: >-
+  The inverse of add_screen — permanently deletes a screen (bloc/cubit +
+  view) from an existing feature, and removes its route_paths.dart/
+  route_names.dart/routes.dart/barrel-export/DI wiring. Does not touch
+  the feature's shared datasource/repository registration — those are
+  one-per-feature, not one-per-screen. For deleting an entire feature
+  module, use remove_feature instead.
+version: 0.1.0
+environment:
+  mason: ">=0.1.0 <0.2.0"
+
+vars:
+  feature_name:
+    type: string
+    description: Which existing feature is this screen part of?
+    prompt: Enter the existing feature name (e.g. auth)
+  screen_name:
+    type: string
+    description: Which screen should be deleted?
+    prompt: Enter the screen name to delete (e.g. forgot_password)
+  confirm:
+    type: boolean
+    description: >-
+      This permanently deletes files and removes routing/DI wiring. This
+      cannot be undone by mason (only by your own version control).
+    default: false
+    prompt: Are you sure you want to permanently delete this screen?

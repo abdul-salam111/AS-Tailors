@@ -1,0 +1,14 @@
+bricks:
+  flutter_architecture:
+    path: "bricks/flutter_architecture"
+  create_feature:
+    path: "bricks/create_feature"
+  asset_generator:
+    path: "bricks/asset_generator"
+  export_generator:
+    path: "bricks/export_generator"
+  add_screen:
+    path: "bricks/add_screen"
+  add_constant:
+    path: "bricks/add_constant"
+

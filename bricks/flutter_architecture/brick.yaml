@@ -1,0 +1,9 @@
+name: flutter_architecture
+description: A Flutter architecture generator
+version: 0.1.0
+environment:
+  mason: ">=0.1.0 <0.2.0"
+
+
+
+# No vars section here

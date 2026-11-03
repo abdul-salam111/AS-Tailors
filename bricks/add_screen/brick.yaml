@@ -1,0 +1,25 @@
+name: add_screen
+description: >
+  Adds a new screen (presentation layer only) to a feature.
+  If the feature doesn't exist yet, creates a presentation-only feature scaffold
+  (no data/domain layers). Generates BLoC or Cubit + view, updates the feature
+  barrel, routes, and DI.
+version: 0.1.0+1
+
+vars:
+  feature_name:
+    type: string
+    description: Feature to add the screen to — existing or new (snake_case)
+    prompt: "Feature name (e.g. auth, profile, orders)"
+  screen_name:
+    type: string
+    description: The new screen name (snake_case)
+    prompt: "Screen name (e.g. signup, forgot_password, otp_verification)"
+  state_management:
+    type: enum
+    description: State management approach for this screen
+    prompt: "State management"
+    values:
+      - bloc
+      - cubit
+    default: bloc

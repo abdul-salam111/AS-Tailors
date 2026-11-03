@@ -1,0 +1,9 @@
+name: export_generator_hooks
+description: Hooks for export_generator brick
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  mason: ^0.1.0-dev.52
+  path: ^1.9.0

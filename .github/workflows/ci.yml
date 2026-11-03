@@ -1,0 +1,53 @@
+name: CI
+
+# Both jobs are opt-in and OFF by default. Enable them in
+# Settings → Secrets and variables → Actions → Variables:
+#   CI_ENABLED    = true   → runs format/analyze/test
+#   BUILD_ENABLED = true   → runs the Android/iOS build jobs
+# Left off by default so cloning this template doesn't silently gate on
+# CI you haven't configured yet.
+
+on:
+  push:
+    branches: [main, master, clean_bloc]
+  pull_request:
+    branches: [main, master, clean_bloc]
+  workflow_dispatch:
+
+jobs:
+  analyze-and-test:
+    if: ${{ vars.CI_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze --fatal-infos
+      - run: flutter test
+
+  build-android:
+    if: ${{ vars.BUILD_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    # No keystore step — this always falls back to debug signing, so the
+    # resulting APK is not suitable for a Play Store release.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build apk --debug
+
+  build-ios:
+    if: ${{ vars.BUILD_ENABLED == 'true' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build ios --no-codesign

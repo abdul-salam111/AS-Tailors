@@ -1,0 +1,9 @@
+name: add_constant
+description: >
+  Scans lib/features/**/presentation/**/*.dart for hardcoded multi-word string
+  literals, writes them as static const String entries to AppConstants in
+  lib/core/constants/app_conts.dart, then replaces every literal in-place with
+  AppConstants.<name>. Runs with no prompts.
+version: 0.1.0
+
+vars: {}

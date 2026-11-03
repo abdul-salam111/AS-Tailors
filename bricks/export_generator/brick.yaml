@@ -1,0 +1,5 @@
+name: export_generator
+description: Scans lib/ and regenerates all barrel export files (core sub-folders, routes, and per-feature barrels). Run after adding any new Dart file.
+version: 0.1.0
+
+vars: {}

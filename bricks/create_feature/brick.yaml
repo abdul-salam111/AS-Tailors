@@ -1,0 +1,16 @@
+name: create_feature
+description: Create a new feature with Clean architecture
+version: 0.1.0+2
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case (e.g. auth, profile, home)
+    prompt: "Feature name (e.g. auth, profile)"
+  initial_screen_name:
+    type: string
+    description: >
+      Name of the first screen inside this feature (snake_case).
+      Leave blank to use the feature name as the screen name.
+    prompt: "Initial screen name (e.g. signin, home_feed) — leave blank to use feature name"
+    default: ""

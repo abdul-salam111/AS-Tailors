@@ -1,0 +1,46 @@
+TEMPLATE REVIEW - GAP ANALYSIS
+
+Senior-level audit of this repo as a reusable base template for future
+Flutter projects, meant to be cloned and shipped rather than built from
+scratch. This covers what is already solid, what is missing, and the
+order I would close the gaps in.
+
+Last reviewed: 27 August 2026.
+
+
+GAPS - TIER 1, THE THINGS EVERY REAL PROJECT HITS IN WEEK ONE
+
+There is no environment or flavor setup. Reading values with
+String.fromEnvironment is documented, but there is no actual flavor
+configuration for dev, staging and prod with separate bundle ids, app
+names and icons. Every project cloned from this template will end up
+doing this differently by hand.
+
+There is no app icon or splash screen generation configured, no flutter
+launcher icons or flutter native splash setup, so every clone does this
+manually.
+
+
+GAPS - TIER 2, HIGH LEVERAGE ITEMS THAT SAVE TIME ON EVERY FEATURE AFTER
+AUTH
+
+
+GAPS - TIER 3, PROFESSIONAL POLISH TO DO ONCE TIER 1 AND 2 ARE DONE
+
+Test coverage is thin, only a couple of widget tests exist right now,
+there are no unit tests for usecases, repositories or blocs even though
+CLAUDE.md documents that exact testing pattern.
+
+There are no pre commit hooks, nothing like lefthook or husky enforcing
+formatting and analysis before a commit lands.
+
+The lint rules are just the default flutter lints package, which is
+fairly light for a template meant to be a professional and polished
+baseline, worth considering something stricter like very good analysis
+or a custom rule set.
+
+The form layer needs a second look, worth checking whether the custom
+text form field widget supports things like async validators and a
+toggle for obscured text before more features get built on top of it.
+
+
