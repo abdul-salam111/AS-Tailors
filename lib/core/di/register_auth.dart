@@ -26,8 +26,17 @@ Future<void> registerAuth() async {
   sl.registerLazySingleton<GetCurrentSessionUsecase>(
     () => GetCurrentSessionUsecase(repository: sl()),
   );
+  sl.registerLazySingleton<VerifySignupOtpUsecase>(
+    () => VerifySignupOtpUsecase(repository: sl()),
+  );
+  sl.registerLazySingleton<ResendSignupOtpUsecase>(
+    () => ResendSignupOtpUsecase(repository: sl()),
+  );
 
   // BLoC — factory so each screen gets a fresh instance
   sl.registerFactory<SignInBloc>(() => SignInBloc(signinUsecase: sl()));
   sl.registerFactory<SignupBloc>(() => SignupBloc(signupUsecase: sl()));
+  sl.registerFactory<VerifyOtpBloc>(
+    () => VerifyOtpBloc(verifySignupOtpUsecase: sl(), resendSignupOtpUsecase: sl()),
+  );
 }

@@ -1,6 +1,7 @@
 class RouteNames {
   static const String signin = 'signin';
   static const String signup = 'signup';
+  static const String verifyEmail = 'verifyEmail';
   static const String splash = 'splash';
   static const String profile = 'profile';
   static const String products = 'products';

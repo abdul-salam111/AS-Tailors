@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../core/constants/env.dart';
 import '../../../../core/di/di_exports.dart';
 import '../../../../core/shared/shared_exports.dart';
 import '../../../../core/theme/theme_exports.dart';
@@ -35,10 +36,26 @@ class _SocialSignInButtonsState extends State<SocialSignInButtons> {
     final result = await call();
     if (!mounted) return;
     setLoading(false);
-    result.fold(
-      (failure) => AppToastsUtils.showErrorTop(context, AppFailureMapper.map(failure).message),
-      (auth) => completeSignIn(context, auth),
-    );
+    result.fold((failure) {
+      if (failure is UserCancelledFailure) return;
+      AppToastsUtils.showErrorTop(context, AppFailureMapper.map(failure).message);
+    }, (auth) => completeSignIn(context, auth));
+  }
+
+  /// `GIDSignIn` throws a raw `NSException` (not a catchable Dart error)
+  /// when `GIDClientID` isn't set in Info.plist — i.e. before native setup
+  /// is done (see SECRETS.txt). That exception crosses the plugin channel
+  /// and crashes the whole app, so it must be headed off before ever
+  /// calling the native plugin rather than caught afterwards.
+  void _onGooglePressed() {
+    if (Env.googleServerClientId.isEmpty) {
+      AppToastsUtils.showInfoTop(
+        context,
+        'Google sign-in isn\'t set up yet — see SECRETS.txt for the required setup.',
+      );
+      return;
+    }
+    _signIn(() => sl<SignInWithGoogleUsecase>()(NoParams()), (v) => setState(() => _googleLoading = v));
   }
 
   @override
@@ -66,10 +83,7 @@ class _SocialSignInButtonsState extends State<SocialSignInButtons> {
                 icon: FontAwesomeIcons.google,
                 label: 'Google',
                 isLoading: _googleLoading,
-                onPressed: () => _signIn(
-                  () => sl<SignInWithGoogleUsecase>()(NoParams()),
-                  (v) => setState(() => _googleLoading = v),
-                ),
+                onPressed: _onGooglePressed,
               ),
             ),
             widthBox(12),

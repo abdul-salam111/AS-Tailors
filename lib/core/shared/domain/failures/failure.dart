@@ -33,3 +33,9 @@ class RateLimitFailure extends Failure {
 class UnexpectedFailure extends Failure {
   const UnexpectedFailure([super.message = 'An unexpected error occurred']);
 }
+
+/// The user backed out of a native OAuth sheet (Google/Apple) themselves —
+/// listeners should treat this as a silent no-op, not an error to display.
+class UserCancelledFailure extends Failure {
+  const UserCancelledFailure([super.message = 'Sign-in was cancelled.']);
+}

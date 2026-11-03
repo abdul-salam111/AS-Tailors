@@ -30,6 +30,17 @@
   "backToSignIn": "سائن ان پر واپس جائیں",
   "orContinueWith": "یا جاری رکھیں",
 
+  "verifyYourEmail": "اپنا ای میل تصدیق کریں",
+  "verificationCodeSentTo": "ہم نے 6 ہندسوں کا کوڈ بھیج دیا ہے",
+  "verificationCode": "تصدیقی کوڈ",
+  "enterVerificationCode": "6 ہندسوں کا کوڈ درج کریں",
+  "verifyBtn": "تصدیق کریں",
+  "resendCode": "کوڈ دوبارہ بھیجیں",
+  "didntReceiveCode": "کوڈ موصول نہیں ہوا؟",
+  "codeResentSuccessfully": "کوڈ کامیابی سے دوبارہ بھیج دیا گیا!",
+  "emailVerifiedSuccessfully": "ای میل کامیابی سے تصدیق ہو گئی!",
+  "checkYourEmailForCode": "تصدیقی کوڈ کے لیے اپنا ای میل چیک کریں۔",
+
   "createShop": "اپنی دکان بنائیں",
   "shopName": "دکان کا نام",
   "enterYourShopName": "اپنی دکان کا نام درج کریں",

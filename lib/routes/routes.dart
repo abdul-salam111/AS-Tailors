@@ -10,7 +10,12 @@ import 'route_names.dart';
 import 'route_paths.dart';
 
 /// Routes that do not require the user to be authenticated.
-const _publicRoutes = {RoutePaths.splash, RoutePaths.signin, RoutePaths.signup};
+const _publicRoutes = {
+  RoutePaths.splash,
+  RoutePaths.signin,
+  RoutePaths.signup,
+  RoutePaths.verifyEmail,
+};
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
@@ -62,6 +67,15 @@ class AppRoutes {
         path: RoutePaths.signup,
         name: RouteNames.signup,
         builder: (context, state) => const SignUpView(),
+      ),
+      GoRoute(
+        path: RoutePaths.verifyEmail,
+        name: RouteNames.verifyEmail,
+        // No email in `extra` means this was reached some other way than
+        // straight from a successful signup (e.g. a cold deep link) —
+        // there's nothing to verify, so send them back to start over.
+        redirect: (context, state) => state.extra is String ? null : RoutePaths.signup,
+        builder: (context, state) => VerifyOtpView(email: state.extra as String),
       ),
       GoRoute(
         path: RoutePaths.createShop,

@@ -34,6 +34,17 @@
   "backToSignIn": "Back to Sign In",
   "orContinueWith": "Or continue with",
 
+  "verifyYourEmail": "Verify your email",
+  "verificationCodeSentTo": "We've sent a 6-digit code to",
+  "verificationCode": "Verification code",
+  "enterVerificationCode": "Enter the 6-digit code",
+  "verifyBtn": "Verify",
+  "resendCode": "Resend code",
+  "didntReceiveCode": "Didn't receive the code?",
+  "codeResentSuccessfully": "Code resent successfully!",
+  "emailVerifiedSuccessfully": "Email verified successfully!",
+  "checkYourEmailForCode": "Check your email for a verification code.",
+
   "createShop": "Create Your Shop",
   "shopName": "Shop Name",
   "enterYourShopName": "Enter your shop name",

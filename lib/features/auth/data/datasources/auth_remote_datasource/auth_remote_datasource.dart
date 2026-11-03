@@ -31,6 +31,14 @@ abstract interface class IAuthRemoteDatasource {
 
   Future<void> signOut();
 
+  /// Exchanges the 6-digit code emailed to [email] for a real session.
+  /// Requires the Supabase "Confirm signup" email template to include
+  /// `{{ .Token }}` — see SECRETS.txt.
+  Future<AuthResponse> verifySignupOtp({required String email, required String token});
+
+  /// Re-sends the signup confirmation email (with a fresh code) to [email].
+  Future<void> resendSignupOtp({required String email});
+
   /// The currently signed-in Supabase user, if any. Synchronous — reflects
   /// the session Supabase already restored during `Supabase.initialize`.
   User? get currentUser;
@@ -59,37 +67,60 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
 
   @override
   Future<AuthResponse> signInWithGoogle() => guard(() async {
-    await (_googleInit ??= GoogleSignIn.instance.initialize(
-      serverClientId: Env.googleServerClientId.isEmpty ? null : Env.googleServerClientId,
-    ));
-    final account = await GoogleSignIn.instance.authenticate();
-    final idToken = account.authentication.idToken;
-    if (idToken == null) {
-      throw const UnauthorizedException('Google sign-in did not return an ID token.');
+    try {
+      await (_googleInit ??= GoogleSignIn.instance.initialize(
+        serverClientId: Env.googleServerClientId.isEmpty ? null : Env.googleServerClientId,
+      ));
+      final account = await GoogleSignIn.instance.authenticate();
+      final idToken = account.authentication.idToken;
+      if (idToken == null) {
+        throw const UnauthorizedException('Google sign-in did not return an ID token.');
+      }
+      return await client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) throw const UserCancelledException();
+      throw UnauthorizedException('Google sign-in failed: ${e.description ?? e.code.name}');
     }
-    return client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
   });
 
   @override
   Future<AuthResponse> signInWithApple() => guard(() async {
-    final rawNonce = _generateNonce();
-    final credential = await SignInWithApple.getAppleIDCredential(
-      scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
-      nonce: _sha256(rawNonce),
-    );
-    final idToken = credential.identityToken;
-    if (idToken == null) {
-      throw const UnauthorizedException('Apple sign-in did not return an identity token.');
+    try {
+      final rawNonce = _generateNonce();
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+        nonce: _sha256(rawNonce),
+      );
+      final idToken = credential.identityToken;
+      if (idToken == null) {
+        throw const UnauthorizedException('Apple sign-in did not return an identity token.');
+      }
+      return await client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: idToken,
+        nonce: rawNonce,
+      );
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) throw const UserCancelledException();
+      throw UnauthorizedException('Apple sign-in failed: ${e.message}');
+    } on SignInWithAppleNotSupportedException catch (e) {
+      throw UnauthorizedException(
+        'Sign in with Apple is not available on this device/simulator: ${e.message}',
+      );
     }
-    return client.auth.signInWithIdToken(
-      provider: OAuthProvider.apple,
-      idToken: idToken,
-      nonce: rawNonce,
-    );
   });
 
   @override
   Future<void> signOut() => guard(() => client.auth.signOut());
+
+  @override
+  Future<AuthResponse> verifySignupOtp({required String email, required String token}) => guard(
+    () => client.auth.verifyOTP(type: OtpType.signup, email: email, token: token),
+  );
+
+  @override
+  Future<void> resendSignupOtp({required String email}) =>
+      guard(() => client.auth.resend(type: OtpType.signup, email: email));
 
   @override
   User? get currentUser => client.auth.currentUser;

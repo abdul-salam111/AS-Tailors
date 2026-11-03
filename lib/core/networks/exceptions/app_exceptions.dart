@@ -55,3 +55,10 @@ class TooManyRequestsException extends AppException {
 class MethodNotAllowedException extends AppException {
   const MethodNotAllowedException([super.message = AppConstants.methodNotAllowed]);
 }
+
+/// The user backed out of a native OAuth sheet (Google/Apple) themselves —
+/// not a real failure, so the UI should stay silent rather than show an
+/// error toast for it. See [UserCancelledFailure].
+class UserCancelledException extends AppException {
+  const UserCancelledException() : super('Sign-in was cancelled.');
+}

@@ -260,6 +260,66 @@ abstract class AppLocalizations {
   /// **'Or continue with'**
   String get orContinueWith;
 
+  /// No description provided for @verifyYourEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get verifyYourEmail;
+
+  /// No description provided for @verificationCodeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve sent a 6-digit code to'**
+  String get verificationCodeSentTo;
+
+  /// No description provided for @verificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get verificationCode;
+
+  /// No description provided for @enterVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get enterVerificationCode;
+
+  /// No description provided for @verifyBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verifyBtn;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendCode;
+
+  /// No description provided for @didntReceiveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t receive the code?'**
+  String get didntReceiveCode;
+
+  /// No description provided for @codeResentSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Code resent successfully!'**
+  String get codeResentSuccessfully;
+
+  /// No description provided for @emailVerifiedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified successfully!'**
+  String get emailVerifiedSuccessfully;
+
+  /// No description provided for @checkYourEmailForCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email for a verification code.'**
+  String get checkYourEmailForCode;
+
   /// No description provided for @createShop.
   ///
   /// In en, this message translates to:

@@ -106,7 +106,7 @@ class _SignUpBodyState extends State<_SignUpBody> with TickerProviderStateMixin 
           listener: (context, state) {
             if (state.apiStatus == ApiStatus.SUCCESS) {
               AppToastsUtils.showSuccessTop(context, context.l10n.youHaveSignedUpSuccessfully);
-              context.go(RoutePaths.signin);
+              context.go(RoutePaths.verifyEmail, extra: state.email);
             }
             if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
               AppToastsUtils.showErrorTop(context, AppFailureMapper.map(state.failure!).message);

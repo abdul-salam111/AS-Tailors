@@ -92,6 +92,36 @@ class AppLocalizationsUr extends AppLocalizations {
   String get orContinueWith => 'یا جاری رکھیں';
 
   @override
+  String get verifyYourEmail => 'اپنا ای میل تصدیق کریں';
+
+  @override
+  String get verificationCodeSentTo => 'ہم نے 6 ہندسوں کا کوڈ بھیج دیا ہے';
+
+  @override
+  String get verificationCode => 'تصدیقی کوڈ';
+
+  @override
+  String get enterVerificationCode => '6 ہندسوں کا کوڈ درج کریں';
+
+  @override
+  String get verifyBtn => 'تصدیق کریں';
+
+  @override
+  String get resendCode => 'کوڈ دوبارہ بھیجیں';
+
+  @override
+  String get didntReceiveCode => 'کوڈ موصول نہیں ہوا؟';
+
+  @override
+  String get codeResentSuccessfully => 'کوڈ کامیابی سے دوبارہ بھیج دیا گیا!';
+
+  @override
+  String get emailVerifiedSuccessfully => 'ای میل کامیابی سے تصدیق ہو گئی!';
+
+  @override
+  String get checkYourEmailForCode => 'تصدیقی کوڈ کے لیے اپنا ای میل چیک کریں۔';
+
+  @override
   String get createShop => 'اپنی دکان بنائیں';
 
   @override

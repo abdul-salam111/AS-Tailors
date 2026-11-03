@@ -93,6 +93,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orContinueWith => 'Or continue with';
 
   @override
+  String get verifyYourEmail => 'Verify your email';
+
+  @override
+  String get verificationCodeSentTo => 'We\'ve sent a 6-digit code to';
+
+  @override
+  String get verificationCode => 'Verification code';
+
+  @override
+  String get enterVerificationCode => 'Enter the 6-digit code';
+
+  @override
+  String get verifyBtn => 'Verify';
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String get didntReceiveCode => 'Didn\'t receive the code?';
+
+  @override
+  String get codeResentSuccessfully => 'Code resent successfully!';
+
+  @override
+  String get emailVerifiedSuccessfully => 'Email verified successfully!';
+
+  @override
+  String get checkYourEmailForCode =>
+      'Check your email for a verification code.';
+
+  @override
   String get createShop => 'Create Your Shop';
 
   @override

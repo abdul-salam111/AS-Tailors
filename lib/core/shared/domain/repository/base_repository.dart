@@ -15,6 +15,8 @@ abstract class BaseRepository {
   Future<Either<Failure, T>> execute<T>({required Future<T> Function() call}) async {
     try {
       return Right(await call());
+    } on UserCancelledException catch (e) {
+      return Left(UserCancelledFailure(e.message));
     } on UnauthorizedException catch (e) {
       return Left(AuthFailure(e.message));
     } on ForbiddenException catch (e) {
