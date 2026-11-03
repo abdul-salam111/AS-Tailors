@@ -7,12 +7,15 @@ import 'register_auth.dart';
 import 'register_core.dart';
 import 'register_network.dart';
 import 'register_splash.dart';
+import 'register_supabase.dart';
 
 /// Global service locator instance.
 /// Import this file wherever [sl] or [setupLocator] is needed.
 final sl = GetIt.instance;
 
 Future<void> setupLocator() async {
+  // Supabase.initialize() must already have run in main() before this.
+  await registerSupabase();
   await registerNetwork();
   await registerCore();
 
@@ -20,10 +23,7 @@ Future<void> setupLocator() async {
   // interceptor (added in registerNetwork()) evaluates the request.
   sl<Dio>().interceptors.insert(
     0,
-    AuthInterceptor(
-      sessionController: sl<SessionController>(),
-      appToken: ApiEndPoints.appToken,
-    ),
+    AuthInterceptor(sessionController: sl<SessionController>(), appToken: ApiEndPoints.appToken),
   );
 
   await registerSplash();

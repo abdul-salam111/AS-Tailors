@@ -14,7 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | State management | flutter_bloc (`Bloc`, `Cubit`) |
 | DI | GetIt service locator (`sl`) |
 | Navigation | go_router (`GoRouter`, `GoRoute`) |
-| HTTP | Dio via `DioHelper` + `BaseRemoteDatasource` |
+| Backend | Supabase (`supabase_flutter`) — Postgres + Auth + Storage + RLS; client registered as `sl<SupabaseClient>()`, see §1a |
+| HTTP | Dio via `DioHelper` + `BaseRemoteDatasource` (legacy template REST layer — see §1a) |
 | Models | Freezed + json_serializable |
 | Error handling | fpdart `Either<Failure, T>` |
 | Storage | `flutter_secure_storage` via `LocalStorage` singleton |
@@ -23,6 +24,107 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Secrets | `envied` — `.env` → obfuscated `Env` class, see SECRETS.txt |
 | Localization | `flutter_localizations` + ARB files, see §13a |
 | Scaffold | Mason CLI bricks |
+
+---
+
+## 1a. PRODUCT CONTEXT — AS Tailors SRS v1.3
+
+This is a tailoring-shop management app, not a generic starter. Full spec:
+`docs/AS_Tailors_Complete_SRS_Feature_Specification_v1.3.docx` (kept local
+only, not committed to git). Summary for quick orientation:
+
+- **Product**: single-shop tailoring business OS. Phase 1 ships one app —
+  "AS Tailors Business" (this repo) — used by the owner and staff to manage
+  customers, measurements, garment orders, payments, thermal-printed
+  receipts and reports. A separate customer-facing app is Phase 2 and out
+  of scope here.
+- **Backend**: Supabase (Postgres + Auth + Storage + Realtime + RPC/Edge
+  Functions), one shared project, RLS enabled on every table. **Not** a
+  generic REST API — see the gap list below before assuming the Dio
+  patterns elsewhere in this file apply to real business features.
+- **Domain shape**: `shops` → `shop_members` (role: owner/admin/tailor/
+  staff) → `customers` → `measurement_profiles`/`measurement_values`
+  (versioned, template-driven per garment category) → `orders`/
+  `order_items` (immutable price + measurement snapshots) → `payments`/
+  `refunds`/`receipts` → `print_jobs`. Garment categories at launch:
+  Shalwar Kameez, Shirts. Currency: PKR. Languages: English + Urdu (RTL).
+- **Hard rules worth remembering**: money is `NUMERIC(12,2)`, never float;
+  totals/balances are server-recalculated, never client-submitted;
+  payments use idempotency keys; order/measurement/price snapshots are
+  immutable once attached to an order; `shop_id` scoping + RLS is the
+  access-control boundary, not client-side filtering; offline support is
+  drafts + cached reads only — unconfirmed payments are never shown as
+  "received."
+- **Brand identity (§27 of the SRS)** is already applied: the teal/gold/
+  charcoal/ivory palette lives in `AppColors.brand*` (`core/theme/
+  colors.dart`) and is used on the splash screen. The approved logo PNG
+  (`assets/icons/logo.png`) must stay pixel-unmodified — no added glow/
+  shadow/slogans, per the SRS usage guidance.
+
+### Where this codebase diverges from the SRS today
+
+The repo currently has the generic Flutter-template architecture (Dio/
+REST, custom Bearer-token auth) from before the SRS existed. That's fine
+as scaffolding, but it is **not** the target architecture for real AS
+Tailors features. Resolve these before building customer/order/payment
+screens — confirmed by inspection, not assumption:
+
+1. **Backend**: §9 (Network Layer) and the §5 "Adding a Feature" walkthrough
+   still teach a Dio + `BaseRemoteDatasource` REST pattern. The SRS stack
+   (§8.1) calls for `supabase_flutter` as the primary data/auth SDK, with
+   Dio reserved for non-Supabase HTTP only. **Partially resolved**:
+   `Supabase.initialize(url: Env.supabaseUrl, publishableKey:
+   Env.supabasePublishableKey)` now runs in `main()` before
+   `setupLocator()`, and `core/di/register_supabase.dart` registers
+   `sl<SupabaseClient>()` (credentials added via `.env` +
+   `Env.supabaseUrl`/`Env.supabasePublishableKey`, following the usual
+   envied flow — see SECRETS.txt). **Still open**: no datasource yet
+   actually queries Supabase — the real per-feature pattern (direct
+   `supabase.from()/rpc()` calls, likely wrapped in a thin
+   `SupabaseRemoteDatasource` analogous to `BaseRemoteDatasource`) still
+   needs to be designed before scaffolding the first real feature with
+   `mason make create_feature`.
+2. **Auth**: `AuthInterceptor` + `SessionController`
+   (`core/services/session_manager.dart`) hand-roll Bearer-token storage
+   via `flutter_secure_storage`. Supabase Auth issues/refreshes its own
+   session and `supabase_flutter` persists it internally — the existing
+   `auth` feature (sign in/up usecases hitting a generic `/auth` REST
+   endpoint) will need rebuilding against `Supabase.instance.client.auth`,
+   not patching.
+3. **Authorization/roles**: `AppRoutes.router`'s redirect guard only checks
+   `SessionController.isLoggedIn` (boolean). The SRS requires per-role
+   access (owner/admin/tailor/staff — §3, §11.1); `SessionEntity` has no
+   role field yet and there's no route/widget-level permission gating.
+4. **Localization**: ARB files are `app_en.arb` + `app_es.arb` (Spanish) —
+   a template leftover. The SRS requires English + **Urdu**, including RTL
+   layout and Urdu receipt-font testing (FR-014). Swap `app_es.arb` for
+   `app_ur.arb` before any real localized copy is written.
+5. **Offline/local persistence**: §15 wants cached reads, local order
+   drafts and a sync queue (`local_id`/`server_id`/`sync_status`/
+   `idempotency_key`/`retry_count`). Nothing in the current stack provides
+   structured local storage — `flutter_secure_storage` is key-value only.
+   `ConnectivityCubit`/`ConnectivityBanner` (§7b) only signal online/
+   offline; they don't queue writes. A local DB (SRS suggests Drift or
+   sqflite) is needed before offline drafts can be built.
+6. **Printing**: no `core/printer` module, no ESC/POS package, nothing in
+   DI. §14 is a whole subsystem (Bluetooth discovery/pairing, 58mm/80mm
+   layouts, Urdu glyph rendering, print-job status tracked separately from
+   receipt generation) that doesn't exist yet.
+7. **Money as floating point**: `currency_utils.dart`'s formatters operate
+   on `num`/`double`. That's fine for *display* formatting, but once real
+   order/payment totals are implemented, do the arithmetic (subtotal/
+   discount/balance) server-side (Postgres `NUMERIC`) and treat
+   client-side values as display-only — never accumulate money in
+   `double` across multiple operations.
+8. **Multi-tenancy**: every table in §9 is `shop_id`-scoped behind RLS.
+   There's no shop-scoping convention established yet in this codebase
+   (the template's single-tenant "product" example has no owner/shop
+   concept) — new repositories should rely on RLS rather than
+   re-implementing shop filtering client-side.
+
+None of the above blocks small UI/branding work. The first real domain
+feature (customers, most likely) should resolve #1 and #2 first —
+everything else (orders, payments, printing) builds on that foundation.
 
 ---
 
@@ -104,7 +206,8 @@ lib/
 │   │   ├── register_network.dart     # Dio + DioHelper (with DioCacheInterceptor)
 │   │   ├── register_core.dart        # LocalStorage, SessionController, ConnectivityService
 │   │   ├── register_splash.dart      # SplashCubit
-│   │   └── register_auth.dart        # Auth DS → Repo → Usecase → Bloc (factory)
+│   │   ├── register_auth.dart        # Auth DS → Repo → Usecase → Bloc (factory)
+│   │   └── register_supabase.dart    # sl<SupabaseClient>() — needs Supabase.initialize() called first in main()
 │   ├── local_storage/storage.dart    # LocalStorage singleton + StorageKeys
 │   ├── networks/
 │   │   ├── exceptions/app_exceptions.dart  # AppException hierarchy
@@ -962,4 +1065,9 @@ tearDown(() => bloc.close());
 
 ---
 
-*Last updated: 2026-08-28 — added pagination pattern, offline banner, localization scaffold, and envied-based secrets management (see SECRETS.txt).*
+*Last updated: 2026-11-03 — added §1a Product Context summarizing the AS
+Tailors SRS v1.3 and the architecture gaps (Supabase, auth, roles,
+localization, offline, printing, money handling, multi-tenancy) to resolve
+before building real business features. Previous update (2026-08-28): added
+pagination pattern, offline banner, localization scaffold, and
+envied-based secrets management (see SECRETS.txt).*

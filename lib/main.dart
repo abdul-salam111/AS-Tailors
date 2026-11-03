@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'core/constants/env.dart';
 import 'core/di/di_exports.dart';
 import 'core/services/connectivity_cubit.dart';
 import 'core/services/connectivity_service.dart';
@@ -36,6 +38,7 @@ void main() {
       }
 
       Bloc.observer = AppBlocObserver();
+      await Supabase.initialize(url: Env.supabaseUrl, publishableKey: Env.supabasePublishableKey);
       await setupLocator();
       runApp(const MyApp());
     },
@@ -53,7 +56,6 @@ void _reportError(Object error, StackTrace? stack) {
     debugPrint('Uncaught error: $error');
     if (stack != null) debugPrint('$stack');
   }
-
 }
 
 class MyApp extends StatelessWidget {
@@ -63,12 +65,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (context) => ThemeBloc(localStorage: sl())..add(const LoadTheme())),
         BlocProvider(
-          create: (context) => ThemeBloc(localStorage: sl())..add(const LoadTheme()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              ConnectivityCubit(connectivityService: sl<ConnectivityService>()),
+          create: (context) => ConnectivityCubit(connectivityService: sl<ConnectivityService>()),
         ),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
