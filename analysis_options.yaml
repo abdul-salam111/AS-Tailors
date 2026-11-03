@@ -6,6 +6,10 @@ analyzer:
   exclude:
     - bricks/**/__brick__/**
     - "**/__brick__/**"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
 
 linter:
   rules:
