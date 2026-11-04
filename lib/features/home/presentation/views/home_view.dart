@@ -285,7 +285,7 @@ class _DashboardHeader extends StatelessWidget {
                   ),
                 ),
 
-                // Toolbar-row title — expanded state shows the app name.
+                // Toolbar-row title — expanded state shows the brand logo.
                 Positioned(
                   top: top,
                   left: hPad,
@@ -293,15 +293,9 @@ class _DashboardHeader extends StatelessWidget {
                   height: kToolbarHeight,
                   child: Opacity(
                     opacity: expandedOpacity,
-                    child: Align(
+                    child: const Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        context.l10n.appName,
-                        style: context.titleMedium.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: AppLogo(height: 34, width: 34),
                     ),
                   ),
                 ),
