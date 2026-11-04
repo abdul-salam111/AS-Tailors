@@ -18,11 +18,8 @@ import '../cubit/dashboard_state.dart';
 // consts with real usecases the day `orders`/`payments` land; nothing else
 // about the layout should need to change.
 const _dummyActiveOrders = 18;
-const _dummyActiveOrdersDeltaPct = 12;
 const _dummyRevenueThisMonth = 128500;
-const _dummyRevenueDeltaPct = 8;
 const _dummyPendingPayments = 6;
-const _dummyPendingPaymentsDeltaPct = 3;
 
 enum _DueStatus { overdue, dueToday, dueTomorrow }
 
@@ -451,7 +448,6 @@ class _KpiGrid extends StatelessWidget {
       builder: (context, state) {
         final loading =
             state.apiStatus == ApiStatus.LOADING || state.apiStatus == ApiStatus.INITIAL;
-        final newThisWeek = state.newCustomersThisWeek ?? 0;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,8 +461,6 @@ class _KpiGrid extends StatelessWidget {
                     label: context.l10n.totalCustomers,
                     value: '${state.totalCustomers ?? 0}',
                     loading: loading,
-                    trendValue: newThisWeek > 0 ? '+$newThisWeek' : null,
-                    trendGood: true,
                     // `go`, not `push` — customers is a bottom-nav branch
                     // now (see routes/app_shell.dart); pushing it would
                     // stack a second shell+nav-bar on top instead of just
@@ -482,8 +476,6 @@ class _KpiGrid extends StatelessWidget {
                     label: context.l10n.activeOrders,
                     value: '$_dummyActiveOrders',
                     loading: loading,
-                    trendValue: '+$_dummyActiveOrdersDeltaPct%',
-                    trendGood: true,
                   ),
                 ),
               ],
@@ -498,8 +490,6 @@ class _KpiGrid extends StatelessWidget {
                     label: context.l10n.revenue,
                     value: _dummyRevenueThisMonth.asPKR,
                     loading: loading,
-                    trendValue: '+$_dummyRevenueDeltaPct%',
-                    trendGood: true,
                   ),
                 ),
                 widthBox(10),
@@ -510,9 +500,6 @@ class _KpiGrid extends StatelessWidget {
                     label: context.l10n.pendingPayments,
                     value: '$_dummyPendingPayments',
                     loading: loading,
-                    trendValue: '-$_dummyPendingPaymentsDeltaPct%',
-                    trendUp: false,
-                    trendGood: true,
                   ),
                 ),
               ],
@@ -547,15 +534,16 @@ class _KpiGrid extends StatelessWidget {
   }
 }
 
+/// Matches the reference erp_app admin dashboard's "Today's Overview"
+/// `OverviewStatCard`: a fixed-height card with two translucent decorative
+/// circles peeking from the top corner, a square tinted icon chip, and a
+/// value/label column — a trailing chevron only when the card is tappable.
 class _KpiCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
   final String value;
   final bool loading;
-  final String? trendValue;
-  final bool trendUp;
-  final bool trendGood;
   final VoidCallback? onTap;
 
   const _KpiCard({
@@ -564,91 +552,105 @@ class _KpiCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.loading,
-    this.trendValue,
-    this.trendUp = true,
-    this.trendGood = true,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final trendColor = trendGood ? context.success : context.error;
-
-    // Compact horizontal layout — icon + value/label in a single row, not
-    // stacked, so the card reads as a small stat chip rather than a tile
-    // that dominates the screen.
     final content = Container(
-      padding: const EdgeInsets.all(12),
+      height: 64,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: context.divider),
         boxShadow: [BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3))],
       ),
-      child: Row(
+      child: Stack(
+        alignment: AlignmentDirectional.centerStart,
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Icon(icon, size: 17, color: color),
+          PositionedDirectional(
+            top: -18,
+            end: -18,
+            child: Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
-          widthBox(10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+          PositionedDirectional(
+            top: -8,
+            end: -8,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.09),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
               children: [
-                loading
-                    ? ShimmerLoading(
-                        isLoading: true,
-                        child: Container(
-                          width: 44,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: context.border,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      )
-                    : FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          value,
-                          style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                heightBox(2),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9),
+                    color: color.withValues(alpha: 0.1),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(icon, size: 16, color: color),
+                ),
+                widthBox(10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      loading
+                          ? ShimmerLoading(
+                              isLoading: true,
+                              child: Container(
+                                width: 44,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: context.border,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            )
+                          : FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Text(
+                                value,
+                                style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                      heightBox(3),
+                      Text(
                         label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.labelSmall.copyWith(color: context.textSecondary),
                       ),
-                    ),
-                    if (trendValue != null && !loading) ...[
-                      widthBox(4),
-                      Icon(
-                        trendUp ? Iconsax.arrow_up_3 : Iconsax.arrow_down,
-                        size: 9,
-                        color: trendColor,
-                      ),
-                      Text(
-                        trendValue!,
-                        style: context.labelSmall.copyWith(
-                          color: trendColor,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 10,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
+                if (onTap != null) ...[
+                  widthBox(4),
+                  Icon(
+                    Iconsax.arrow_right_3,
+                    size: 16,
+                    color: context.textSecondary.withValues(alpha: 0.7),
+                  ),
+                ],
               ],
             ),
           ),
@@ -843,6 +845,11 @@ class _QuickActionsGrid extends StatelessWidget {
   }
 }
 
+/// Matches the reference erp_app admin dashboard's `QuickActionsSection`
+/// menu card: a color-tinted background (not a white bordered card), a
+/// circular icon badge lifted off that background with its own color-tinted
+/// shadow, and a centered label coloured to match rather than plain body
+/// text.
 class _ActionTile extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -858,35 +865,43 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Plain Container with `color:` set directly, matching _KpiCard — not
-    // Material+InkWell, which left the fill looking grey instead of white
-    // (Material painted the background, but the border/shadow Container
-    // nested inside it had no `color` of its own, and something in that
-    // stack wasn't reading as flat white against the page).
     final tile = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       decoration: BoxDecoration(
-        color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: context.divider),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3))],
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.surfaceElevated,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             alignment: Alignment.center,
-            child: Icon(icon, size: 18, color: color),
+            child: Icon(icon, size: 20, color: color),
           ),
-          heightBox(10),
+          heightBox(6),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            style: context.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
