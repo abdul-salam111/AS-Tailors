@@ -519,7 +519,7 @@ class _KpiGrid extends StatelessWidget {
                     onTap: () => context.go(RoutePaths.customers),
                   ),
                 ),
-                widthBox(14),
+                widthBox(10),
                 Expanded(
                   child: _KpiCard(
                     icon: Iconsax.bag_timer,
@@ -533,7 +533,7 @@ class _KpiGrid extends StatelessWidget {
                 ),
               ],
             ),
-            heightBox(14),
+            heightBox(10),
             Row(
               children: [
                 Expanded(
@@ -547,7 +547,7 @@ class _KpiGrid extends StatelessWidget {
                     trendGood: true,
                   ),
                 ),
-                widthBox(14),
+                widthBox(10),
                 Expanded(
                   child: _KpiCard(
                     icon: Iconsax.empty_wallet_time,
@@ -619,46 +619,70 @@ class _KpiCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final trendColor = trendGood ? context.success : context.error;
 
+    // Compact horizontal layout — icon + value/label in a single row, not
+    // stacked, so the card reads as a small stat chip rather than a tile
+    // that dominates the screen.
     final content = Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.divider),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 19, color: color),
-              ),
-              const Spacer(),
-              if (trendValue != null && !loading)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: trendColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 17, color: color),
+          ),
+          widthBox(10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                loading
+                    ? ShimmerLoading(
+                        isLoading: true,
+                        child: Container(
+                          width: 44,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: context.border,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      )
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
+                          style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                heightBox(2),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.labelSmall.copyWith(color: context.textSecondary),
+                      ),
+                    ),
+                    if (trendValue != null && !loading) ...[
+                      widthBox(4),
                       Icon(
                         trendUp ? Iconsax.arrow_up_3 : Iconsax.arrow_down,
-                        size: 10,
+                        size: 9,
                         color: trendColor,
                       ),
-                      widthBox(2),
                       Text(
                         trendValue!,
                         style: context.labelSmall.copyWith(
@@ -668,37 +692,10 @@ class _KpiCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-            ],
-          ),
-          heightBox(14),
-          loading
-              ? ShimmerLoading(
-                  isLoading: true,
-                  child: Container(
-                    width: 48,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: context.border,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                )
-              : FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-          heightBox(4),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.bodySmall.copyWith(color: context.textSecondary),
+              ],
+            ),
           ),
         ],
       ),
