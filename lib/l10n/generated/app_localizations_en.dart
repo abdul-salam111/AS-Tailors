@@ -39,7 +39,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle =>
+      'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
@@ -72,21 +73,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickActions => 'Quick Actions';
 
   @override
-  String get comingSoon => 'Coming Soon';
-
-  @override
-  String get orders => 'Orders';
-
-  @override
-  String get measurements => 'Measurements';
-
-  @override
-  String get payments => 'Payments';
-
-  @override
-  String get reports => 'Reports';
-
-  @override
   String get featureComingSoonMessage => 'This feature is coming soon';
 
   @override
@@ -100,6 +86,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleStaff => 'Staff';
+
+  @override
+  String get activeOrders => 'Active Orders';
+
+  @override
+  String get revenue => 'Revenue';
+
+  @override
+  String get pendingPayments => 'Pending Payments';
+
+  @override
+  String get needsAttention => 'Needs Attention';
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String get dueToday => 'Due Today';
+
+  @override
+  String get dueTomorrow => 'Due Tomorrow';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get newOrder => 'New Order';
+
+  @override
+  String get recordPayment => 'Record Payment';
+
+  @override
+  String get recentActivity => 'Recent Activity';
+
+  @override
+  String get recentActivityNewCustomer => 'New customer added';
+
+  @override
+  String get recentActivityPaymentReceived => 'Payment received';
+
+  @override
+  String get recentActivityOrderReady => 'Order marked ready';
+
+  @override
+  String get recentActivityNewOrder => 'New order created';
 
   @override
   String get customers => 'Customers';

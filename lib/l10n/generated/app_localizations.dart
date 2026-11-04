@@ -62,7 +62,8 @@ import 'app_localizations_ur.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -91,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('ur')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ur'),
+  ];
 
   /// The application's display name
   ///
@@ -219,36 +224,6 @@ abstract class AppLocalizations {
   /// **'Quick Actions'**
   String get quickActions;
 
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming Soon'**
-  String get comingSoon;
-
-  /// No description provided for @orders.
-  ///
-  /// In en, this message translates to:
-  /// **'Orders'**
-  String get orders;
-
-  /// No description provided for @measurements.
-  ///
-  /// In en, this message translates to:
-  /// **'Measurements'**
-  String get measurements;
-
-  /// No description provided for @payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments'**
-  String get payments;
-
-  /// No description provided for @reports.
-  ///
-  /// In en, this message translates to:
-  /// **'Reports'**
-  String get reports;
-
   /// No description provided for @featureComingSoonMessage.
   ///
   /// In en, this message translates to:
@@ -278,6 +253,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staff'**
   String get roleStaff;
+
+  /// No description provided for @activeOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Orders'**
+  String get activeOrders;
+
+  /// No description provided for @revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get revenue;
+
+  /// No description provided for @pendingPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Payments'**
+  String get pendingPayments;
+
+  /// No description provided for @needsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Attention'**
+  String get needsAttention;
+
+  /// No description provided for @overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get overdue;
+
+  /// No description provided for @dueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Today'**
+  String get dueToday;
+
+  /// No description provided for @dueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Tomorrow'**
+  String get dueTomorrow;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @newOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New Order'**
+  String get newOrder;
+
+  /// No description provided for @recordPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Record Payment'**
+  String get recordPayment;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get recentActivity;
+
+  /// No description provided for @recentActivityNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer added'**
+  String get recentActivityNewCustomer;
+
+  /// No description provided for @recentActivityPaymentReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get recentActivityPaymentReceived;
+
+  /// No description provided for @recentActivityOrderReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Order marked ready'**
+  String get recentActivityOrderReady;
+
+  /// No description provided for @recentActivityNewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order created'**
+  String get recentActivityNewOrder;
 
   /// No description provided for @customers.
   ///
@@ -436,7 +501,8 @@ abstract class AppLocalizations {
   String get cancel;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -445,7 +511,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ur'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'ur'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

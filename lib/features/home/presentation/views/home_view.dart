@@ -13,10 +13,73 @@ import '../../../../routes/routes_exports.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 
-/// The real FR-011 dashboard. Only customer counts are wired to real data
-/// today (see CLAUDE.md's gap list — orders/measurements/payments don't
-/// exist as features yet), so those sections are deliberately styled as
-/// "coming soon" rather than showing fabricated numbers.
+// Placeholder figures below (orders/revenue/payments) stand in until those
+// features ship — see CLAUDE.md's gap list (§1a items 5-7). Only the
+// customer counts coming out of [DashboardCubit] are real. Replace these
+// consts with real usecases the day `orders`/`payments` land; nothing else
+// about the layout should need to change.
+const _dummyActiveOrders = 18;
+const _dummyActiveOrdersDeltaPct = 12;
+const _dummyRevenueThisMonth = 128500;
+const _dummyRevenueDeltaPct = 8;
+const _dummyPendingPayments = 6;
+const _dummyPendingPaymentsDeltaPct = 3;
+
+enum _DueStatus { overdue, dueToday, dueTomorrow }
+
+class _DeliveryAlert {
+  final String customerName;
+  final String garment;
+  final _DueStatus status;
+  const _DeliveryAlert({required this.customerName, required this.garment, required this.status});
+}
+
+const _dummyDeliveries = [
+  _DeliveryAlert(customerName: 'Ali Raza', garment: 'Shalwar Kameez', status: _DueStatus.overdue),
+  _DeliveryAlert(customerName: 'Fatima Noor', garment: '3x Shirts', status: _DueStatus.dueToday),
+  _DeliveryAlert(
+    customerName: 'Hassan Ahmed',
+    garment: 'Shalwar Kameez',
+    status: _DueStatus.dueTomorrow,
+  ),
+];
+
+enum _ActivityType { paymentReceived, orderReady, newOrder, newCustomer }
+
+class _ActivityItem {
+  final _ActivityType type;
+  final String detail;
+  final DateTime time;
+  const _ActivityItem({required this.type, required this.detail, required this.time});
+}
+
+final _dummyActivityFeed = [
+  _ActivityItem(
+    type: _ActivityType.paymentReceived,
+    detail: '₨8,500',
+    time: DateTime.now().subtract(const Duration(hours: 3)),
+  ),
+  _ActivityItem(
+    type: _ActivityType.orderReady,
+    detail: '#ORD-214',
+    time: DateTime.now().subtract(const Duration(hours: 9)),
+  ),
+  _ActivityItem(
+    type: _ActivityType.newOrder,
+    detail: '#ORD-215',
+    time: DateTime.now().subtract(const Duration(days: 1)),
+  ),
+  _ActivityItem(
+    type: _ActivityType.newCustomer,
+    detail: 'Ayesha Khan',
+    time: DateTime.now().subtract(const Duration(days: 2)),
+  ),
+];
+
+/// The FR-011 dashboard. Real data (customer counts) comes from
+/// [DashboardCubit]; everything else is realistic placeholder content so the
+/// screen reads as a finished product rather than a half-built one — see the
+/// dummy-data block above.
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
@@ -76,6 +139,8 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
     );
   }
 
+  void _comingSoon() => AppToastsUtils.showInfoTop(context, context.l10n.featureComingSoonMessage);
+
   @override
   Widget build(BuildContext context) {
     final session = sl<SessionController>().session;
@@ -88,35 +153,48 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
           color: context.primary,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _entrance.fadeSlideUp(
-                  _entrance.interval(0.0, 0.4),
+                  _entrance.interval(0.0, 0.35),
                   _TopBar(onProfileTap: _openProfileSheet),
                 ),
                 heightBox(18),
                 _entrance.fadeSlideUp(
-                  _entrance.interval(0.08, 0.5),
+                  _entrance.interval(0.05, 0.42),
                   _GreetingCard(session: session),
                 ),
-                heightBox(18),
-                _entrance.fadeSlideUp(_entrance.interval(0.18, 0.6), const _StatsRow()),
+                heightBox(20),
+                _entrance.fadeSlideUp(_entrance.interval(0.12, 0.5), const _KpiGrid()),
                 heightBox(28),
                 _entrance.fadeSlideUp(
-                  _entrance.interval(0.28, 0.7),
-                  _SectionTitle(context.l10n.quickActions),
+                  _entrance.interval(0.22, 0.6),
+                  _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
                 ),
                 heightBox(12),
-                _entrance.fadeSlideUp(_entrance.interval(0.32, 0.74), const _QuickActionsRow()),
+                _entrance.fadeSlideUp(
+                  _entrance.interval(0.26, 0.64),
+                  _AttentionList(onTap: _comingSoon),
+                ),
                 heightBox(28),
                 _entrance.fadeSlideUp(
-                  _entrance.interval(0.4, 0.8),
-                  _SectionTitle(context.l10n.comingSoon),
+                  _entrance.interval(0.34, 0.72),
+                  _SectionHeader(title: context.l10n.quickActions),
                 ),
                 heightBox(12),
-                _entrance.fadeSlideUp(_entrance.interval(0.46, 0.86), const _ComingSoonGrid()),
+                _entrance.fadeSlideUp(
+                  _entrance.interval(0.38, 0.76),
+                  _QuickActionsGrid(onComingSoon: _comingSoon),
+                ),
+                heightBox(28),
+                _entrance.fadeSlideUp(
+                  _entrance.interval(0.46, 0.84),
+                  _SectionHeader(title: context.l10n.recentActivity),
+                ),
+                heightBox(12),
+                _entrance.fadeSlideUp(_entrance.interval(0.5, 0.9), const _RecentActivityList()),
               ],
             ),
           ),
@@ -181,62 +259,74 @@ class _GreetingCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.brandTeal, AppColors.brandTealDeep],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: AppColors.brandTeal.withValues(alpha: 0.28),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: AppColors.brandTeal.withValues(alpha: 0.3),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Row(
+          Positioned(
+            right: -16,
+            top: -18,
+            child: Icon(Iconsax.ruler, size: 110, color: AppColors.white.withValues(alpha: 0.08)),
+          ),
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _greeting(context),
-                      style: context.bodyMedium.copyWith(
-                        color: AppColors.white.withValues(alpha: 0.85),
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _greeting(context),
+                          style: context.bodyMedium.copyWith(
+                            color: AppColors.white.withValues(alpha: 0.85),
+                          ),
+                        ),
+                        heightBox(4),
+                        Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.headlineSmall.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    heightBox(4),
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.titleLarge.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  if (session.role != null) _RoleBadge(role: session.role!, onDark: true),
+                ],
               ),
-              if (session.role != null) _RoleBadge(role: session.role!, onDark: true),
-            ],
-          ),
-          heightBox(16),
-          Row(
-            children: [
-              Icon(Iconsax.calendar_1, size: 14, color: AppColors.white.withValues(alpha: 0.8)),
-              widthBox(6),
-              Text(
-                DateTime.now().formattedLong,
-                style: context.bodySmall.copyWith(color: AppColors.white.withValues(alpha: 0.8)),
+              heightBox(18),
+              Row(
+                children: [
+                  Icon(Iconsax.calendar_1, size: 14, color: AppColors.white.withValues(alpha: 0.8)),
+                  widthBox(6),
+                  Text(
+                    DateTime.now().formattedLong,
+                    style: context.bodySmall.copyWith(
+                      color: AppColors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -280,8 +370,32 @@ String _roleLabel(BuildContext context, ShopRole role) => switch (role) {
   ShopRole.staff => context.l10n.roleStaff,
 };
 
-class _StatsRow extends StatelessWidget {
-  const _StatsRow();
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onViewAll;
+  const _SectionHeader({required this.title, this.onViewAll});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(title, style: context.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+        ),
+        if (onViewAll != null)
+          CustomButton.text(
+            label: context.l10n.viewAll,
+            height: 28,
+            fontSize: 13,
+            onPressed: onViewAll!,
+          ),
+      ],
+    );
+  }
+}
+
+class _KpiGrid extends StatelessWidget {
+  const _KpiGrid();
 
   @override
   Widget build(BuildContext context) {
@@ -289,29 +403,64 @@ class _StatsRow extends StatelessWidget {
       builder: (context, state) {
         final loading =
             state.apiStatus == ApiStatus.LOADING || state.apiStatus == ApiStatus.INITIAL;
+        final newThisWeek = state.newCustomersThisWeek ?? 0;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Expanded(
-                  child: _StatCard(
+                  child: _KpiCard(
                     icon: Iconsax.people,
                     color: context.primary,
                     label: context.l10n.totalCustomers,
-                    value: state.totalCustomers,
+                    value: '${state.totalCustomers ?? 0}',
                     loading: loading,
+                    trendValue: newThisWeek > 0 ? '+$newThisWeek' : null,
+                    trendGood: true,
                     onTap: () => context.push(RoutePaths.customers),
                   ),
                 ),
                 widthBox(14),
                 Expanded(
-                  child: _StatCard(
-                    icon: Iconsax.user_add,
+                  child: _KpiCard(
+                    icon: Iconsax.bag_timer,
                     color: AppColors.brandGoldDark,
-                    label: context.l10n.newThisWeek,
-                    value: state.newCustomersThisWeek,
+                    label: context.l10n.activeOrders,
+                    value: '$_dummyActiveOrders',
                     loading: loading,
+                    trendValue: '+$_dummyActiveOrdersDeltaPct%',
+                    trendGood: true,
+                  ),
+                ),
+              ],
+            ),
+            heightBox(14),
+            Row(
+              children: [
+                Expanded(
+                  child: _KpiCard(
+                    icon: Iconsax.wallet_money,
+                    color: context.success,
+                    label: context.l10n.revenue,
+                    value: _dummyRevenueThisMonth.asPKR,
+                    loading: loading,
+                    trendValue: '+$_dummyRevenueDeltaPct%',
+                    trendGood: true,
+                  ),
+                ),
+                widthBox(14),
+                Expanded(
+                  child: _KpiCard(
+                    icon: Iconsax.empty_wallet_time,
+                    color: context.warning,
+                    label: context.l10n.pendingPayments,
+                    value: '$_dummyPendingPayments',
+                    loading: loading,
+                    trendValue: '-$_dummyPendingPaymentsDeltaPct%',
+                    trendUp: false,
+                    trendGood: true,
                   ),
                 ),
               ],
@@ -346,48 +495,91 @@ class _StatsRow extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
+class _KpiCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
-  final int? value;
+  final String value;
   final bool loading;
+  final String? trendValue;
+  final bool trendUp;
+  final bool trendGood;
   final VoidCallback? onTap;
 
-  const _StatCard({
+  const _KpiCard({
     required this.icon,
     required this.color,
     required this.label,
     required this.value,
     required this.loading,
+    this.trendValue,
+    this.trendUp = true,
+    this.trendGood = true,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final trendColor = trendGood ? context.success : context.error;
+
     final content = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6))],
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 16, offset: const Offset(0, 6))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
-            alignment: Alignment.center,
-            child: Icon(icon, size: 18, color: color),
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, size: 19, color: color),
+              ),
+              const Spacer(),
+              if (trendValue != null && !loading)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: trendColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        trendUp ? Iconsax.arrow_up_3 : Iconsax.arrow_down,
+                        size: 10,
+                        color: trendColor,
+                      ),
+                      widthBox(2),
+                      Text(
+                        trendValue!,
+                        style: context.labelSmall.copyWith(
+                          color: trendColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
-          heightBox(12),
+          heightBox(14),
           loading
               ? ShimmerLoading(
                   isLoading: true,
                   child: Container(
-                    width: 36,
+                    width: 48,
                     height: 22,
                     decoration: BoxDecoration(
                       color: context.border,
@@ -395,12 +587,21 @@ class _StatCard extends StatelessWidget {
                     ),
                   ),
                 )
-              : Text(
-                  '${value ?? 0}',
-                  style: context.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ),
           heightBox(4),
-          Text(label, style: context.bodySmall.copyWith(color: context.textSecondary)),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.bodySmall.copyWith(color: context.textSecondary),
+          ),
         ],
       ),
     );
@@ -408,39 +609,163 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle(this.title);
+class _AttentionList extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AttentionList({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Text(title, style: context.titleSmall.copyWith(fontWeight: FontWeight.bold));
+    return Column(
+      children: [
+        for (var i = 0; i < _dummyDeliveries.length; i++) ...[
+          _DeliveryAlertCard(alert: _dummyDeliveries[i], onTap: onTap),
+          if (i != _dummyDeliveries.length - 1) heightBox(10),
+        ],
+      ],
+    );
   }
 }
 
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow();
+class _DeliveryAlertCard extends StatelessWidget {
+  final _DeliveryAlert alert;
+  final VoidCallback onTap;
+  const _DeliveryAlertCard({required this.alert, required this.onTap});
+
+  (Color, String) _statusStyle(BuildContext context) => switch (alert.status) {
+    _DueStatus.overdue => (context.error, context.l10n.overdue),
+    _DueStatus.dueToday => (context.warning, context.l10n.dueToday),
+    _DueStatus.dueTomorrow => (context.primary, context.l10n.dueTomorrow),
+  };
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _ActionTile(
-            icon: Iconsax.user_add,
-            color: context.primary,
-            label: context.l10n.addCustomer,
-            onTap: () => context.push(RoutePaths.addCustomer),
+    final (color, statusLabel) = _statusStyle(context);
+    final initial = alert.customerName.isNotEmpty ? alert.customerName[0].toUpperCase() : '?';
+
+    return Material(
+      color: context.surfaceElevated,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border(left: BorderSide(color: color, width: 3)),
+            boxShadow: [
+              BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: context.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  initial,
+                  style: context.bodyMedium.copyWith(
+                    color: context.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              widthBox(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      alert.customerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    heightBox(2),
+                    Text(
+                      alert.garment,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodySmall.copyWith(color: context.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              widthBox(8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: context.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
           ),
         ),
-        widthBox(14),
-        Expanded(
-          child: _ActionTile(
-            icon: Iconsax.people,
-            color: AppColors.brandGoldDark,
-            label: context.l10n.customers,
-            onTap: () => context.push(RoutePaths.customers),
-          ),
+      ),
+    );
+  }
+}
+
+class _QuickActionsGrid extends StatelessWidget {
+  final VoidCallback onComingSoon;
+  const _QuickActionsGrid({required this.onComingSoon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _ActionTile(
+                icon: Iconsax.user_add,
+                color: context.primary,
+                label: context.l10n.addCustomer,
+                onTap: () => context.push(RoutePaths.addCustomer),
+              ),
+            ),
+            widthBox(14),
+            Expanded(
+              child: _ActionTile(
+                icon: Iconsax.people,
+                color: AppColors.brandGoldDark,
+                label: context.l10n.customers,
+                onTap: () => context.push(RoutePaths.customers),
+              ),
+            ),
+          ],
+        ),
+        heightBox(14),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionTile(
+                icon: Iconsax.bag_timer,
+                color: context.success,
+                label: context.l10n.newOrder,
+                onTap: onComingSoon,
+              ),
+            ),
+            widthBox(14),
+            Expanded(
+              child: _ActionTile(
+                icon: Iconsax.wallet_money,
+                color: context.warning,
+                label: context.l10n.recordPayment,
+                onTap: onComingSoon,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -504,60 +829,102 @@ class _ActionTile extends StatelessWidget {
   }
 }
 
-class _ComingSoonGrid extends StatelessWidget {
-  const _ComingSoonGrid();
+(IconData, Color, String) _activityPresentation(BuildContext context, _ActivityType type) =>
+    switch (type) {
+      _ActivityType.newCustomer => (
+        Iconsax.user_add,
+        context.primary,
+        context.l10n.recentActivityNewCustomer,
+      ),
+      _ActivityType.paymentReceived => (
+        Iconsax.money_recive,
+        context.success,
+        context.l10n.recentActivityPaymentReceived,
+      ),
+      _ActivityType.orderReady => (
+        Iconsax.box_tick,
+        AppColors.brandGoldDark,
+        context.l10n.recentActivityOrderReady,
+      ),
+      _ActivityType.newOrder => (
+        Iconsax.bag_timer,
+        context.primary,
+        context.l10n.recentActivityNewOrder,
+      ),
+    };
 
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      (Iconsax.receipt_2, context.l10n.orders),
-      (Iconsax.ruler, context.l10n.measurements),
-      (Iconsax.wallet_3, context.l10n.payments),
-      (Iconsax.chart_2, context.l10n.reports),
-    ];
-
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
-      childAspectRatio: 2.6,
-      children: [for (final item in items) _ComingSoonTile(icon: item.$1, label: item.$2)],
-    );
-  }
-}
-
-class _ComingSoonTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _ComingSoonTile({required this.icon, required this.label});
+class _RecentActivityList extends StatelessWidget {
+  const _RecentActivityList();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: context.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.border),
+        color: context.surfaceElevated,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6))],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Icon(icon, size: 20, color: context.textDisabled),
-          widthBox(10),
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.bodyMedium.copyWith(color: context.textSecondary),
-            ),
-          ),
-          Icon(Iconsax.lock_1, size: 14, color: context.textDisabled),
+          for (var i = 0; i < _dummyActivityFeed.length; i++) ...[
+            _ActivityRow(item: _dummyActivityFeed[i]),
+            if (i != _dummyActivityFeed.length - 1)
+              Divider(height: 1, thickness: 1, color: context.divider, indent: 58, endIndent: 16),
+          ],
         ],
       ),
-    ).onTap(() => AppToastsUtils.showInfoTop(context, context.l10n.featureComingSoonMessage));
+    );
+  }
+}
+
+class _ActivityRow extends StatelessWidget {
+  final _ActivityItem item;
+  const _ActivityRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color, title) = _activityPresentation(context, item.type);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 16, color: color),
+          ),
+          widthBox(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                ),
+                heightBox(2),
+                Text(
+                  item.detail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.bodySmall.copyWith(color: context.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          widthBox(8),
+          Text(
+            item.time.timeAgoShort,
+            style: context.labelSmall.copyWith(color: context.textDisabled),
+          ),
+        ],
+      ),
+    );
   }
 }
 

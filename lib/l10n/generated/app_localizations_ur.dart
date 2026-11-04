@@ -39,7 +39,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get welcomeBack => 'خوش آمدید';
 
   @override
-  String get signInSubtitle => 'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
+  String get signInSubtitle =>
+      'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
 
   @override
   String get orContinueWith => 'یا جاری رکھیں';
@@ -72,21 +73,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get quickActions => 'فوری اعمال';
 
   @override
-  String get comingSoon => 'جلد آ رہا ہے';
-
-  @override
-  String get orders => 'آرڈرز';
-
-  @override
-  String get measurements => 'پیمائش';
-
-  @override
-  String get payments => 'ادائیگیاں';
-
-  @override
-  String get reports => 'رپورٹس';
-
-  @override
   String get featureComingSoonMessage => 'یہ فیچر جلد آ رہا ہے';
 
   @override
@@ -102,6 +88,51 @@ class AppLocalizationsUr extends AppLocalizations {
   String get roleStaff => 'عملہ';
 
   @override
+  String get activeOrders => 'جاری آرڈرز';
+
+  @override
+  String get revenue => 'آمدنی';
+
+  @override
+  String get pendingPayments => 'زیر التوا ادائیگیاں';
+
+  @override
+  String get needsAttention => 'توجہ درکار ہے';
+
+  @override
+  String get overdue => 'تاخیر شدہ';
+
+  @override
+  String get dueToday => 'آج واجب الادا';
+
+  @override
+  String get dueTomorrow => 'کل واجب الادا';
+
+  @override
+  String get viewAll => 'سب دیکھیں';
+
+  @override
+  String get newOrder => 'نیا آرڈر';
+
+  @override
+  String get recordPayment => 'ادائیگی ریکارڈ کریں';
+
+  @override
+  String get recentActivity => 'حالیہ سرگرمی';
+
+  @override
+  String get recentActivityNewCustomer => 'نیا گاہک شامل ہوا';
+
+  @override
+  String get recentActivityPaymentReceived => 'ادائیگی موصول ہوئی';
+
+  @override
+  String get recentActivityOrderReady => 'آرڈر تیار ہو گیا';
+
+  @override
+  String get recentActivityNewOrder => 'نیا آرڈر بنایا گیا';
+
+  @override
   String get customers => 'گاہک';
 
   @override
@@ -111,7 +142,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get noCustomersYet => 'ابھی کوئی گاہک نہیں';
 
   @override
-  String get addYourFirstCustomer => 'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
+  String get addYourFirstCustomer =>
+      'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
 
   @override
   String get addCustomer => 'گاہک شامل کریں';
@@ -162,7 +194,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get customerCreatedSuccessfully => 'گاہک کامیابی سے شامل ہو گیا!';
 
   @override
-  String get customerUpdatedSuccessfully => 'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
+  String get customerUpdatedSuccessfully =>
+      'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
 
   @override
   String get archiveCustomer => 'گاہک کو آرکائیو کریں';
