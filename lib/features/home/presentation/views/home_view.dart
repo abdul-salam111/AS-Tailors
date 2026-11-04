@@ -239,10 +239,19 @@ class _DashboardHeader extends StatelessWidget {
       ),
       iconTheme: const IconThemeData(color: AppColors.white),
       actionsIconTheme: const IconThemeData(color: AppColors.white),
+      centerTitle: false,
+      titleSpacing: 20,
+      // Deliberately NOT FlexibleSpaceBar.title: that fades in based on
+      // scroll offset, but the fade curve only reaches 0 opacity when
+      // `collapsedHeight` is taller than `kToolbarHeight` — here it isn't,
+      // so the title was rendering at partial opacity even near full
+      // expansion, overlapping the greeting's name/date text. A `title` set
+      // directly on SliverAppBar instead always renders in the toolbar's
+      // pinned row (same place `actions` already renders, never fading),
+      // which is also simpler: no overlap is possible since the greeting
+      // content is already padded below the toolbar height.
+      title: const _CompactHeaderTitle(),
       flexibleSpace: FlexibleSpaceBar(
-        centerTitle: false,
-        titlePadding: const EdgeInsetsDirectional.only(start: 20, bottom: 18),
-        title: const _CompactHeaderTitle(),
         background: entrance.fadeSlideUp(
           entrance.interval(0.0, 0.4),
           _ExpandedHeaderContent(session: session),
