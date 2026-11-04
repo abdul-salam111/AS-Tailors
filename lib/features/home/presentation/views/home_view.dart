@@ -805,48 +805,44 @@ class _DeliveryAlertCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (color, statusLabel) = _statusStyle(context);
 
-    return Material(
-      color: context.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
+    // Plain Container with `color:` set directly, matching _KpiCard — not
+    // Material+InkWell, which left the fill looking grey instead of white;
+    // see the same note on _ActionTile. A `Border` can't mix a colored
+    // accent side with `borderRadius` — Flutter requires uniform border
+    // colors whenever corners are rounded — so the teal/amber/red accent
+    // is drawn as a real clipped bar instead, inside a uniformly-bordered
+    // card, using the SAME radius as the card itself (both 16) so the clip
+    // and the card edge align exactly. IntrinsicHeight gives the Row a
+    // bounded height to stretch that bar against — without it, the Row
+    // sits inside an unbounded-height scroll Column and `stretch` has
+    // nothing finite to stretch to, which crashes layout with
+    // "BoxConstraints forces an infinite height."
+    final card = Container(
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.divider),
-            boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3)),
-            ],
-          ),
-          // A `Border` can't mix a colored accent side with `borderRadius` —
-          // Flutter requires uniform border colors whenever corners are
-          // rounded. The teal/amber/red accent is drawn as a real clipped
-          // bar instead, inside a uniformly-bordered card. IntrinsicHeight
-          // gives the Row a bounded height to stretch that bar against —
-          // without it, the Row sits inside an unbounded-height scroll
-          // Column and `stretch` has nothing finite to stretch to, which
-          // crashes layout with "BoxConstraints forces an infinite height."
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(width: 4, color: color),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: _content(context, color, statusLabel),
-                    ),
-                  ),
-                ],
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 4, color: color),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: _content(context, color, statusLabel),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
+    return card.onTap(onTap);
   }
 }
 
@@ -921,46 +917,40 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: context.surfaceElevated,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: onTap,
+    // Plain Container with `color:` set directly, matching _KpiCard — not
+    // Material+InkWell, which left the fill looking grey instead of white
+    // (Material painted the background, but the border/shadow Container
+    // nested inside it had no `color` of its own, and something in that
+    // stack wasn't reading as flat white against the page).
+    final tile = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
         borderRadius: BorderRadius.circular(18),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: context.divider),
-            boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3)),
-            ],
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 18, color: color),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 18, color: color),
-              ),
-              heightBox(10),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
+          heightBox(10),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
           ),
-        ),
+        ],
       ),
     );
+    return tile.onTap(onTap);
   }
 }
 
