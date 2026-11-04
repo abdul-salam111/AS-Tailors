@@ -133,6 +133,8 @@ class CustomButton extends StatelessWidget {
           foregroundColor: resolvedText,
           shape: shape,
           minimumSize: Size(width ?? 0, height),
+          padding: EdgeInsets.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
         child: child,
       );
