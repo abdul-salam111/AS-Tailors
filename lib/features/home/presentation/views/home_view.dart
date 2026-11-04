@@ -8,7 +8,6 @@ import '../../../../core/shared/shared_exports.dart';
 import '../../../../core/theme/theme_exports.dart';
 import '../../../../core/utils/utils_exports.dart';
 import '../../../../core/widgets/widgets_exports.dart';
-import '../../../../features/auth/auth_exports.dart';
 import '../../../../routes/routes_exports.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
@@ -98,45 +97,11 @@ class _HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
   late final _entrance = EntranceChoreography(this);
-  bool _signingOut = false;
 
   @override
   void dispose() {
     _entrance.dispose();
     super.dispose();
-  }
-
-  Future<void> _signOut() async {
-    setState(() => _signingOut = true);
-    final result = await sl<SignOutUsecase>()(NoParams());
-    if (!mounted) return;
-    setState(() => _signingOut = false);
-    result.fold(
-      (failure) => AppToastsUtils.showErrorTop(context, AppFailureMapper.map(failure).message),
-      (_) {
-        sl<SessionController>().clearSession();
-        context.go(RoutePaths.signin);
-      },
-    );
-  }
-
-  void _openProfileSheet() {
-    final session = sl<SessionController>().session;
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.surfaceElevated,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetContext) => _ProfileSheet(
-        session: session,
-        signingOut: _signingOut,
-        onSignOut: () {
-          Navigator.of(sheetContext).pop();
-          _signOut();
-        },
-      ),
-    );
   }
 
   void _comingSoon() => AppToastsUtils.showInfoTop(context, context.l10n.featureComingSoonMessage);
@@ -155,7 +120,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              _DashboardHeader(session: session, onProfileTap: _openProfileSheet),
+              _DashboardHeader(session: session, onNotificationsTap: _comingSoon),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
                 sliver: SliverList(
@@ -216,21 +181,31 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
 /// title fade (which only reaches 0 opacity when `collapsedHeight` is
 /// taller than `kToolbarHeight` — it isn't here, which is what caused the
 /// earlier title/greeting overlap bug).
+///
+/// RTL note: `SliverAppBar.actions` auto-mirrors with `Directionality` (it
+/// always renders at the layout "end", which is the physical *left* in
+/// Urdu), but a plain `Positioned(left:, right:)` does not — it always
+/// means physical sides. Pinning the toolbar-row logo/name with literal
+/// `left`/`right` while `actions` flips sides caused them to overlap in
+/// Urdu. Fixed by using `PositionedDirectional`/`AlignmentDirectional`
+/// (start/end, resolved against the ambient text direction) instead, so
+/// the reserved gap always lands on the same side `actions` actually
+/// renders on.
 class _DashboardHeader extends StatelessWidget {
   final SessionEntity session;
-  final VoidCallback onProfileTap;
+  final VoidCallback onNotificationsTap;
 
   static const double _expandedHeight = 190;
 
-  const _DashboardHeader({required this.session, required this.onProfileTap});
+  const _DashboardHeader({required this.session, required this.onNotificationsTap});
 
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     const hPad = 20.0;
-    // Reserve room so the toolbar-row title never runs under the profile
-    // icon on the right. Language/theme live on the Account tab now, not
-    // here, so this only has to clear one icon.
+    // Reserve room so the toolbar-row title never runs under the
+    // notifications icon. Language/theme/sign-out live on the Account tab
+    // now, not here, so this only has to clear one icon.
     const actionsReserve = 76.0;
 
     return SliverAppBar(
@@ -245,9 +220,9 @@ class _DashboardHeader extends StatelessWidget {
       actionsIconTheme: const IconThemeData(color: AppColors.white),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 16, left: 4),
+          padding: const EdgeInsetsDirectional.only(end: 16, start: 4),
           child: Center(
-            child: _HeaderIconBtn(icon: Iconsax.user, onTap: onProfileTap),
+            child: _HeaderIconBtn(icon: Iconsax.notification, onTap: onNotificationsTap),
           ),
         ),
       ],
@@ -275,15 +250,15 @@ class _DashboardHeader extends StatelessWidget {
             child: Stack(
               children: [
                 // Toolbar-row title — expanded state shows the brand logo.
-                Positioned(
+                PositionedDirectional(
                   top: top,
-                  left: hPad,
-                  right: hPad + actionsReserve,
+                  start: hPad,
+                  end: hPad + actionsReserve,
                   height: kToolbarHeight,
                   child: Opacity(
                     opacity: expandedOpacity,
                     child: const Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: AppLogo(height: 46, width: 46),
                     ),
                   ),
@@ -292,15 +267,15 @@ class _DashboardHeader extends StatelessWidget {
                 // Toolbar-row title — collapsed state shows the signed-in
                 // user's name, so identity stays visible once the big
                 // greeting below has scrolled away.
-                Positioned(
+                PositionedDirectional(
                   top: top,
-                  left: hPad,
-                  right: hPad + actionsReserve,
+                  start: hPad,
+                  end: hPad + actionsReserve,
                   height: kToolbarHeight,
                   child: Opacity(
                     opacity: collapsedOpacity,
                     child: Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: Text(
                         name,
                         maxLines: 1,
@@ -434,26 +409,6 @@ String _greeting(BuildContext context) {
   if (hour < 12) return context.l10n.goodMorning;
   if (hour < 17) return context.l10n.goodAfternoon;
   return context.l10n.goodEvening;
-}
-
-class _RoleBadge extends StatelessWidget {
-  final ShopRole role;
-  const _RoleBadge({required this.role});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: context.primaryLight,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        _roleLabel(context, role),
-        style: context.labelSmall.copyWith(color: context.primaryDark, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
 }
 
 String _roleLabel(BuildContext context, ShopRole role) => switch (role) {
@@ -1035,52 +990,6 @@ class _ActivityRow extends StatelessWidget {
             style: context.labelSmall.copyWith(color: context.textDisabled),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ProfileSheet extends StatelessWidget {
-  final SessionEntity session;
-  final bool signingOut;
-  final VoidCallback onSignOut;
-
-  const _ProfileSheet({required this.session, required this.signingOut, required this.onSignOut});
-
-  @override
-  Widget build(BuildContext context) {
-    final name = (session.fullName?.trim().isNotEmpty ?? false) ? session.fullName! : session.email;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(color: context.primary, shape: BoxShape.circle),
-              alignment: Alignment.center,
-              child: const Icon(Iconsax.user, color: AppColors.white, size: 20),
-            ),
-            heightBox(12),
-            Text(name, style: context.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-            heightBox(4),
-            Text(session.email, style: context.bodySmall.copyWith(color: context.textSecondary)),
-            if (session.role != null) ...[heightBox(10), _RoleBadge(role: session.role!)],
-            heightBox(20),
-            Divider(color: context.divider),
-            heightBox(16),
-            CustomButton.outline(
-              label: context.l10n.signOut,
-              isLoading: signingOut,
-              outlineColor: context.error,
-              textColor: context.error,
-              onPressed: onSignOut,
-            ),
-          ],
-        ),
       ),
     );
   }
