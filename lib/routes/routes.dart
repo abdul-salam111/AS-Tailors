@@ -4,18 +4,15 @@ import '../core/services/session_manager.dart';
 import '../features/auth/auth_exports.dart';
 import '../features/customer/customer_exports.dart';
 import '../features/home/home_exports.dart';
-import '../features/shop/shop_exports.dart';
 import '../features/splash/splash_exports.dart';
 import 'route_names.dart';
 import 'route_paths.dart';
 
-/// Routes that do not require the user to be authenticated.
-const _publicRoutes = {
-  RoutePaths.splash,
-  RoutePaths.signin,
-  RoutePaths.signup,
-  RoutePaths.verifyEmail,
-};
+/// Routes that do not require the user to be authenticated. Deliberately
+/// just sign-in: this is a closed, single-shop deployment (not a public
+/// SaaS signup funnel) — accounts are provisioned outside the app and
+/// handed to whoever needs one, see scripts/create_user.dart.
+const _publicRoutes = {RoutePaths.splash, RoutePaths.signin};
 
 class AppRoutes {
   static final GoRouter router = GoRouter(
@@ -23,7 +20,6 @@ class AppRoutes {
     redirect: (context, state) {
       final session = sl<SessionController>();
       final isLoggedIn = session.isLoggedIn;
-      final hasShop = session.hasShop;
       final location = state.matchedLocation;
       final isPublic = _publicRoutes.contains(location);
 
@@ -31,22 +27,8 @@ class AppRoutes {
       if (!isLoggedIn && !isPublic) return RoutePaths.signin;
 
       // Logged-in user landing on a public auth screen (not splash, which
-      // handles its own routing once it resolves the session) → send them
-      // where they belong.
+      // handles its own routing once it resolves the session) → home.
       if (isLoggedIn && isPublic && location != RoutePaths.splash) {
-        return hasShop ? RoutePaths.home : RoutePaths.createShop;
-      }
-
-      // Logged-in but no shop yet → must finish onboarding first.
-      if (isLoggedIn &&
-          !hasShop &&
-          location != RoutePaths.createShop &&
-          location != RoutePaths.splash) {
-        return RoutePaths.createShop;
-      }
-
-      // Already has a shop — no reason to revisit onboarding.
-      if (isLoggedIn && hasShop && location == RoutePaths.createShop) {
         return RoutePaths.home;
       }
 
@@ -62,25 +44,6 @@ class AppRoutes {
         path: RoutePaths.signin,
         name: RouteNames.signin,
         builder: (context, state) => const SignInView(),
-      ),
-      GoRoute(
-        path: RoutePaths.signup,
-        name: RouteNames.signup,
-        builder: (context, state) => const SignUpView(),
-      ),
-      GoRoute(
-        path: RoutePaths.verifyEmail,
-        name: RouteNames.verifyEmail,
-        // No email in `extra` means this was reached some other way than
-        // straight from a successful signup (e.g. a cold deep link) —
-        // there's nothing to verify, so send them back to start over.
-        redirect: (context, state) => state.extra is String ? null : RoutePaths.signup,
-        builder: (context, state) => VerifyOtpView(email: state.extra as String),
-      ),
-      GoRoute(
-        path: RoutePaths.createShop,
-        name: RouteNames.createShop,
-        builder: (context, state) => const CreateShopView(),
       ),
       GoRoute(
         path: RoutePaths.home,

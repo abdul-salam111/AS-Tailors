@@ -116,18 +116,6 @@ abstract class AppLocalizations {
   /// **'SignIn'**
   String get signInBtn;
 
-  /// No description provided for @signUp.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Up'**
-  String get signUp;
-
-  /// No description provided for @signUpBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Up'**
-  String get signUpBtn;
-
   /// No description provided for @email.
   ///
   /// In en, this message translates to:
@@ -139,18 +127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
-
-  /// No description provided for @name.
-  ///
-  /// In en, this message translates to:
-  /// **'Name'**
-  String get name;
-
-  /// No description provided for @confirmPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Password'**
-  String get confirmPassword;
 
   /// No description provided for @enterYourEmail.
   ///
@@ -164,41 +140,11 @@ abstract class AppLocalizations {
   /// **'Enter your password'**
   String get enterYourPassword;
 
-  /// No description provided for @enterYourName.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your name'**
-  String get enterYourName;
-
-  /// No description provided for @enterYourConfirmPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Re-enter your password'**
-  String get enterYourConfirmPassword;
-
-  /// No description provided for @alreadyHaveAnAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Already have an account?'**
-  String get alreadyHaveAnAccount;
-
-  /// No description provided for @dontHaveAnAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account?'**
-  String get dontHaveAnAccount;
-
   /// No description provided for @youHaveLoggedInSuccessfully.
   ///
   /// In en, this message translates to:
   /// **'You have logged in successfully!'**
   String get youHaveLoggedInSuccessfully;
-
-  /// No description provided for @youHaveSignedUpSuccessfully.
-  ///
-  /// In en, this message translates to:
-  /// **'You have signed up successfully!'**
-  String get youHaveSignedUpSuccessfully;
 
   /// No description provided for @signInTagline.
   ///
@@ -218,143 +164,11 @@ abstract class AppLocalizations {
   /// **'Sign in to manage orders, customers and payments.'**
   String get signInSubtitle;
 
-  /// No description provided for @contactOwnerForAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'This shop already has an owner. Please contact them for a staff account.'**
-  String get contactOwnerForAccess;
-
-  /// No description provided for @signUpTagline.
-  ///
-  /// In en, this message translates to:
-  /// **'Set up your shop\'s owner account.'**
-  String get signUpTagline;
-
-  /// No description provided for @createYourAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Create your account'**
-  String get createYourAccount;
-
-  /// No description provided for @signUpSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'ll be the owner of this shop once you sign up.'**
-  String get signUpSubtitle;
-
-  /// No description provided for @shopAlreadyExistsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This shop is already set up'**
-  String get shopAlreadyExistsTitle;
-
-  /// No description provided for @backToSignIn.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to Sign In'**
-  String get backToSignIn;
-
   /// No description provided for @orContinueWith.
   ///
   /// In en, this message translates to:
   /// **'Or continue with'**
   String get orContinueWith;
-
-  /// No description provided for @verifyYourEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify your email'**
-  String get verifyYourEmail;
-
-  /// No description provided for @verificationCodeSentTo.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ve sent a 6-digit code to'**
-  String get verificationCodeSentTo;
-
-  /// No description provided for @verificationCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Verification code'**
-  String get verificationCode;
-
-  /// No description provided for @enterVerificationCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the 6-digit code'**
-  String get enterVerificationCode;
-
-  /// No description provided for @verifyBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify'**
-  String get verifyBtn;
-
-  /// No description provided for @resendCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Resend code'**
-  String get resendCode;
-
-  /// No description provided for @didntReceiveCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Didn\'t receive the code?'**
-  String get didntReceiveCode;
-
-  /// No description provided for @codeResentSuccessfully.
-  ///
-  /// In en, this message translates to:
-  /// **'Code resent successfully!'**
-  String get codeResentSuccessfully;
-
-  /// No description provided for @emailVerifiedSuccessfully.
-  ///
-  /// In en, this message translates to:
-  /// **'Email verified successfully!'**
-  String get emailVerifiedSuccessfully;
-
-  /// No description provided for @checkYourEmailForCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Check your email for a verification code.'**
-  String get checkYourEmailForCode;
-
-  /// No description provided for @createShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Your Shop'**
-  String get createShop;
-
-  /// No description provided for @shopName.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop Name'**
-  String get shopName;
-
-  /// No description provided for @enterYourShopName.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your shop name'**
-  String get enterYourShopName;
-
-  /// No description provided for @createShopBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'Create Shop'**
-  String get createShopBtn;
-
-  /// No description provided for @shopCreatedSuccessfully.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop created successfully!'**
-  String get shopCreatedSuccessfully;
-
-  /// No description provided for @joinedShopSuccessfully.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'ve joined AS Tailors!'**
-  String get joinedShopSuccessfully;
 
   /// No description provided for @dashboardComingSoon.
   ///

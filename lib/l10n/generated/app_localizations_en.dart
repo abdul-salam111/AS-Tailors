@@ -18,22 +18,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInBtn => 'SignIn';
 
   @override
-  String get signUp => 'Sign Up';
-
-  @override
-  String get signUpBtn => 'Sign Up';
-
-  @override
   String get email => 'Email';
 
   @override
   String get password => 'Password';
-
-  @override
-  String get name => 'Name';
-
-  @override
-  String get confirmPassword => 'Confirm Password';
 
   @override
   String get enterYourEmail => 'Enter your email';
@@ -42,22 +30,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterYourPassword => 'Enter your password';
 
   @override
-  String get enterYourName => 'Enter your name';
-
-  @override
-  String get enterYourConfirmPassword => 'Re-enter your password';
-
-  @override
-  String get alreadyHaveAnAccount => 'Already have an account?';
-
-  @override
-  String get dontHaveAnAccount => 'Don\'t have an account?';
-
-  @override
   String get youHaveLoggedInSuccessfully => 'You have logged in successfully!';
-
-  @override
-  String get youHaveSignedUpSuccessfully => 'You have signed up successfully!';
 
   @override
   String get signInTagline => 'Your tailoring business, organized.';
@@ -70,76 +43,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in to manage orders, customers and payments.';
 
   @override
-  String get contactOwnerForAccess =>
-      'This shop already has an owner. Please contact them for a staff account.';
-
-  @override
-  String get signUpTagline => 'Set up your shop\'s owner account.';
-
-  @override
-  String get createYourAccount => 'Create your account';
-
-  @override
-  String get signUpSubtitle =>
-      'You\'ll be the owner of this shop once you sign up.';
-
-  @override
-  String get shopAlreadyExistsTitle => 'This shop is already set up';
-
-  @override
-  String get backToSignIn => 'Back to Sign In';
-
-  @override
   String get orContinueWith => 'Or continue with';
-
-  @override
-  String get verifyYourEmail => 'Verify your email';
-
-  @override
-  String get verificationCodeSentTo => 'We\'ve sent a 6-digit code to';
-
-  @override
-  String get verificationCode => 'Verification code';
-
-  @override
-  String get enterVerificationCode => 'Enter the 6-digit code';
-
-  @override
-  String get verifyBtn => 'Verify';
-
-  @override
-  String get resendCode => 'Resend code';
-
-  @override
-  String get didntReceiveCode => 'Didn\'t receive the code?';
-
-  @override
-  String get codeResentSuccessfully => 'Code resent successfully!';
-
-  @override
-  String get emailVerifiedSuccessfully => 'Email verified successfully!';
-
-  @override
-  String get checkYourEmailForCode =>
-      'Check your email for a verification code.';
-
-  @override
-  String get createShop => 'Create Your Shop';
-
-  @override
-  String get shopName => 'Shop Name';
-
-  @override
-  String get enterYourShopName => 'Enter your shop name';
-
-  @override
-  String get createShopBtn => 'Create Shop';
-
-  @override
-  String get shopCreatedSuccessfully => 'Shop created successfully!';
-
-  @override
-  String get joinedShopSuccessfully => 'You\'ve joined AS Tailors!';
 
   @override
   String get dashboardComingSoon => 'Dashboard — coming soon';

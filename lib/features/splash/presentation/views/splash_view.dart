@@ -20,8 +20,6 @@ class SplashView extends StatelessWidget {
         listener: (context, state) {
           if (state is SplashAuthenticated) {
             context.goNamed(RouteNames.home);
-          } else if (state is SplashNeedsShop) {
-            context.goNamed(RouteNames.createShop);
           } else if (state is SplashUnauthenticated) {
             context.goNamed(RouteNames.signin);
           }

@@ -5,7 +5,6 @@ import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/theme/theme_exports.dart';
 import '../../../../../core/utils/utils_exports.dart';
 import '../../../../../core/widgets/widgets_exports.dart';
-import '../../../../../routes/routes_exports.dart';
 import '../../widgets/auth_gradient_background.dart';
 import '../../widgets/complete_sign_in.dart';
 import '../../widgets/entrance_choreography.dart';
@@ -38,12 +37,10 @@ class SignInView extends StatelessWidget {
 /// staggered entrance choreography, hence [StatefulWidget] +
 /// [TickerProviderStateMixin].
 ///
-/// Sign-up is public for now (no "does a shop already exist" gating) —
-/// SRS §3's intended staff-onboarding model (owner creates staff accounts
-/// directly) is still an open decision; see `CheckShopExistsUsecase`
-/// (`features/shop/domain/usecases/check_shop_exists_usecase.dart`) and
-/// `supabase/migrations/0003_shop_exists.sql`, which are already built and
-/// ready to wire back in once that's decided.
+/// This is a closed, single-shop deployment, not a public signup funnel
+/// (SRS §3) — there is deliberately no "Sign up" link here. Accounts are
+/// provisioned outside the app and handed to whoever needs one; see
+/// `scripts/create_user.dart`.
 class _SignInBody extends StatefulWidget {
   const _SignInBody();
   @override
@@ -214,10 +211,6 @@ class _SignInBodyState extends State<_SignInBody>
               Expanded(
                 child: SingleChildScrollView(child: _buildForm(context)),
               ),
-              _entrance.fadeSlideUp(
-                _entrance.interval(0.64, 1.0),
-                _buildFooterLink(context),
-              ),
             ],
           ),
         ),
@@ -308,32 +301,6 @@ class _SignInBodyState extends State<_SignInBody>
     );
   }
 
-  Widget _buildFooterLink(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(context.l10n.dontHaveAnAccount, style: context.bodySmall),
-              TextButton(
-                onPressed: () => context.go(RoutePaths.signup),
-                child: Text(
-                  context.l10n.signUp,
-                  style: context.bodySmall.copyWith(
-                    color: context.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _LogoCard extends StatelessWidget {

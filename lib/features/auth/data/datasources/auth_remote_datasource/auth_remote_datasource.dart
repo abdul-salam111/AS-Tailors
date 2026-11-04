@@ -11,11 +11,6 @@ import '../../models/shop_membership_model.dart';
 
 abstract interface class IAuthRemoteDatasource {
   Future<AuthResponse> signInWithPassword({required String email, required String password});
-  Future<AuthResponse> signUp({
-    required String email,
-    required String password,
-    required String fullName,
-  });
 
   /// Native Google account picker, then exchanges the resulting ID token
   /// for a Supabase session. Requires `GOOGLE_SERVER_CLIENT_ID` to be
@@ -30,14 +25,6 @@ abstract interface class IAuthRemoteDatasource {
   Future<AuthResponse> signInWithApple();
 
   Future<void> signOut();
-
-  /// Exchanges the 6-digit code emailed to [email] for a real session.
-  /// Requires the Supabase "Confirm signup" email template to include
-  /// `{{ .Token }}` — see SECRETS.txt.
-  Future<AuthResponse> verifySignupOtp({required String email, required String token});
-
-  /// Re-sends the signup confirmation email (with a fresh code) to [email].
-  Future<void> resendSignupOtp({required String email});
 
   /// The currently signed-in Supabase user, if any. Synchronous — reflects
   /// the session Supabase already restored during `Supabase.initialize`.
@@ -55,15 +42,6 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
   @override
   Future<AuthResponse> signInWithPassword({required String email, required String password}) =>
       guard(() => client.auth.signInWithPassword(email: email, password: password));
-
-  @override
-  Future<AuthResponse> signUp({
-    required String email,
-    required String password,
-    required String fullName,
-  }) => guard(
-    () => client.auth.signUp(email: email, password: password, data: {'full_name': fullName}),
-  );
 
   @override
   Future<AuthResponse> signInWithGoogle() => guard(() async {
@@ -112,15 +90,6 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
 
   @override
   Future<void> signOut() => guard(() => client.auth.signOut());
-
-  @override
-  Future<AuthResponse> verifySignupOtp({required String email, required String token}) => guard(
-    () => client.auth.verifyOTP(type: OtpType.signup, email: email, token: token),
-  );
-
-  @override
-  Future<void> resendSignupOtp({required String email}) =>
-      guard(() => client.auth.resend(type: OtpType.signup, email: email));
 
   @override
   User? get currentUser => client.auth.currentUser;

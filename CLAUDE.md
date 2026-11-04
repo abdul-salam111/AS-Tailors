@@ -88,12 +88,26 @@ items 1–3 and 4 below are resolved. What's still open:
 3. ✅ **Authorization/roles — resolved.** `ShopRole` enum
    (`core/constants/app_enums.dart`, values `owner`/`admin`/`tailor`/
    `staff` — lower-case to match the Postgres enum 1:1). `SessionEntity`
-   carries `shopId`/`role`; `AppRoutes.router`'s redirect guard checks both
-   `isLoggedIn` and `hasShop` (see §8). Fine-grained per-action permission
-   checks (e.g. "can Admin issue a refund") still need a concrete decision
-   per SRS §3's vague "Admin = operational administration as explicitly
-   granted by owner" — don't infer a permission matrix, ask when it
-   matters.
+   carries `shopId`/`role`. The owner-creates-staff model (§3's "controlled
+   setup process") is resolved as of 2026-11-05: **there is no public
+   signup** — this is a closed, single-shop deployment for one real
+   business, not a multi-tenant SaaS. Accounts (pre-confirmed, with shop
+   membership already attached) are provisioned via
+   `scripts/create_user.dart`, run locally with the Supabase service-role
+   key — see SECRETS.txt. The first account provisions "AS Tailors" itself
+   and becomes its owner; every account after that joins directly in
+   whatever role the script is given. `CheckShopExistsUsecase`/
+   `bootstrap_shop()`/`join_existing_shop()` and the in-app shop-onboarding
+   flow that used them were removed from the Flutter app (the SQL
+   functions remain in migrations, unused, as the reference shape for the
+   script) — open item: the Google/Apple sign-in buttons still
+   auto-provision a new shop-less account for any identity via Supabase's
+   `signInWithIdToken` default behavior, which is a gap in this closed
+   model; see the NOTE in `SocialSignInButtons`'s doc comment. Fine-grained
+   per-action permission checks (e.g. "can Admin issue a refund") still
+   need a concrete decision per SRS §3's vague "Admin = operational
+   administration as explicitly granted by owner" — don't infer a
+   permission matrix, ask when it matters.
 4. ✅ **Localization — resolved.** `app_es.arb` → `app_ur.arb`; see §13a.
 5. **Offline/local persistence** — still open. §15 wants cached reads,
    local order drafts and a sync queue (`local_id`/`server_id`/
@@ -208,9 +222,12 @@ Short version: `cp .env.example .env`, fill in real values, then
 
 ```
 supabase/
-├── migrations/0001_identity_and_shops.sql  # profiles/shops/shop_members/audit_logs + RLS, see §9
-├── migrations/0002_customers.sql     # customers table + phone normalization + RLS, see §9/§5a
-└── README.md                         # How to apply a migration (no CLI linked yet — paste into SQL Editor)
+├── migrations/0001_identity_and_shops.sql    # profiles/shops/shop_members/audit_logs + RLS, see §9
+├── migrations/0002_customers.sql             # customers table + phone normalization + RLS, see §9/§5a
+├── migrations/0003_shop_exists.sql           # shop_exists() RPC — unused by the app now, see §1a item 3
+├── migrations/0004_join_existing_shop.sql    # join_existing_shop() RPC — unused by the app now, see §1a item 3
+├── config.toml                       # Tracked project config (auth/db/storage) — `supabase config pull/push`
+└── README.md                         # How to apply a migration — project is CLI-linked (`supabase db push`)
 lib/
 ├── main.dart                         # Entry: Supabase.initialize() → setupLocator() → runApp
 ├── core/
@@ -223,7 +240,6 @@ lib/
 │   │   ├── register_network.dart     # Dio + DioHelper (with DioCacheInterceptor) — non-Supabase HTTP only
 │   │   ├── register_core.dart        # LocalStorage, SessionController, ConnectivityService
 │   │   ├── register_auth.dart        # Auth DS → Repo → Usecase → Bloc; ISessionResolver impl; SplashServices
-│   │   ├── register_shop.dart        # Shop DS → Repo → Usecase → Bloc (factory) — see §5a worked example
 │   │   └── register_splash.dart      # SplashCubit
 │   ├── local_storage/storage.dart    # LocalStorage singleton + StorageKeys (app prefs only — isDarkMode, locale)
 │   ├── localization/locale_cubit.dart  # LocaleCubit — persisted language selection, see §13a
@@ -269,11 +285,10 @@ lib/
 │   │   └── type_conversion.dart      # safeToInt/Double/String/Bool/List/Map/DateTime/Color/Enum…
 │   └── widgets/                      # Reusable UI components
 ├── features/
-│   ├── auth/                         # Supabase Auth — sign in/up/out, session+shop-membership resolution
-│   ├── shop/                         # Shop onboarding/bootstrap — canonical §5a Supabase-feature example
-│   ├── customer/                     # Customer directory (FR-003) — plain-CRUD §5a example (vs shop's RPC-heavy one)
+│   ├── auth/                         # Supabase Auth — sign in only, no public signup (see §1a item 3); session+shop-membership resolution
+│   ├── customer/                     # Customer directory (FR-003) — the §5a Supabase-feature worked example
 │   ├── home/                         # Placeholder landing screen (FR-011 dashboard not built yet)
-│   ├── splash/                       # Session/shop resolution on launch, routes accordingly
+│   ├── splash/                       # Session resolution on launch, routes to signin or home
 │   └── <feature>/
 │       ├── <feature>_exports.dart    # Barrel export
 │       ├── data/
@@ -513,26 +528,30 @@ customers, measurements, orders, payments, ...). Reach for §5's Dio
 pattern only when a feature genuinely calls an external non-Supabase HTTP
 API. Domain layer (Step 1), BLoC (Step 4), DI *shape* (Step 5), view
 (Step 6) and routing (Step 7) are identical to §5 — only the datasource
-and repository differ, shown here using the real `shop` feature
-(`features/shop/`) as the worked reference instead of a hypothetical
+and repository differ, shown here using the real `customer` feature
+(`features/customer/`) as the worked reference instead of a hypothetical
 "product".
 
 ### Datasource — extend `BaseSupabaseDatasource`, not `BaseRemoteDatasource`
 ```dart
-// data/datasources/shop_remote_datasource/shop_remote_datasource.dart
-abstract interface class IShopRemoteDatasource {
-  Future<ShopModel> bootstrapShop({required String name, ...});
+// data/datasources/customer_remote_datasource/customer_remote_datasource.dart
+abstract interface class ICustomerRemoteDatasource {
+  Future<CustomerModel> createCustomer({required String shopId, required String fullName, ...});
 }
 
-class ShopRemoteDatasourceImpl extends BaseSupabaseDatasource
-    implements IShopRemoteDatasource {
-  const ShopRemoteDatasourceImpl({required super.client});
+class CustomerRemoteDatasourceImpl extends BaseSupabaseDatasource
+    implements ICustomerRemoteDatasource {
+  const CustomerRemoteDatasourceImpl({required super.client});
 
   @override
-  Future<ShopModel> bootstrapShop({required String name, ...}) => rpc(
-        function: 'bootstrap_shop',
-        params: {'p_name': name, ...},
-        parser: (data) => ShopModel.fromJson(data as Map<String, dynamic>),
+  Future<CustomerModel> createCustomer({required String shopId, required String fullName, ...}) =>
+      single(
+        query: () => client
+            .from('customers')
+            .insert({'shop_id': shopId, 'full_name': fullName, ...})
+            .select()
+            .single(),
+        parser: CustomerModel.fromJson,
       );
 }
 ```
@@ -552,24 +571,28 @@ for a fuller example (`single`/`maybeSingle`/`guard` all in use).
 table calls on the client** — especially anything touching money (orders,
 payments). Put the atomicity/validation in Postgres (`security definer`
 function, `NUMERIC` arithmetic, `raise exception` for invalid states), not
-in Dart. `bootstrap_shop()` in
-`supabase/migrations/0001_identity_and_shops.sql` is the pattern: validate
-→ insert → audit-log, all in one transaction, callable only by
-`authenticated`, unreachable by direct table writes because the table has
-no client-facing insert policy.
+in Dart. `bootstrap_shop()` / `join_existing_shop()` in
+`supabase/migrations/0001_identity_and_shops.sql` /
+`0004_join_existing_shop.sql` are the pattern (no longer called from the
+app itself — see §1a item 3 — but still the right shape to copy): validate
+→ insert → audit-log, all in one transaction, unreachable by direct table
+writes because the table has no client-facing insert policy.
 
 ### Repository — identical shape to §5, just a different datasource type
 ```dart
-// data/repositories_impl/shop_repository_impl.dart
-class ShopRepositoryImpl extends BaseRepository implements IShopRepository {
-  final IShopRemoteDatasource _dataSource;
-  ShopRepositoryImpl({required IShopRemoteDatasource dataSource}) : _dataSource = dataSource;
+// data/repositories_impl/customer_repository_impl.dart
+class CustomerRepositoryImpl extends BaseRepository implements ICustomerRepository {
+  final ICustomerRemoteDatasource _dataSource;
+  final SessionController _sessionController; // see shop-scoping below
+
+  CustomerRepositoryImpl({required ICustomerRemoteDatasource dataSource, required SessionController sessionController})
+      : _dataSource = dataSource, _sessionController = sessionController;
 
   @override
-  Future<Either<Failure, ShopEntity>> createShop(CreateShopParams params) => execute(
+  Future<Either<Failure, CustomerEntity>> createCustomer(CreateCustomerParams params) => execute(
         call: () async {
-          final model = await _dataSource.bootstrapShop(name: params.name, ...);
-          return ShopEntity(id: model.id, ...);
+          final model = await _dataSource.createCustomer(shopId: _requireShopId(), fullName: params.fullName, ...);
+          return CustomerEntity(id: model.id, ...);
         },
       );
 }
@@ -580,11 +603,14 @@ Every feature table is `shop_id`-scoped behind RLS (§1a item 8, §9, §11).
 Two rules:
 - **Filter by shop on the client too**, via
   `sl<SessionController>().session.shopId` — e.g.
-  `client.from('customers').select().eq('shop_id', shopId)`. RLS is the
-  actual security boundary (don't skip writing it), but client-side
-  filtering is still what makes your queries *correct* (right page of
-  results) rather than relying on RLS to silently narrow an unscoped
-  query.
+  `client.from('customers').select().eq('shop_id', shopId)`.
+  `CustomerRepositoryImpl._requireShopId()` is the pattern: read the shop
+  id once per repository method (throwing `UnauthorizedException` if
+  there somehow isn't one) instead of every call site having to remember
+  to pass it. RLS is the actual security boundary (don't skip writing
+  it), but client-side filtering is still what makes your queries
+  *correct* (right page of results) rather than relying on RLS to
+  silently narrow an unscoped query.
 - **Write the RLS policy using the shared helpers** —
   `is_shop_member(shop_id)` / `is_shop_member(shop_id, array['owner','admin']::shop_role[])`
   / `shop_id in (select my_shop_ids())` — instead of re-deriving the
@@ -594,17 +620,19 @@ Two rules:
 
 ### DI registration — same shape as §6, swap the datasource constructor arg
 ```dart
-// core/di/register_shop.dart
-Future<void> registerShop() async {
-  sl.registerLazySingleton<IShopRemoteDatasource>(
-    () => ShopRemoteDatasourceImpl(client: sl()), // sl<SupabaseClient>(), not dioHelper: sl()
+// core/di/register_customer.dart
+Future<void> registerCustomer() async {
+  sl.registerLazySingleton<ICustomerRemoteDatasource>(
+    () => CustomerRemoteDatasourceImpl(client: sl()), // sl<SupabaseClient>(), not dioHelper: sl()
   );
-  sl.registerLazySingleton<IShopRepository>(() => ShopRepositoryImpl(dataSource: sl()));
-  sl.registerLazySingleton<CreateShopUsecase>(() => CreateShopUsecase(repository: sl()));
-  sl.registerFactory<CreateShopBloc>(() => CreateShopBloc(createShopUsecase: sl()));
+  sl.registerLazySingleton<ICustomerRepository>(
+    () => CustomerRepositoryImpl(dataSource: sl(), sessionController: sl<SessionController>()),
+  );
+  sl.registerLazySingleton<CreateCustomerUsecase>(() => CreateCustomerUsecase(repository: sl()));
+  sl.registerFactory<CustomerFormBloc>(() => CustomerFormBloc(createCustomerUsecase: sl(), ...));
 }
 ```
-Call `await registerShop()` from `setupLocator()` in `app_dependencies.dart`,
+Call `await registerCustomer()` from `setupLocator()` in `app_dependencies.dart`,
 after `registerAuth()` (most features will need `SessionController`'s
 resolved shop/role, which `registerAuth()` populates the resolver for).
 
@@ -723,7 +751,7 @@ context.pushNamed(RouteNames.product, queryParameters: {'id': id});
 final args = state.extra as Map<String, dynamic>;
 ```
 
-`AppRoutes.router` has a `redirect` guard — checks `sl<SessionController>().isLoggedIn` (from the live Supabase session) and `.hasShop` (from the cached `SessionEntity`, populated by splash/sign-in), redirecting to `RoutePaths.signin` or `RoutePaths.createShop` as appropriate. Add new protected routes inside `routes` list; add public ones to `_publicRoutes`. Note the guard is synchronous and `hasShop` only reflects whatever was last resolved — it's correct for normal in-app navigation (splash always resolves first) but won't be accurate for a cold deep-link straight into a protected route before splash runs; that's a known gap, not yet solved.
+`AppRoutes.router` has a `redirect` guard — checks `sl<SessionController>().isLoggedIn` (from the live Supabase session) and sends unauthenticated users to `RoutePaths.signin`, logged-in users away from the public screens (`_publicRoutes`: splash + signin only — see §1a item 3, there's no signup screen) to `RoutePaths.home`. Add new protected routes inside `routes` list; add public ones to `_publicRoutes`. There's no shop-onboarding redirect branch — every account has its shop membership provisioned before the credential is ever handed out (`scripts/create_user.dart`), so a logged-in user without one is an unexpected state the app doesn't specifically handle, not a normal flow step.
 
 Never use `Navigator.push()`.
 
@@ -1236,6 +1264,41 @@ tearDown(() => bloc.close());
 - [ ] No secrets/API keys/tokens as literals — add them via `.env` + `Env`, see SECRETS.txt
 
 ---
+
+*Last updated: 2026-11-05 — product clarification: this is a closed,
+single-shop deployment for one real business, not a multi-tenant signup
+funnel. Removed the public `signup`/`verify_otp` auth flow and the
+`shop` feature's in-app onboarding screen entirely (deleted
+`features/shop/`, `features/auth/presentation/{signup,verify_otp}/`, the
+`SignupUsecase`/`VerifySignupOtpUsecase`/`ResendSignupOtpUsecase` trio,
+the `createShop`/`signup`/`verifyEmail` routes, and now-dead ARB keys);
+simplified `AppRoutes.router`'s guard and `SplashCubit` to drop the
+`hasShop`/`createShop` branch entirely (see §8, §1a item 3). Added
+`scripts/create_user.dart` — a plain-Dart admin script (service-role key,
+never shipped in the app) that provisions a pre-confirmed account with
+shop membership already attached, replacing the signup form; documented
+in SECRETS.txt. Rewrote §5a to use `customer` instead of the now-deleted
+`shop` feature as the worked Supabase-feature example. Left the SQL side
+(`bootstrap_shop()`/`join_existing_shop()`/`shop_exists()`) in migrations
+unused but intact, as the reference shape the script's direct-table-write
+logic mirrors. Open gap, not yet addressed: Google/Apple sign-in still
+auto-provisions a new shop-less account for any identity via Supabase's
+default `signInWithIdToken` behavior — see the NOTE in
+`SocialSignInButtons`'s doc comment.
+
+Earlier the same day: fixed signup OTP email delivery end-to-end (now
+moot given the above, but the underlying Supabase-config lessons still
+apply to any future transactional email) — configured custom SMTP
+(Brevo) via Supabase Dashboard, fixed a project `otp_length` mismatch (8
+vs the UI's hardcoded 6) via `supabase config push`, and added an
+OTP-code email template (`supabase/templates/confirmation.html`) since
+the default Supabase template only has a `{{ .ConfirmationURL }}` link,
+not `{{ .Token }}`. Also removed CocoaPods integration from `ios/`
+(`pod deintegrate` + deleted `Podfile`/`Podfile.lock` + cleaned
+xcconfig/workspace references) since all plugins are Swift Packages now.
+`supabase/config.toml` is newly tracked in git (pulled via
+`supabase config pull`), making future Supabase project config changes
+reviewable the same way migrations already are.
 
 *Last updated: 2026-11-04 (later same day) — redesigned the sign-in/
 sign-up screens to match a specific reference app's structure/animation/

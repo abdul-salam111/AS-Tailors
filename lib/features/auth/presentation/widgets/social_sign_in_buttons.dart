@@ -10,13 +10,19 @@ import '../../domain/usecases/signin_with_apple_usecase.dart';
 import '../../domain/usecases/signin_with_google_usecase.dart';
 import 'complete_sign_in.dart';
 
-/// "Or continue with" divider + Google/Apple buttons, shared by sign-in
-/// and sign-up — one tap either signs an existing user in or creates
-/// their account, Supabase treats both the same way for an OAuth
-/// provider. Handles its own loading state and calls [completeSignIn]
-/// directly on success rather than going through `SignInBloc`/
-/// `SignupBloc`, since a single OAuth round-trip has no form fields to
-/// track — same reasoning as `HomeView`'s direct sign-out call.
+/// "Or continue with" divider + Google/Apple buttons on the sign-in
+/// screen. Handles its own loading state and calls [completeSignIn]
+/// directly on success rather than going through `SignInBloc`, since a
+/// single OAuth round-trip has no form fields to track — same reasoning
+/// as `HomeView`'s direct sign-out call.
+///
+/// NOTE: Supabase's `signInWithIdToken` auto-provisions a new account for
+/// any Google/Apple identity that doesn't already exist — this is a
+/// closed, single-shop deployment (see `SignInView`'s doc comment), so
+/// that's currently an open door around the removed sign-up screen. Not
+/// addressed here; flagged for a decision before these buttons are
+/// actually wired up end to end (SECRETS.txt still has setup steps
+/// outstanding for both providers).
 class SocialSignInButtons extends StatefulWidget {
   const SocialSignInButtons({super.key});
 
