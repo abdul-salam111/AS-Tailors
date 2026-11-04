@@ -53,3 +53,7 @@ app.*.map.json
 .env.*
 !.env.example
 lib/core/constants/env.g.dart
+
+# Supabase CLI — local link cache (project ref, resolved tool versions),
+# machine-specific, not shared state.
+supabase/.temp/

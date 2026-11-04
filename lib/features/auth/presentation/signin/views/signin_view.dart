@@ -46,7 +46,6 @@ class SignInView extends StatelessWidget {
 /// ready to wire back in once that's decided.
 class _SignInBody extends StatefulWidget {
   const _SignInBody();
-
   @override
   State<_SignInBody> createState() => _SignInBodyState();
 }
