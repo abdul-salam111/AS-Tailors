@@ -14,10 +14,11 @@ _ShopModel _$ShopModelFromJson(Map<String, dynamic> json) => _ShopModel(
   timezone: json['timezone'] as String,
 );
 
-Map<String, dynamic> _$ShopModelToJson(_ShopModel instance) => <String, dynamic>{
-  'id': instance.id,
-  'owner_id': instance.ownerId,
-  'name': instance.name,
-  'currency': instance.currency,
-  'timezone': instance.timezone,
-};
+Map<String, dynamic> _$ShopModelToJson(_ShopModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'owner_id': instance.ownerId,
+      'name': instance.name,
+      'currency': instance.currency,
+      'timezone': instance.timezone,
+    };

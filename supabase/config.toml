@@ -330,8 +330,11 @@ max_frequency = "5s"
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack_oidc`, `spotify`, `workos`, `zoom`.
 [auth.external.apple]
-enabled = false
-client_id = ""
+enabled = true
+# Set via Dashboard > Authentication > Providers > Apple (client_id is
+# unmanaged by config push, see note on auth.external.google below) —
+# kept here just for local schema validation / documentation parity.
+client_id = "com.astailors.app"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 # Overrides the default auth callback URL derived from auth.external_url.
@@ -342,6 +345,30 @@ url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
+email_optional = false
+
+[auth.external.google]
+# NOTE: `enabled`/`client_id` below are NOT actually writable via
+# `supabase config push` (confirmed via `config diff` — client_id shows
+# as local_only/remote:null, same limitation as auth.external.apple).
+# Pushing with enabled=true here would silently skip client_id and leave
+# the provider broken on the live project. Set these through the
+# Supabase Dashboard > Authentication > Providers > Google instead; this
+# section stays as documentation of the intended value.
+enabled = false
+# Web OAuth client (same value as GOOGLE_SERVER_CLIENT_ID in .env) — this
+# is the audience native google_sign_in requests an ID token for; see
+# signInWithGoogle() in auth_remote_datasource.dart.
+client_id = "248797919199-lbspf05b8llo54ucaue7kn5vfc3liquv.apps.googleusercontent.com"
+# Not needed: this app only does native ID-token sign-in, never the web
+# OAuth redirect flow that this secret is for.
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+redirect_uri = ""
+url = ""
+# The app doesn't pass a nonce to GoogleSignIn.initialize(), so no nonce
+# claim should land in the ID token — leave off unless testing surfaces
+# a nonce-mismatch error.
+skip_nonce_check = false
 email_optional = false
 
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS) standard.
