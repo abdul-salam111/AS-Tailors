@@ -166,7 +166,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                       _entrance.interval(0.22, 0.6),
                       _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
                     ),
-                    heightBox(12),
+                    heightBox(8),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.26, 0.64),
                       _AttentionList(onTap: _comingSoon),
@@ -176,7 +176,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                       _entrance.interval(0.34, 0.72),
                       _SectionHeader(title: context.l10n.quickActions),
                     ),
-                    heightBox(12),
+                    heightBox(8),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.38, 0.76),
                       _QuickActionsGrid(onComingSoon: _comingSoon),
@@ -186,7 +186,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                       _entrance.interval(0.46, 0.84),
                       _SectionHeader(title: context.l10n.recentActivity),
                     ),
-                    heightBox(12),
+                    heightBox(8),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.5, 0.9),
                       const _RecentActivityList(),
@@ -228,9 +228,10 @@ class _DashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     const hPad = 20.0;
-    // Reserve room so the toolbar-row title never runs under the three
-    // action icons on the right (language, theme, profile).
-    const actionsReserve = 170.0;
+    // Reserve room so the toolbar-row title never runs under the profile
+    // icon on the right. Language/theme live on the Account tab now, not
+    // here, so this only has to clear one icon.
+    const actionsReserve = 76.0;
 
     return SliverAppBar(
       pinned: true,
@@ -243,8 +244,6 @@ class _DashboardHeader extends StatelessWidget {
       iconTheme: const IconThemeData(color: AppColors.white),
       actionsIconTheme: const IconThemeData(color: AppColors.white),
       actions: [
-        const LanguageToggleButton(),
-        const ThemeToggleButton(),
         Padding(
           padding: const EdgeInsets.only(right: 16, left: 4),
           child: Center(
@@ -295,7 +294,7 @@ class _DashboardHeader extends StatelessWidget {
                     opacity: expandedOpacity,
                     child: const Align(
                       alignment: Alignment.centerLeft,
-                      child: AppLogo(height: 34, width: 34),
+                      child: AppLogo(height: 46, width: 46),
                     ),
                   ),
                 ),

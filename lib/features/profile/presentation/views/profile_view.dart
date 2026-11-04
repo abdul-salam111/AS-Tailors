@@ -9,9 +9,10 @@ import '../../../../core/widgets/widgets_exports.dart';
 import '../../../../features/auth/auth_exports.dart';
 import '../../../../routes/routes_exports.dart';
 
-/// Account tab — full-screen counterpart to the quick-glance profile
-/// bottom sheet on Home. Same data, same sign-out flow, just reachable
-/// from the bottom nav bar instead of tapping the header avatar.
+/// Account tab — identity card, app settings (language/theme — moved here
+/// from the home header, see home_view.dart's `_DashboardHeader`), and
+/// sign out. The quick-glance profile bottom sheet on Home still exists
+/// as a shortcut; this is the full page.
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
 
@@ -45,61 +46,170 @@ class _ProfileViewState extends State<ProfileView> {
       backgroundColor: context.background,
       appBar: CustomAppBar(title: context.l10n.account, centerTitle: false),
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(color: context.primary, shape: BoxShape.circle),
-                      alignment: Alignment.center,
-                      child: const Icon(Iconsax.user, color: AppColors.white, size: 32),
-                    ),
-                    heightBox(14),
-                    Text(name, style: context.titleLarge.copyWith(fontWeight: FontWeight.bold)),
-                    heightBox(4),
-                    Text(
-                      session.email,
-                      style: context.bodySmall.copyWith(color: context.textSecondary),
-                    ),
-                    if (session.role != null) ...[
-                      heightBox(10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: context.primaryLight,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          _roleLabel(context, session.role!),
-                          style: context.labelSmall.copyWith(
-                            color: context.primaryDark,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+          children: [
+            _ProfileHeaderCard(name: name, email: session.email, role: session.role),
+            heightBox(24),
+            Text(
+              context.l10n.settings,
+              style: context.titleSmall.copyWith(fontWeight: FontWeight.bold),
+            ),
+            heightBox(8),
+            const _SettingsSection(),
+            heightBox(28),
+            CustomButton.outline(
+              label: context.l10n.signOut,
+              isLoading: _signingOut,
+              outlineColor: context.error,
+              textColor: context.error,
+              onPressed: _signOut,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileHeaderCard extends StatelessWidget {
+  final String name;
+  final String email;
+  final ShopRole? role;
+  const _ProfileHeaderCard({required this.name, required this.email, required this.role});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6))],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.brandTeal.withValues(alpha: 0.3),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Iconsax.user, color: AppColors.white, size: 34),
+          ),
+          heightBox(14),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
+          ),
+          heightBox(4),
+          Text(
+            email,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.bodySmall.copyWith(color: context.textSecondary),
+          ),
+          if (role != null) ...[
+            heightBox(10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: context.primaryLight,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _roleLabel(context, role!),
+                style: context.labelSmall.copyWith(
+                  color: context.primaryDark,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              heightBox(32),
-              Divider(color: context.divider),
-              heightBox(24),
-              CustomButton.outline(
-                label: context.l10n.signOut,
-                isLoading: _signingOut,
-                outlineColor: context.error,
-                textColor: context.error,
-                onPressed: _signOut,
-              ),
-            ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        children: [
+          _SettingsRow(
+            icon: Iconsax.language_square,
+            label: context.l10n.language,
+            trailing: const LanguageToggleButton(),
           ),
-        ),
+          Divider(height: 1, thickness: 1, color: context.divider, indent: 58),
+          _SettingsRow(
+            icon: Iconsax.moon,
+            label: context.l10n.appearance,
+            trailing: const ThemeToggleButton(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Widget trailing;
+  const _SettingsRow({required this.icon, required this.label, required this.trailing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: context.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 17, color: context.primary),
+          ),
+          widthBox(12),
+          Expanded(
+            child: Text(label, style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+          ),
+          trailing,
+        ],
       ),
     );
   }

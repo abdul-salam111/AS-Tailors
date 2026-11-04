@@ -57,6 +57,15 @@ class AppLocalizationsUr extends AppLocalizations {
   String get home => 'ہوم';
 
   @override
+  String get settings => 'ترتیبات';
+
+  @override
+  String get language => 'زبان';
+
+  @override
+  String get appearance => 'ظاہری شکل';
+
+  @override
   String get goodMorning => 'صبح بخیر';
 
   @override
