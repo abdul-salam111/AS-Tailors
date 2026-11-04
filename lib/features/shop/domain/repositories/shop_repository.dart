@@ -11,4 +11,7 @@ abstract interface class IShopRepository {
 
   /// See `IShopRemoteDatasource.shopExists` — callable before login.
   Future<Either<Failure, bool>> checkShopExists();
+
+  /// See `IShopRemoteDatasource.joinExistingShop`.
+  Future<Either<Failure, ShopEntity>> joinExistingShop();
 }

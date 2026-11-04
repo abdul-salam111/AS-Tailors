@@ -350,6 +350,12 @@ abstract class AppLocalizations {
   /// **'Shop created successfully!'**
   String get shopCreatedSuccessfully;
 
+  /// No description provided for @joinedShopSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve joined AS Tailors!'**
+  String get joinedShopSuccessfully;
+
   /// No description provided for @dashboardComingSoon.
   ///
   /// In en, this message translates to:

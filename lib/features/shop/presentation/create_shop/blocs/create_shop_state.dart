@@ -9,6 +9,15 @@ class CreateShopState extends Equatable {
   final Failure? failure;
   final ApiStatus apiStatus;
   final String name;
+  final ShopRole role;
+  // True while CreateShopInitialized's "does a shop exist yet, and if so
+  // auto-join it" sequence is still running — the view shows a loader
+  // instead of the create-shop form until this settles.
+  final bool isInitializing;
+  // The auto-join attempt itself failed (shop existed, but
+  // joinExistingShop errored) — distinct from "no shop exists yet", which
+  // should show the create-shop form instead.
+  final bool autoJoinFailed;
 
   const CreateShopState({
     this.shop,
@@ -16,6 +25,9 @@ class CreateShopState extends Equatable {
     this.failure,
     this.apiStatus = ApiStatus.INITIAL,
     this.name = '',
+    this.role = ShopRole.owner,
+    this.isInitializing = true,
+    this.autoJoinFailed = false,
   });
 
   CreateShopState copyWith({
@@ -24,6 +36,9 @@ class CreateShopState extends Equatable {
     Failure? failure,
     ApiStatus? apiStatus,
     String? name,
+    ShopRole? role,
+    bool? isInitializing,
+    bool? autoJoinFailed,
   }) {
     return CreateShopState(
       shop: shop ?? this.shop,
@@ -31,9 +46,21 @@ class CreateShopState extends Equatable {
       failure: failure ?? this.failure,
       apiStatus: apiStatus ?? this.apiStatus,
       name: name ?? this.name,
+      role: role ?? this.role,
+      isInitializing: isInitializing ?? this.isInitializing,
+      autoJoinFailed: autoJoinFailed ?? this.autoJoinFailed,
     );
   }
 
   @override
-  List<Object?> get props => [shop, message, failure, apiStatus, name];
+  List<Object?> get props => [
+    shop,
+    message,
+    failure,
+    apiStatus,
+    name,
+    role,
+    isInitializing,
+    autoJoinFailed,
+  ];
 }

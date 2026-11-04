@@ -139,6 +139,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopCreatedSuccessfully => 'Shop created successfully!';
 
   @override
+  String get joinedShopSuccessfully => 'You\'ve joined AS Tailors!';
+
+  @override
   String get dashboardComingSoon => 'Dashboard — coming soon';
 
   @override

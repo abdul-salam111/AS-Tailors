@@ -14,6 +14,11 @@ abstract interface class IShopRemoteDatasource {
   /// sign-in/sign-up screens can gate the entry point itself. See
   /// `supabase/migrations/0003_shop_exists.sql`.
   Future<bool> shopExists();
+
+  /// Joins the caller to the single existing shop as `staff` — the
+  /// auto-join counterpart to [bootstrapShop] for every account after the
+  /// first. See `supabase/migrations/0004_join_existing_shop.sql`.
+  Future<ShopModel> joinExistingShop();
 }
 
 class ShopRemoteDatasourceImpl extends BaseSupabaseDatasource implements IShopRemoteDatasource {
@@ -33,4 +38,10 @@ class ShopRemoteDatasourceImpl extends BaseSupabaseDatasource implements IShopRe
 
   @override
   Future<bool> shopExists() => rpc(function: 'shop_exists', parser: (data) => data as bool);
+
+  @override
+  Future<ShopModel> joinExistingShop() => rpc(
+    function: 'join_existing_shop',
+    parser: (data) => ShopModel.fromJson(data as Map<String, dynamic>),
+  );
 }

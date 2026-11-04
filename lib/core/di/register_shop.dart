@@ -6,6 +6,15 @@ Future<void> registerShop() async {
   sl.registerLazySingleton<IShopRepository>(() => ShopRepositoryImpl(dataSource: sl()));
   sl.registerLazySingleton<CreateShopUsecase>(() => CreateShopUsecase(repository: sl()));
   sl.registerLazySingleton<CheckShopExistsUsecase>(() => CheckShopExistsUsecase(repository: sl()));
+  sl.registerLazySingleton<JoinExistingShopUsecase>(
+    () => JoinExistingShopUsecase(repository: sl()),
+  );
 
-  sl.registerFactory<CreateShopBloc>(() => CreateShopBloc(createShopUsecase: sl()));
+  sl.registerFactory<CreateShopBloc>(
+    () => CreateShopBloc(
+      createShopUsecase: sl(),
+      checkShopExistsUsecase: sl(),
+      joinExistingShopUsecase: sl(),
+    ),
+  );
 }

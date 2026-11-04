@@ -3,6 +3,7 @@ import '../../domain/entities/create_shop_params.dart';
 import '../../domain/entities/shop_entity.dart';
 import '../../domain/repositories/shop_repository.dart';
 import '../datasources/shop_remote_datasource/shop_remote_datasource.dart';
+import '../models/shop_model.dart';
 
 class ShopRepositoryImpl extends BaseRepository implements IShopRepository {
   final IShopRemoteDatasource _dataSource;
@@ -18,16 +19,22 @@ class ShopRepositoryImpl extends BaseRepository implements IShopRepository {
         currency: params.currency,
         timezone: params.timezone,
       );
-      return ShopEntity(
-        id: model.id,
-        ownerId: model.ownerId,
-        name: model.name,
-        currency: model.currency,
-        timezone: model.timezone,
-      );
+      return _toEntity(model);
     },
   );
 
   @override
   Future<Either<Failure, bool>> checkShopExists() => execute(call: () => _dataSource.shopExists());
+
+  @override
+  Future<Either<Failure, ShopEntity>> joinExistingShop() =>
+      execute(call: () async => _toEntity(await _dataSource.joinExistingShop()));
+
+  ShopEntity _toEntity(ShopModel model) => ShopEntity(
+    id: model.id,
+    ownerId: model.ownerId,
+    name: model.name,
+    currency: model.currency,
+    timezone: model.timezone,
+  );
 }

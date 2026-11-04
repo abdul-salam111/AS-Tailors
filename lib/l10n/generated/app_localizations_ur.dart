@@ -137,6 +137,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get shopCreatedSuccessfully => 'دکان کامیابی سے بن گئی!';
 
   @override
+  String get joinedShopSuccessfully => 'آپ AS Tailors میں شامل ہو گئے ہیں!';
+
+  @override
   String get dashboardComingSoon => 'ڈیش بورڈ جلد آ رہا ہے';
 
   @override
