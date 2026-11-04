@@ -219,8 +219,9 @@ class _TopBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.surfaceElevated,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: context.divider),
             boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 3)),
+              BoxShadow(color: context.shadow, blurRadius: 6, offset: const Offset(0, 2)),
             ],
           ),
           child: const AppLogo(),
@@ -527,7 +528,8 @@ class _KpiCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.surfaceElevated,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 16, offset: const Offset(0, 6))],
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -652,9 +654,14 @@ class _DeliveryAlertCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border(left: BorderSide(color: color, width: 3)),
+            border: Border(
+              top: BorderSide(color: context.divider),
+              right: BorderSide(color: context.divider),
+              bottom: BorderSide(color: context.divider),
+              left: BorderSide(color: color, width: 3),
+            ),
             boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4)),
+              BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3)),
             ],
           ),
           child: Row(
@@ -797,8 +804,9 @@ class _ActionTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: context.divider),
             boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 12, offset: const Offset(0, 5)),
+              BoxShadow(color: context.shadow, blurRadius: 8, offset: const Offset(0, 3)),
             ],
           ),
           child: Column(
@@ -863,7 +871,8 @@ class _RecentActivityList extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.surfaceElevated,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6))],
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: [

@@ -107,7 +107,11 @@ class AppColors {
   // BACKGROUND COLORS
   // ============================================
 
-  static const Color backgroundLight = white;
+  // Deliberately NOT pure white — `surfaceElevatedLight` (below) is, so
+  // elevated cards need a backdrop they actually contrast against. White on
+  // white left every card looking like a soft gray smudge instead of a
+  // crisp surface, visible on any screen with cards over the scaffold bg.
+  static const Color backgroundLight = grey50;
   static const Color backgroundDark = grey900;
 
   /// Surface colors for cards, sheets
