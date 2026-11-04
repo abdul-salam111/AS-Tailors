@@ -20,4 +20,8 @@ abstract interface class ICustomerRepository {
   /// Archives (never hard-deletes, per SRS §23.4) a customer linked to
   /// business history by setting `is_active = false`.
   Future<Either<Failure, CustomerEntity>> archiveCustomer(String id);
+
+  /// Count of active customers in the signed-in user's shop, optionally
+  /// restricted to ones created on/after [since].
+  Future<Either<Failure, int>> getCustomerCount({DateTime? since});
 }

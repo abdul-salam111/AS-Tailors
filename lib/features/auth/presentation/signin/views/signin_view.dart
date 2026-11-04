@@ -7,7 +7,6 @@ import '../../../../../core/utils/utils_exports.dart';
 import '../../../../../core/widgets/widgets_exports.dart';
 import '../../widgets/auth_gradient_background.dart';
 import '../../widgets/complete_sign_in.dart';
-import '../../widgets/entrance_choreography.dart';
 import '../../widgets/social_sign_in_buttons.dart';
 import '../blocs/signin_bloc.dart';
 import '../blocs/signin_event.dart';
@@ -25,10 +24,7 @@ class SignInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<SignInBloc>(),
-      child: const _SignInBody(),
-    );
+    return BlocProvider(create: (_) => sl<SignInBloc>(), child: const _SignInBody());
   }
 }
 
@@ -47,8 +43,7 @@ class _SignInBody extends StatefulWidget {
   State<_SignInBody> createState() => _SignInBodyState();
 }
 
-class _SignInBodyState extends State<_SignInBody>
-    with TickerProviderStateMixin {
+class _SignInBodyState extends State<_SignInBody> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
@@ -88,25 +83,18 @@ class _SignInBodyState extends State<_SignInBody>
     return UnfocusWrapper(
       child: Scaffold(
         body: BlocListener<SignInBloc, SignInState>(
-          listenWhen: (previous, current) =>
-              previous.apiStatus != current.apiStatus,
+          listenWhen: (previous, current) => previous.apiStatus != current.apiStatus,
           listener: (context, state) {
-            if (state.apiStatus == ApiStatus.SUCCESS &&
-                state.signinEntity != null) {
+            if (state.apiStatus == ApiStatus.SUCCESS && state.signinEntity != null) {
               completeSignIn(context, state.signinEntity!);
             }
             if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
-              AppToastsUtils.showErrorTop(
-                context,
-                AppFailureMapper.map(state.failure!).message,
-              );
+              AppToastsUtils.showErrorTop(context, AppFailureMapper.map(state.failure!).message);
             }
           },
           child: Stack(
             children: [
-              Positioned.fill(
-                child: AuthGradientBackground(child: _buildHero(context)),
-              ),
+              Positioned.fill(child: AuthGradientBackground(child: _buildHero(context))),
               AnimatedPositioned(
                 duration: _sheetExpandDuration,
                 curve: Curves.easeOutCubic,
@@ -150,10 +138,7 @@ class _SignInBodyState extends State<_SignInBody>
               builder: (context, child) {
                 return Opacity(
                   opacity: logoAnim.value,
-                  child: Transform.scale(
-                    scale: 0.7 + (0.3 * logoAnim.value),
-                    child: child,
-                  ),
+                  child: Transform.scale(scale: 0.7 + (0.3 * logoAnim.value), child: child),
                 );
               },
               child: const _LogoCard(),
@@ -165,9 +150,7 @@ class _SignInBodyState extends State<_SignInBody>
               Text(
                 context.l10n.signInTagline,
                 textAlign: TextAlign.center,
-                style: context.bodyMedium.copyWith(
-                  color: context.textSecondary,
-                ),
+                style: context.bodyMedium.copyWith(color: context.textSecondary),
               ),
             ),
           ],
@@ -208,9 +191,7 @@ class _SignInBodyState extends State<_SignInBody>
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Expanded(
-                child: SingleChildScrollView(child: _buildForm(context)),
-              ),
+              Expanded(child: SingleChildScrollView(child: _buildForm(context))),
             ],
           ),
         ),
@@ -231,9 +212,7 @@ class _SignInBodyState extends State<_SignInBody>
               _entrance.interval(0.3, 0.65),
               Text(
                 context.l10n.welcomeBack,
-                style: context.headlineSmall.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: context.headlineSmall.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             heightBox(20),
@@ -248,8 +227,7 @@ class _SignInBodyState extends State<_SignInBody>
                   hintText: context.l10n.enterYourEmail,
                   focusNode: _emailFocusNode,
                   onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                  onChanged: (email) =>
-                      context.read<SignInBloc>().add(EmailChangedEvent(email)),
+                  onChanged: (email) => context.read<SignInBloc>().add(EmailChangedEvent(email)),
                 ),
               ),
             ),
@@ -259,9 +237,8 @@ class _SignInBodyState extends State<_SignInBody>
               BlocBuilder<SignInBloc, SignInState>(
                 buildWhen: (p, n) => p.password != n.password,
                 builder: (context, state) => CustomTextFormField(
-                  onChanged: (password) => context.read<SignInBloc>().add(
-                    PasswordChangedEvent(password),
-                  ),
+                  onChanged: (password) =>
+                      context.read<SignInBloc>().add(PasswordChangedEvent(password)),
                   obscureText: true,
                   prefixIcon: Iconsax.lock,
                   label: context.l10n.password,
@@ -290,17 +267,13 @@ class _SignInBodyState extends State<_SignInBody>
               ),
             ),
             heightBox(20),
-            _entrance.fadeSlideUp(
-              _entrance.interval(0.6, 0.96),
-              const SocialSignInButtons(),
-            ),
+            _entrance.fadeSlideUp(_entrance.interval(0.6, 0.96), const SocialSignInButtons()),
             heightBox(16),
           ],
         ),
       ),
     );
   }
-
 }
 
 class _LogoCard extends StatelessWidget {

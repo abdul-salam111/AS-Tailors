@@ -35,6 +35,10 @@ abstract interface class ICustomerRemoteDatasource {
   });
 
   Future<CustomerModel> archiveCustomer(String id);
+
+  /// Count of active customers in [shopId], optionally restricted to ones
+  /// created on/after [since] (e.g. "new this week" on the dashboard).
+  Future<int> getCustomerCount({required String shopId, DateTime? since});
 }
 
 class CustomerRemoteDatasourceImpl extends BaseSupabaseDatasource
@@ -132,4 +136,13 @@ class CustomerRemoteDatasourceImpl extends BaseSupabaseDatasource
     query: () => client.from(_table).update({'is_active': false}).eq('id', id).select().single(),
     parser: CustomerModel.fromJson,
   );
+
+  @override
+  Future<int> getCustomerCount({required String shopId, DateTime? since}) => guard(() {
+    var query = client.from(_table).count().eq('shop_id', shopId).eq('is_active', true);
+    if (since != null) {
+      query = query.gte('created_at', since.toIso8601String());
+    }
+    return query;
+  });
 }

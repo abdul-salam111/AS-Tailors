@@ -96,4 +96,9 @@ class CustomerRepositoryImpl extends BaseRepository implements ICustomerReposito
   @override
   Future<Either<Failure, CustomerEntity>> archiveCustomer(String id) =>
       execute(call: () async => _toEntity(await _dataSource.archiveCustomer(id)));
+
+  @override
+  Future<Either<Failure, int>> getCustomerCount({DateTime? since}) => execute(
+    call: () => _dataSource.getCustomerCount(shopId: _requireShopId(), since: since),
+  );
 }

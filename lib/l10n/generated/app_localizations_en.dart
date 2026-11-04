@@ -39,17 +39,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle =>
-      'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
 
   @override
-  String get dashboardComingSoon => 'Dashboard — coming soon';
+  String get signOut => 'Sign Out';
 
   @override
-  String get signOut => 'Sign Out';
+  String get retry => 'Retry';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get goodMorning => 'Good morning';
+
+  @override
+  String get goodAfternoon => 'Good afternoon';
+
+  @override
+  String get goodEvening => 'Good evening';
+
+  @override
+  String get totalCustomers => 'Total Customers';
+
+  @override
+  String get newThisWeek => 'New This Week';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get orders => 'Orders';
+
+  @override
+  String get measurements => 'Measurements';
+
+  @override
+  String get payments => 'Payments';
+
+  @override
+  String get reports => 'Reports';
+
+  @override
+  String get featureComingSoonMessage => 'This feature is coming soon';
+
+  @override
+  String get roleOwner => 'Owner';
+
+  @override
+  String get roleAdmin => 'Admin';
+
+  @override
+  String get roleTailor => 'Tailor';
+
+  @override
+  String get roleStaff => 'Staff';
 
   @override
   String get customers => 'Customers';

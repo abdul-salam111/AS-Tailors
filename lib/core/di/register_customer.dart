@@ -14,6 +14,9 @@ Future<void> registerCustomer() async {
   sl.registerLazySingleton<GetCustomerByIdUsecase>(() => GetCustomerByIdUsecase(repository: sl()));
   sl.registerLazySingleton<UpdateCustomerUsecase>(() => UpdateCustomerUsecase(repository: sl()));
   sl.registerLazySingleton<ArchiveCustomerUsecase>(() => ArchiveCustomerUsecase(repository: sl()));
+  sl.registerLazySingleton<GetCustomerCountUsecase>(
+    () => GetCustomerCountUsecase(repository: sl()),
+  );
 
   sl.registerFactory<CustomerFormBloc>(
     () => CustomerFormBloc(createCustomerUsecase: sl(), updateCustomerUsecase: sl()),

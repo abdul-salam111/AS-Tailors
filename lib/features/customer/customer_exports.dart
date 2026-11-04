@@ -9,6 +9,7 @@ export 'domain/repositories/customer_repository.dart';
 export 'domain/usecases/archive_customer_usecase.dart';
 export 'domain/usecases/create_customer_usecase.dart';
 export 'domain/usecases/get_customer_by_id_usecase.dart';
+export 'domain/usecases/get_customer_count_usecase.dart';
 export 'domain/usecases/get_customers_usecase.dart';
 export 'domain/usecases/update_customer_usecase.dart';
 export 'presentation/customer_detail/blocs/customer_detail_bloc.dart';

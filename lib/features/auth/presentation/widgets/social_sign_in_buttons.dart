@@ -61,7 +61,10 @@ class _SocialSignInButtonsState extends State<SocialSignInButtons> {
       );
       return;
     }
-    _signIn(() => sl<SignInWithGoogleUsecase>()(NoParams()), (v) => setState(() => _googleLoading = v));
+    _signIn(
+      () => sl<SignInWithGoogleUsecase>()(NoParams()),
+      (v) => setState(() => _googleLoading = v),
+    );
   }
 
   @override

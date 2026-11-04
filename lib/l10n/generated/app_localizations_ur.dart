@@ -39,17 +39,67 @@ class AppLocalizationsUr extends AppLocalizations {
   String get welcomeBack => 'خوش آمدید';
 
   @override
-  String get signInSubtitle =>
-      'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
+  String get signInSubtitle => 'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
 
   @override
   String get orContinueWith => 'یا جاری رکھیں';
 
   @override
-  String get dashboardComingSoon => 'ڈیش بورڈ جلد آ رہا ہے';
+  String get signOut => 'سائن آؤٹ';
 
   @override
-  String get signOut => 'سائن آؤٹ';
+  String get retry => 'دوبارہ کوشش کریں';
+
+  @override
+  String get account => 'اکاؤنٹ';
+
+  @override
+  String get goodMorning => 'صبح بخیر';
+
+  @override
+  String get goodAfternoon => 'دوپہر بخیر';
+
+  @override
+  String get goodEvening => 'شام بخیر';
+
+  @override
+  String get totalCustomers => 'کل گاہک';
+
+  @override
+  String get newThisWeek => 'اس ہفتے نئے';
+
+  @override
+  String get quickActions => 'فوری اعمال';
+
+  @override
+  String get comingSoon => 'جلد آ رہا ہے';
+
+  @override
+  String get orders => 'آرڈرز';
+
+  @override
+  String get measurements => 'پیمائش';
+
+  @override
+  String get payments => 'ادائیگیاں';
+
+  @override
+  String get reports => 'رپورٹس';
+
+  @override
+  String get featureComingSoonMessage => 'یہ فیچر جلد آ رہا ہے';
+
+  @override
+  String get roleOwner => 'مالک';
+
+  @override
+  String get roleAdmin => 'ایڈمن';
+
+  @override
+  String get roleTailor => 'درزی';
+
+  @override
+  String get roleStaff => 'عملہ';
 
   @override
   String get customers => 'گاہک';
@@ -61,8 +111,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get noCustomersYet => 'ابھی کوئی گاہک نہیں';
 
   @override
-  String get addYourFirstCustomer =>
-      'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
+  String get addYourFirstCustomer => 'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
 
   @override
   String get addCustomer => 'گاہک شامل کریں';
@@ -113,8 +162,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get customerCreatedSuccessfully => 'گاہک کامیابی سے شامل ہو گیا!';
 
   @override
-  String get customerUpdatedSuccessfully =>
-      'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
+  String get customerUpdatedSuccessfully => 'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
 
   @override
   String get archiveCustomer => 'گاہک کو آرکائیو کریں';
