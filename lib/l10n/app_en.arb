@@ -22,6 +22,7 @@
   "signOut": "Sign Out",
   "retry": "Retry",
   "account": "Account",
+  "home": "Home",
   "goodMorning": "Good morning",
   "goodAfternoon": "Good afternoon",
   "goodEvening": "Good evening",
@@ -34,6 +35,7 @@
   "roleTailor": "Tailor",
   "roleStaff": "Staff",
 
+  "orders": "Orders",
   "activeOrders": "Active Orders",
   "revenue": "Revenue",
   "pendingPayments": "Pending Payments",

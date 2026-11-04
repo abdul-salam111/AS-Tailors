@@ -4,7 +4,10 @@ import '../core/services/session_manager.dart';
 import '../features/auth/auth_exports.dart';
 import '../features/customer/customer_exports.dart';
 import '../features/home/home_exports.dart';
+import '../features/orders/orders_exports.dart';
+import '../features/profile/profile_exports.dart';
 import '../features/splash/splash_exports.dart';
+import 'app_shell.dart';
 import 'route_names.dart';
 import 'route_paths.dart';
 
@@ -45,15 +48,51 @@ class AppRoutes {
         name: RouteNames.signin,
         builder: (context, state) => const SignInView(),
       ),
-      GoRoute(
-        path: RoutePaths.home,
-        name: RouteNames.home,
-        builder: (context, state) => const HomeView(),
-      ),
-      GoRoute(
-        path: RoutePaths.customers,
-        name: RouteNames.customers,
-        builder: (context, state) => const CustomerListView(),
+      // Bottom-nav tabs (Home/Customers/Orders/Account) — each branch keeps
+      // its own Navigator/state via StatefulNavigationShell, see app_shell.dart.
+      // Add/detail/edit customer screens stay OUTSIDE this shell (below) so
+      // they render full-screen without the bottom nav bar, instead of
+      // nesting inside the customers branch.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.home,
+                name: RouteNames.home,
+                builder: (context, state) => const HomeView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.customers,
+                name: RouteNames.customers,
+                builder: (context, state) => const CustomerListView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.orders,
+                name: RouteNames.orders,
+                builder: (context, state) => const OrdersView(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.profile,
+                name: RouteNames.profile,
+                builder: (context, state) => const ProfileView(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: RoutePaths.addCustomer,

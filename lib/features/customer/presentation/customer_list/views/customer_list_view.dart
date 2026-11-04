@@ -52,11 +52,13 @@ class _CustomerListViewState extends State<CustomerListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: context.l10n.customers),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: context.primary,
-        onPressed: _openAddCustomer,
-        child: const Icon(Iconsax.user_add, color: AppColors.white),
+      appBar: CustomAppBar(
+        title: context.l10n.customers,
+        // An AppBar action, not a FloatingActionButton — the bottom nav
+        // bar's own "Create Order" FAB already occupies that spot now
+        // that the app has a persistent shell (see routes/app_shell.dart);
+        // a second FAB here would float right next to it.
+        actions: [IconButton(onPressed: _openAddCustomer, icon: const Icon(Iconsax.user_add))],
       ),
       body: Column(
         children: [

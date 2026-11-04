@@ -523,7 +523,11 @@ class _KpiGrid extends StatelessWidget {
                     loading: loading,
                     trendValue: newThisWeek > 0 ? '+$newThisWeek' : null,
                     trendGood: true,
-                    onTap: () => context.push(RoutePaths.customers),
+                    // `go`, not `push` — customers is a bottom-nav branch
+                    // now (see routes/app_shell.dart); pushing it would
+                    // stack a second shell+nav-bar on top instead of just
+                    // switching tabs.
+                    onTap: () => context.go(RoutePaths.customers),
                   ),
                 ),
                 widthBox(14),
@@ -870,7 +874,7 @@ class _QuickActionsGrid extends StatelessWidget {
                 icon: Iconsax.people,
                 color: AppColors.brandGoldDark,
                 label: context.l10n.customers,
-                onTap: () => context.push(RoutePaths.customers),
+                onTap: () => context.go(RoutePaths.customers),
               ),
             ),
           ],

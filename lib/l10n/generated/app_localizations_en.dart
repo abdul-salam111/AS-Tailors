@@ -39,8 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle =>
-      'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
@@ -53,6 +52,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get account => 'Account';
+
+  @override
+  String get home => 'Home';
 
   @override
   String get goodMorning => 'Good morning';
@@ -86,6 +88,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleStaff => 'Staff';
+
+  @override
+  String get orders => 'Orders';
 
   @override
   String get activeOrders => 'Active Orders';

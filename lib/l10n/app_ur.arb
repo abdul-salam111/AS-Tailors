@@ -18,6 +18,7 @@
   "signOut": "سائن آؤٹ",
   "retry": "دوبارہ کوشش کریں",
   "account": "اکاؤنٹ",
+  "home": "ہوم",
   "goodMorning": "صبح بخیر",
   "goodAfternoon": "دوپہر بخیر",
   "goodEvening": "شام بخیر",
@@ -30,6 +31,7 @@
   "roleTailor": "درزی",
   "roleStaff": "عملہ",
 
+  "orders": "آرڈرز",
   "activeOrders": "جاری آرڈرز",
   "revenue": "آمدنی",
   "pendingPayments": "زیر التوا ادائیگیاں",
