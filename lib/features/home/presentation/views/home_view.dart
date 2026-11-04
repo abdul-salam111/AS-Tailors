@@ -167,7 +167,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                       _entrance.interval(0.12, 0.5),
                       _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
                     ),
-                    heightBox(4),
+                    heightBox(5),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.16, 0.54),
                       _AttentionList(onTap: _comingSoon),
