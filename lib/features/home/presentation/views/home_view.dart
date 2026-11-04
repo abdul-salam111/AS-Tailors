@@ -148,55 +148,57 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: context.background,
       body: SafeArea(
+        top: false,
         child: RefreshIndicator(
           onRefresh: () => context.read<DashboardCubit>().loadStats(),
           color: context.primary,
-          child: SingleChildScrollView(
+          child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.0, 0.35),
-                  _TopBar(onProfileTap: _openProfileSheet),
+            slivers: [
+              _DashboardHeader(
+                session: session,
+                entrance: _entrance,
+                onProfileTap: _openProfileSheet,
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _entrance.fadeSlideUp(_entrance.interval(0.12, 0.5), const _KpiGrid()),
+                    heightBox(28),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.22, 0.6),
+                      _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
+                    ),
+                    heightBox(12),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.26, 0.64),
+                      _AttentionList(onTap: _comingSoon),
+                    ),
+                    heightBox(28),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.34, 0.72),
+                      _SectionHeader(title: context.l10n.quickActions),
+                    ),
+                    heightBox(12),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.38, 0.76),
+                      _QuickActionsGrid(onComingSoon: _comingSoon),
+                    ),
+                    heightBox(28),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.46, 0.84),
+                      _SectionHeader(title: context.l10n.recentActivity),
+                    ),
+                    heightBox(12),
+                    _entrance.fadeSlideUp(
+                      _entrance.interval(0.5, 0.9),
+                      const _RecentActivityList(),
+                    ),
+                  ]),
                 ),
-                heightBox(18),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.05, 0.42),
-                  _GreetingCard(session: session),
-                ),
-                heightBox(20),
-                _entrance.fadeSlideUp(_entrance.interval(0.12, 0.5), const _KpiGrid()),
-                heightBox(28),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.22, 0.6),
-                  _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
-                ),
-                heightBox(12),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.26, 0.64),
-                  _AttentionList(onTap: _comingSoon),
-                ),
-                heightBox(28),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.34, 0.72),
-                  _SectionHeader(title: context.l10n.quickActions),
-                ),
-                heightBox(12),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.38, 0.76),
-                  _QuickActionsGrid(onComingSoon: _comingSoon),
-                ),
-                heightBox(28),
-                _entrance.fadeSlideUp(
-                  _entrance.interval(0.46, 0.84),
-                  _SectionHeader(title: context.l10n.recentActivity),
-                ),
-                heightBox(12),
-                _entrance.fadeSlideUp(_entrance.interval(0.5, 0.9), const _RecentActivityList()),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -204,45 +206,63 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
   }
 }
 
-class _TopBar extends StatelessWidget {
+/// The collapsing gradient header: a full teal "card" with rounded bottom
+/// corners that covers the whole app bar (not just a card sitting under it).
+/// Expanded, it shows the greeting/role/date; scrolled up, [FlexibleSpaceBar]
+/// fades that out and fades in the compact app-name title while staying
+/// pinned — language/theme/profile stay in `actions` so they're reachable
+/// in both states, never fading with the background.
+class _DashboardHeader extends StatelessWidget {
+  final SessionEntity session;
+  final EntranceChoreography entrance;
   final VoidCallback onProfileTap;
-  const _TopBar({required this.onProfileTap});
+
+  const _DashboardHeader({
+    required this.session,
+    required this.entrance,
+    required this.onProfileTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: context.surfaceElevated,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.divider),
-            boxShadow: [
-              BoxShadow(color: context.shadow, blurRadius: 6, offset: const Offset(0, 2)),
-            ],
-          ),
-          child: const AppLogo(),
+    return SliverAppBar(
+      pinned: true,
+      stretch: true,
+      expandedHeight: 240,
+      backgroundColor: AppColors.brandTealDeep,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: AppColors.transparent,
+      automaticallyImplyLeading: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+      ),
+      iconTheme: const IconThemeData(color: AppColors.white),
+      actionsIconTheme: const IconThemeData(color: AppColors.white),
+      flexibleSpace: FlexibleSpaceBar(
+        centerTitle: false,
+        titlePadding: const EdgeInsetsDirectional.only(start: 20, bottom: 18),
+        title: const _CompactHeaderTitle(),
+        background: entrance.fadeSlideUp(
+          entrance.interval(0.0, 0.4),
+          _ExpandedHeaderContent(session: session),
         ),
-        widthBox(10),
-        Text(
-          context.l10n.appName,
-          style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const Spacer(),
+      ),
+      actions: [
         const LanguageToggleButton(),
         const ThemeToggleButton(),
         GestureDetector(
           onTap: onProfileTap,
           child: Container(
-            width: 36,
-            height: 36,
-            margin: const EdgeInsets.only(left: 4),
-            decoration: BoxDecoration(color: context.primary, shape: BoxShape.circle),
+            width: 34,
+            height: 34,
+            margin: const EdgeInsets.only(right: 16, left: 4),
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
-            child: const Icon(Iconsax.user, size: 18, color: AppColors.white),
+            child: const Icon(Iconsax.user, size: 16, color: AppColors.white),
           ),
         ),
       ],
@@ -250,86 +270,113 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _GreetingCard extends StatelessWidget {
+class _CompactHeaderTitle extends StatelessWidget {
+  const _CompactHeaderTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: AppColors.white.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const AppLogo(),
+        ),
+        widthBox(8),
+        Text(
+          context.l10n.appName,
+          style: context.titleMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+}
+
+class _ExpandedHeaderContent extends StatelessWidget {
   final SessionEntity session;
-  const _GreetingCard({required this.session});
+  const _ExpandedHeaderContent({required this.session});
 
   @override
   Widget build(BuildContext context) {
     final name = (session.fullName?.trim().isNotEmpty ?? false) ? session.fullName! : session.email;
+    final topInset = MediaQuery.of(context).padding.top;
 
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.brandTeal, AppColors.brandTealDeep],
         ),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.brandTeal.withValues(alpha: 0.3),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
       ),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Positioned(
             right: -16,
-            top: -18,
-            child: Icon(Iconsax.ruler, size: 110, color: AppColors.white.withValues(alpha: 0.08)),
+            top: topInset + 6,
+            child: Icon(Iconsax.ruler, size: 120, color: AppColors.white.withValues(alpha: 0.08)),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _greeting(context),
-                          style: context.bodyMedium.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.85),
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, topInset + kToolbarHeight + 6, 20, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(context),
+                            style: context.bodyMedium.copyWith(
+                              color: AppColors.white.withValues(alpha: 0.85),
+                            ),
                           ),
-                        ),
-                        heightBox(4),
-                        Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.headlineSmall.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
+                          heightBox(4),
+                          Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.headlineSmall.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  if (session.role != null) _RoleBadge(role: session.role!, onDark: true),
-                ],
-              ),
-              heightBox(18),
-              Row(
-                children: [
-                  Icon(Iconsax.calendar_1, size: 14, color: AppColors.white.withValues(alpha: 0.8)),
-                  widthBox(6),
-                  Text(
-                    DateTime.now().formattedLong,
-                    style: context.bodySmall.copyWith(
+                    if (session.role != null) _RoleBadge(role: session.role!, onDark: true),
+                  ],
+                ),
+                heightBox(14),
+                Row(
+                  children: [
+                    Icon(
+                      Iconsax.calendar_1,
+                      size: 14,
                       color: AppColors.white.withValues(alpha: 0.8),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    widthBox(6),
+                    Text(
+                      DateTime.now().formattedLong,
+                      style: context.bodySmall.copyWith(
+                        color: AppColors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
