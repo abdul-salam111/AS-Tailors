@@ -160,17 +160,20 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    _entrance.fadeSlideUp(_entrance.interval(0.12, 0.5), const _KpiGrid()),
-                    heightBox(28),
+                    // Needs Attention leads the dashboard — overdue/due-soon
+                    // deliveries are the most actionable thing on this
+                    // screen, so they come before the KPI stats, not after.
                     _entrance.fadeSlideUp(
-                      _entrance.interval(0.22, 0.6),
+                      _entrance.interval(0.12, 0.5),
                       _SectionHeader(title: context.l10n.needsAttention, onViewAll: _comingSoon),
                     ),
-                    heightBox(8),
+                    heightBox(4),
                     _entrance.fadeSlideUp(
-                      _entrance.interval(0.26, 0.64),
+                      _entrance.interval(0.16, 0.54),
                       _AttentionList(onTap: _comingSoon),
                     ),
+                    heightBox(28),
+                    _entrance.fadeSlideUp(_entrance.interval(0.22, 0.6), const _KpiGrid()),
                     heightBox(28),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.34, 0.72),
