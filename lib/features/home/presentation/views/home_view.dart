@@ -98,13 +98,11 @@ class _HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
   late final _entrance = EntranceChoreography(this);
-  final _scrollController = ScrollController();
   bool _signingOut = false;
 
   @override
   void dispose() {
     _entrance.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -155,15 +153,9 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
           onRefresh: () => context.read<DashboardCubit>().loadStats(),
           color: context.primary,
           child: CustomScrollView(
-            controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              _DashboardHeader(
-                session: session,
-                entrance: _entrance,
-                onProfileTap: _openProfileSheet,
-                scrollController: _scrollController,
-              ),
+              _DashboardHeader(session: session, onProfileTap: _openProfileSheet),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
                 sliver: SliverList(
@@ -210,210 +202,242 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
   }
 }
 
-/// The collapsing gradient header: a full teal "card" with rounded bottom
-/// corners that covers the whole app bar (not just a card sitting under it).
-/// Expanded, it shows the greeting/role/date; scrolled up, [FlexibleSpaceBar]
-/// fades that out and fades in the compact app-name title while staying
-/// pinned — language/theme/profile stay in `actions` so they're reachable
-/// in both states, never fading with the background.
+/// The collapsing gradient header, matching the erp_app admin dashboard's
+/// `_AdminSliverAppBar` pattern exactly: `SliverAppBar.backgroundColor` is
+/// transparent, and `flexibleSpace` is a bare [LayoutBuilder] (not
+/// [FlexibleSpaceBar]) whose `constraints.maxHeight` tells it, every frame,
+/// exactly how collapsed the header currently is. That `t` (1.0 = fully
+/// expanded, 0.0 = fully collapsed) drives three things at once: the
+/// gradient Container's own bottom corner radius (rounded at rest, sharp
+/// once collapsed — clipped by the Container itself, not SliverAppBar.shape,
+/// which is a different mechanism entirely from the previous attempt), and
+/// a manual crossfade between an expanded-state toolbar title and a
+/// collapsed-state one, instead of relying on FlexibleSpaceBar's built-in
+/// title fade (which only reaches 0 opacity when `collapsedHeight` is
+/// taller than `kToolbarHeight` — it isn't here, which is what caused the
+/// earlier title/greeting overlap bug).
 class _DashboardHeader extends StatelessWidget {
   final SessionEntity session;
-  final EntranceChoreography entrance;
   final VoidCallback onProfileTap;
-  final ScrollController scrollController;
 
-  static const double _expandedHeight = 240;
-  static const double _maxCornerRadius = 28;
-  // Distance (in scroll pixels) the header actually has to travel to go
-  // from fully expanded to fully collapsed — independent of the top status
-  // bar inset, which SliverAppBar adds equally to both extents.
-  static const double _collapseDistance = _expandedHeight - kToolbarHeight;
+  static const double _expandedHeight = 190;
 
-  const _DashboardHeader({
-    required this.session,
-    required this.entrance,
-    required this.onProfileTap,
-    required this.scrollController,
-  });
+  const _DashboardHeader({required this.session, required this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
-    // ERP-style: rounded bottom corners only at rest (fully expanded);
-    // once scrolled into the compact app bar it should read as a normal,
-    // sharp-edged app bar. SliverAppBar.shape doesn't animate on its own,
-    // so this listens to the scroll offset directly and recomputes the
-    // corner radius every frame, snapping to 0 by the time the header is
-    // actually collapsed.
-    return AnimatedBuilder(
-      animation: scrollController,
-      builder: (context, _) {
-        final offset = scrollController.hasClients ? scrollController.offset : 0.0;
-        final collapseT = (offset / _collapseDistance).clamp(0.0, 1.0);
-        final cornerRadius = _maxCornerRadius * (1 - collapseT);
+    final top = MediaQuery.paddingOf(context).top;
+    const hPad = 20.0;
+    // Reserve room so the toolbar-row title never runs under the three
+    // action icons on the right (language, theme, profile).
+    const actionsReserve = 170.0;
 
-        return SliverAppBar(
-          pinned: true,
-          stretch: true,
-          expandedHeight: _expandedHeight,
-          backgroundColor: AppColors.brandTealDeep,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: AppColors.transparent,
-          automaticallyImplyLeading: false,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(cornerRadius)),
+    return SliverAppBar(
+      pinned: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: AppColors.transparent,
+      surfaceTintColor: AppColors.transparent,
+      automaticallyImplyLeading: false,
+      expandedHeight: _expandedHeight,
+      iconTheme: const IconThemeData(color: AppColors.white),
+      actionsIconTheme: const IconThemeData(color: AppColors.white),
+      actions: [
+        const LanguageToggleButton(),
+        const ThemeToggleButton(),
+        Padding(
+          padding: const EdgeInsets.only(right: 16, left: 4),
+          child: Center(
+            child: _HeaderIconBtn(icon: Iconsax.user, onTap: onProfileTap),
           ),
-          iconTheme: const IconThemeData(color: AppColors.white),
-          actionsIconTheme: const IconThemeData(color: AppColors.white),
-          centerTitle: false,
-          titleSpacing: 20,
-          // Deliberately NOT FlexibleSpaceBar.title: that fades in based on
-          // scroll offset, but the fade curve only reaches 0 opacity when
-          // `collapsedHeight` is taller than `kToolbarHeight` — here it
-          // isn't, so the title was rendering at partial opacity even near
-          // full expansion, overlapping the greeting's name/date text. A
-          // `title` set directly on SliverAppBar instead always renders in
-          // the toolbar's pinned row (same place `actions` already
-          // renders, never fading), which is also simpler: no overlap is
-          // possible since the greeting content is already padded below
-          // the toolbar height.
-          title: const _CompactHeaderTitle(),
-          flexibleSpace: FlexibleSpaceBar(
-            background: entrance.fadeSlideUp(
-              entrance.interval(0.0, 0.4),
-              _ExpandedHeaderContent(session: session),
-            ),
-          ),
-          actions: [
-            const LanguageToggleButton(),
-            const ThemeToggleButton(),
-            GestureDetector(
-              onTap: onProfileTap,
-              child: Container(
-                width: 34,
-                height: 34,
-                margin: const EdgeInsets.only(right: 16, left: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Icon(Iconsax.user, size: 16, color: AppColors.white),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _CompactHeaderTitle extends StatelessWidget {
-  const _CompactHeaderTitle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: AppColors.white.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const AppLogo(),
-        ),
-        widthBox(8),
-        Text(
-          context.l10n.appName,
-          style: context.titleMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
       ],
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final minH = top + kToolbarHeight;
+          final maxH = top + _expandedHeight;
+          final t = ((constraints.maxHeight - minH) / (maxH - minH)).clamp(0.0, 1.0);
+          final expandedOpacity = ((t - 0.4) / 0.6).clamp(0.0, 1.0);
+          final collapsedOpacity = ((0.35 - t) / 0.35).clamp(0.0, 1.0);
+          final name = (session.fullName?.trim().isNotEmpty ?? false)
+              ? session.fullName!
+              : session.email;
+
+          return Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(28 * t)),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -16,
+                  top: -10,
+                  child: Icon(
+                    Iconsax.ruler,
+                    size: 130,
+                    color: AppColors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+
+                // Toolbar-row title — expanded state shows the app name.
+                Positioned(
+                  top: top,
+                  left: hPad,
+                  right: hPad + actionsReserve,
+                  height: kToolbarHeight,
+                  child: Opacity(
+                    opacity: expandedOpacity,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        context.l10n.appName,
+                        style: context.titleMedium.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Toolbar-row title — collapsed state shows the signed-in
+                // user's name, so identity stays visible once the big
+                // greeting below has scrolled away.
+                Positioned(
+                  top: top,
+                  left: hPad,
+                  right: hPad + actionsReserve,
+                  height: kToolbarHeight,
+                  child: Opacity(
+                    opacity: collapsedOpacity,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.titleMedium.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Expanded content — greeting, name, role/date chips.
+                Positioned(
+                  left: hPad,
+                  right: hPad,
+                  bottom: 18,
+                  child: Opacity(
+                    opacity: expandedOpacity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${_greeting(context)},',
+                          style: context.bodyMedium.copyWith(
+                            color: AppColors.white.withValues(alpha: 0.82),
+                          ),
+                        ),
+                        heightBox(4),
+                        Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.headlineSmall.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        heightBox(12),
+                        Row(
+                          children: [
+                            if (session.role != null) ...[
+                              _HeaderChip(
+                                icon: Iconsax.crown,
+                                label: _roleLabel(context, session.role!),
+                              ),
+                              widthBox(10),
+                            ],
+                            _HeaderChip(
+                              icon: Iconsax.calendar_1,
+                              label: DateTime.now().formattedLong,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
-class _ExpandedHeaderContent extends StatelessWidget {
-  final SessionEntity session;
-  const _ExpandedHeaderContent({required this.session});
+class _HeaderIconBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _HeaderIconBtn({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final name = (session.fullName?.trim().isNotEmpty ?? false) ? session.fullName! : session.email;
-    final topInset = MediaQuery.of(context).padding.top;
-
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.white.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(10),
         ),
+        alignment: Alignment.center,
+        child: Icon(icon, color: AppColors.white, size: 18),
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+    );
+  }
+}
+
+class _HeaderChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _HeaderChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.white.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Positioned(
-            right: -16,
-            top: topInset + 6,
-            child: Icon(Iconsax.ruler, size: 120, color: AppColors.white.withValues(alpha: 0.08)),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(20, topInset + kToolbarHeight + 6, 20, 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _greeting(context),
-                            style: context.bodyMedium.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.85),
-                            ),
-                          ),
-                          heightBox(4),
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.headlineSmall.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (session.role != null) _RoleBadge(role: session.role!, onDark: true),
-                  ],
-                ),
-                heightBox(14),
-                Row(
-                  children: [
-                    Icon(
-                      Iconsax.calendar_1,
-                      size: 14,
-                      color: AppColors.white.withValues(alpha: 0.8),
-                    ),
-                    widthBox(6),
-                    Text(
-                      DateTime.now().formattedLong,
-                      style: context.bodySmall.copyWith(
-                        color: AppColors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          Icon(icon, color: AppColors.white.withValues(alpha: 0.9), size: 13),
+          widthBox(6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.labelSmall.copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -431,19 +455,19 @@ String _greeting(BuildContext context) {
 
 class _RoleBadge extends StatelessWidget {
   final ShopRole role;
-  final bool onDark;
-  const _RoleBadge({required this.role, this.onDark = false});
+  const _RoleBadge({required this.role});
 
   @override
   Widget build(BuildContext context) {
-    final bg = onDark ? AppColors.white.withValues(alpha: 0.18) : context.primaryLight;
-    final fg = onDark ? AppColors.white : context.primaryDark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: context.primaryLight,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Text(
         _roleLabel(context, role),
-        style: context.labelSmall.copyWith(color: fg, fontWeight: FontWeight.w600),
+        style: context.labelSmall.copyWith(color: context.primaryDark, fontWeight: FontWeight.w600),
       ),
     );
   }
