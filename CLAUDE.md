@@ -152,6 +152,23 @@ builds on `customers` — see §9 for the `measurement_templates`/
 `measurement_template_fields`/`measurement_profiles`/`measurement_values`
 shape before starting it.
 
+The **FR-011 dashboard** (`features/home/`) is built too — `home/` is no
+longer a placeholder. `DashboardCubit` pulls one real number (customer
+counts, via `GetCustomerCountUsecase`); the rest of the screen (active
+orders, revenue, pending payments, Needs Attention deliveries, Recent
+Activity) is clearly-marked placeholder data pending the real
+orders/payments features — see the dummy-data block at the top of
+`home_view.dart`. The app also has a persistent bottom-nav shell now
+(`routes/app_shell.dart`, `StatefulShellRoute.indexedStack`: Home /
+Customers / a center "Create Order" FAB / Orders / Account), plus two
+scaffolded-but-backend-less features — `orders/` (an `EmptyStateWidget`
+"coming soon" screen) and `profile/` (a real Account tab: identity card +
+a Settings section that now owns language/theme, moved off the home
+header). None of this is backend work, so it doesn't conflict with the
+measurements-before-orders sequencing above — when real order data does
+land, wire it into the dashboard's/Orders tab's existing placeholder
+slots rather than restructuring them.
+
 ---
 
 ## 2. COMMANDS
@@ -287,7 +304,9 @@ lib/
 ├── features/
 │   ├── auth/                         # Supabase Auth — sign in only, no public signup (see §1a item 3); session+shop-membership resolution
 │   ├── customer/                     # Customer directory (FR-003) — the §5a Supabase-feature worked example
-│   ├── home/                         # Placeholder landing screen (FR-011 dashboard not built yet)
+│   ├── home/                         # FR-011 dashboard — real customer counts + placeholder orders/revenue/payments, see §1a
+│   ├── orders/                       # Orders tab — EmptyStateWidget "coming soon" placeholder, no backend yet
+│   ├── profile/                      # Account tab — identity card + Settings (language/theme live here now)
 │   ├── splash/                       # Session resolution on launch, routes to signin or home
 │   └── <feature>/
 │       ├── <feature>_exports.dart    # Barrel export
@@ -309,7 +328,8 @@ lib/
 └── routes/
     ├── route_names.dart              # RouteNames string constants (named routes)
     ├── route_paths.dart              # RoutePaths string constants (URL paths)
-    └── routes.dart                   # AppRoutes.router (GoRouter with redirect guard)
+    ├── routes.dart                   # AppRoutes.router (GoRouter with redirect guard)
+    └── app_shell.dart                # StatefulShellRoute scaffold — bottom nav bar + center "Create Order" FAB
 ```
 
 ---
@@ -1264,6 +1284,54 @@ tearDown(() => bloc.close());
 - [ ] No secrets/API keys/tokens as literals — add them via `.env` + `Env`, see SECRETS.txt
 
 ---
+
+*Last updated: 2026-11-05 (later same day) — built out the FR-011
+dashboard and a persistent navigation shell. `features/home/home_view.dart`
+went from a placeholder to a real dashboard: `DashboardCubit` loads real
+customer counts (`GetCustomerCountUsecase`); active orders, revenue,
+pending payments, "Needs Attention" deliveries and Recent Activity are
+explicit, clearly-commented dummy data pending the real orders/payments
+features (§1a). The collapsing gradient header (`_DashboardHeader`) is a
+bare `LayoutBuilder` as `SliverAppBar.flexibleSpace` (not
+`FlexibleSpaceBar`) — `constraints.maxHeight` gives the live collapse
+fraction every frame, driving both the header's own bottom-corner radius
+and a manual opacity crossfade between an expanded greeting and a
+collapsed name/title; this intentionally mirrors a reference app's
+`_AdminSliverAppBar` pattern rather than `FlexibleSpaceBar`, whose built-in
+title fade only reaches zero opacity when `collapsedHeight` exceeds
+`kToolbarHeight`. Added a persistent bottom-nav shell
+(`routes/app_shell.dart`): `StatefulShellRoute.indexedStack` with four
+branches (Home/Customers/Orders/Account) plus a center "Create Order"
+`FloatingActionButton` docked via `CircularNotchedRectangle` — branch
+routes use `context.go()`, never `context.push()`, so switching tabs
+doesn't stack a second shell. Two new features scaffold the nav bar's
+remaining stops ahead of their backends: `orders/` (`OrdersView`, just an
+`EmptyStateWidget`) and `profile/` (`ProfileView`, a real Account tab —
+identity card + a Settings section that now owns `LanguageToggleButton`/
+`ThemeToggleButton`, moved off the home header). Fixed several bugs found
+along the way, worth knowing for future UI work: (1) `AppColors
+.backgroundLight` and `surfaceElevatedLight` were both pure white, making
+elevated cards look flat against the background — `backgroundLight` is
+now `grey50`; (2) a `BoxDecoration` can't mix a colored `Border` side with
+`borderRadius` (Flutter requires uniform border colors whenever corners
+are rounded) — colored accent bars must be real clipped child `Container`s,
+not a `Border(left: BorderSide(color: ...))`; (3) `Row(crossAxisAlignment:
+stretch)` inside an unbounded-height scroll `Column` throws "BoxConstraints
+forces an infinite height" — wrap it in `IntrinsicHeight`; (4) `Material`
++ `InkWell` wrapping a `Container` with no `color` of its own (relying on
+`Material`'s fill) rendered visibly grey instead of white — the fix
+everywhere in this codebase is a plain `Container` with `color:` set
+directly in its own `BoxDecoration`, tappable via the existing `.onTap()`
+extension, never `Material`+`InkWell`; (5) `CustomButton.text`
+(`core/widgets/custom_button.dart`) passed an explicit `height:` to
+`TextButton.styleFrom(minimumSize: ...)` but `TextButton` still defaults
+to `MaterialTapTargetSize.padded`, which enforces an invisible 48dp
+minimum interactive height regardless of `minimumSize` — inflating the
+button's real layout height well past what was asked for and throwing off
+sibling spacing. Fixed in the shared widget with `tapTargetSize:
+MaterialTapTargetSize.shrinkWrap` + `padding: EdgeInsets.zero`, so any
+future compact inline text button (not just the dashboard's "View All")
+gets the fix automatically.
 
 *Last updated: 2026-11-05 — product clarification: this is a closed,
 single-shop deployment for one real business, not a multi-tenant signup
