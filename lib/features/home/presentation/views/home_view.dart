@@ -157,7 +157,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
             slivers: [
               _DashboardHeader(session: session, onProfileTap: _openProfileSheet),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // Needs Attention leads the dashboard — overdue/due-soon
@@ -277,16 +277,6 @@ class _DashboardHeader extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Positioned(
-                  right: -16,
-                  top: -10,
-                  child: Icon(
-                    Iconsax.ruler,
-                    size: 130,
-                    color: AppColors.white.withValues(alpha: 0.08),
-                  ),
-                ),
-
                 // Toolbar-row title — expanded state shows the brand logo.
                 Positioned(
                   top: top,
