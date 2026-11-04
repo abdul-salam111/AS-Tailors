@@ -639,10 +639,64 @@ class _DeliveryAlertCard extends StatelessWidget {
     _DueStatus.dueTomorrow => (context.primary, context.l10n.dueTomorrow),
   };
 
+  Widget _content(BuildContext context, Color color, String statusLabel) {
+    final initial = alert.customerName.isNotEmpty ? alert.customerName[0].toUpperCase() : '?';
+
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: context.primary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            initial,
+            style: context.bodyMedium.copyWith(color: context.primary, fontWeight: FontWeight.bold),
+          ),
+        ),
+        widthBox(12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                alert.customerName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              ),
+              heightBox(2),
+              Text(
+                alert.garment,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodySmall.copyWith(color: context.textSecondary),
+              ),
+            ],
+          ),
+        ),
+        widthBox(8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            statusLabel,
+            style: context.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final (color, statusLabel) = _statusStyle(context);
-    final initial = alert.customerName.isNotEmpty ? alert.customerName[0].toUpperCase() : '?';
 
     return Material(
       color: context.surfaceElevated,
@@ -661,75 +715,26 @@ class _DeliveryAlertCard extends StatelessWidget {
           // A `Border` can't mix a colored accent side with `borderRadius` —
           // Flutter requires uniform border colors whenever corners are
           // rounded. The teal/amber/red accent is drawn as a real clipped
-          // bar instead, inside a uniformly-bordered card.
+          // bar instead, inside a uniformly-bordered card. IntrinsicHeight
+          // gives the Row a bounded height to stretch that bar against —
+          // without it, the Row sits inside an unbounded-height scroll
+          // Column and `stretch` has nothing finite to stretch to, which
+          // crashes layout with "BoxConstraints forces an infinite height."
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(width: 4, color: color),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: context.primary.withValues(alpha: 0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            initial,
-                            style: context.bodyMedium.copyWith(
-                              color: context.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        widthBox(12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                alert.customerName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              heightBox(2),
-                              Text(
-                                alert.garment,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: context.bodySmall.copyWith(color: context.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                        widthBox(8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            statusLabel,
-                            style: context.labelSmall.copyWith(
-                              color: color,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(width: 4, color: color),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: _content(context, color, statusLabel),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
