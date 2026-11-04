@@ -98,11 +98,13 @@ class _HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
   late final _entrance = EntranceChoreography(this);
+  final _scrollController = ScrollController();
   bool _signingOut = false;
 
   @override
   void dispose() {
     _entrance.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -153,12 +155,14 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
           onRefresh: () => context.read<DashboardCubit>().loadStats(),
           color: context.primary,
           child: CustomScrollView(
+            controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               _DashboardHeader(
                 session: session,
                 entrance: _entrance,
                 onProfileTap: _openProfileSheet,
+                scrollController: _scrollController,
               ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
@@ -216,65 +220,90 @@ class _DashboardHeader extends StatelessWidget {
   final SessionEntity session;
   final EntranceChoreography entrance;
   final VoidCallback onProfileTap;
+  final ScrollController scrollController;
+
+  static const double _expandedHeight = 240;
+  static const double _maxCornerRadius = 28;
+  // Distance (in scroll pixels) the header actually has to travel to go
+  // from fully expanded to fully collapsed — independent of the top status
+  // bar inset, which SliverAppBar adds equally to both extents.
+  static const double _collapseDistance = _expandedHeight - kToolbarHeight;
 
   const _DashboardHeader({
     required this.session,
     required this.entrance,
     required this.onProfileTap,
+    required this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      stretch: true,
-      expandedHeight: 240,
-      backgroundColor: AppColors.brandTealDeep,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      surfaceTintColor: AppColors.transparent,
-      automaticallyImplyLeading: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
-      iconTheme: const IconThemeData(color: AppColors.white),
-      actionsIconTheme: const IconThemeData(color: AppColors.white),
-      centerTitle: false,
-      titleSpacing: 20,
-      // Deliberately NOT FlexibleSpaceBar.title: that fades in based on
-      // scroll offset, but the fade curve only reaches 0 opacity when
-      // `collapsedHeight` is taller than `kToolbarHeight` — here it isn't,
-      // so the title was rendering at partial opacity even near full
-      // expansion, overlapping the greeting's name/date text. A `title` set
-      // directly on SliverAppBar instead always renders in the toolbar's
-      // pinned row (same place `actions` already renders, never fading),
-      // which is also simpler: no overlap is possible since the greeting
-      // content is already padded below the toolbar height.
-      title: const _CompactHeaderTitle(),
-      flexibleSpace: FlexibleSpaceBar(
-        background: entrance.fadeSlideUp(
-          entrance.interval(0.0, 0.4),
-          _ExpandedHeaderContent(session: session),
-        ),
-      ),
-      actions: [
-        const LanguageToggleButton(),
-        const ThemeToggleButton(),
-        GestureDetector(
-          onTap: onProfileTap,
-          child: Container(
-            width: 34,
-            height: 34,
-            margin: const EdgeInsets.only(right: 16, left: 4),
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Iconsax.user, size: 16, color: AppColors.white),
+    // ERP-style: rounded bottom corners only at rest (fully expanded);
+    // once scrolled into the compact app bar it should read as a normal,
+    // sharp-edged app bar. SliverAppBar.shape doesn't animate on its own,
+    // so this listens to the scroll offset directly and recomputes the
+    // corner radius every frame, snapping to 0 by the time the header is
+    // actually collapsed.
+    return AnimatedBuilder(
+      animation: scrollController,
+      builder: (context, _) {
+        final offset = scrollController.hasClients ? scrollController.offset : 0.0;
+        final collapseT = (offset / _collapseDistance).clamp(0.0, 1.0);
+        final cornerRadius = _maxCornerRadius * (1 - collapseT);
+
+        return SliverAppBar(
+          pinned: true,
+          stretch: true,
+          expandedHeight: _expandedHeight,
+          backgroundColor: AppColors.brandTealDeep,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: AppColors.transparent,
+          automaticallyImplyLeading: false,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(cornerRadius)),
           ),
-        ),
-      ],
+          iconTheme: const IconThemeData(color: AppColors.white),
+          actionsIconTheme: const IconThemeData(color: AppColors.white),
+          centerTitle: false,
+          titleSpacing: 20,
+          // Deliberately NOT FlexibleSpaceBar.title: that fades in based on
+          // scroll offset, but the fade curve only reaches 0 opacity when
+          // `collapsedHeight` is taller than `kToolbarHeight` — here it
+          // isn't, so the title was rendering at partial opacity even near
+          // full expansion, overlapping the greeting's name/date text. A
+          // `title` set directly on SliverAppBar instead always renders in
+          // the toolbar's pinned row (same place `actions` already
+          // renders, never fading), which is also simpler: no overlap is
+          // possible since the greeting content is already padded below
+          // the toolbar height.
+          title: const _CompactHeaderTitle(),
+          flexibleSpace: FlexibleSpaceBar(
+            background: entrance.fadeSlideUp(
+              entrance.interval(0.0, 0.4),
+              _ExpandedHeaderContent(session: session),
+            ),
+          ),
+          actions: [
+            const LanguageToggleButton(),
+            const ThemeToggleButton(),
+            GestureDetector(
+              onTap: onProfileTap,
+              child: Container(
+                width: 34,
+                height: 34,
+                margin: const EdgeInsets.only(right: 16, left: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.white.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.user, size: 16, color: AppColors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
