@@ -251,17 +251,20 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
     MeasurementFormState state,
     List<GarmentCategoryEntity> categories,
   ) {
-    return Column(
+    final ordered = categories.sortedByDisplayPriority();
+    return Row(
       children: [
-        for (var i = 0; i < categories.length; i++) ...[
-          _PillHeader(
-            icon: Iconsax.ruler,
-            label: _displayLabel(context, en: categories[i].name, ur: categories[i].nameUr),
-            selected: state.selectedCategoryId == categories[i].id,
-            onTap: () =>
-                context.read<MeasurementFormBloc>().add(CategorySelectedEvent(categories[i].id)),
+        for (var i = 0; i < ordered.length; i++) ...[
+          Expanded(
+            child: _PillHeader(
+              icon: Iconsax.ruler,
+              label: _displayLabel(context, en: ordered[i].name, ur: ordered[i].nameUr),
+              selected: state.selectedCategoryId == ordered[i].id,
+              onTap: () =>
+                  context.read<MeasurementFormBloc>().add(CategorySelectedEvent(ordered[i].id)),
+            ),
           ),
-          if (i != categories.length - 1) heightBox(10),
+          if (i != ordered.length - 1) widthBox(10),
         ],
       ],
     );

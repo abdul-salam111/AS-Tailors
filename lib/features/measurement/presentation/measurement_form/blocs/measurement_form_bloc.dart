@@ -1,6 +1,7 @@
 import '../../../../../core/constants/app_enums.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../domain/entities/create_measurement_profile_params.dart';
+import '../../../domain/entities/garment_category_entity.dart';
 import '../../../domain/usecases/create_measurement_profile_usecase.dart';
 import '../../../domain/usecases/get_garment_categories_usecase.dart';
 import '../../../domain/usecases/get_template_for_category_usecase.dart';
@@ -48,19 +49,27 @@ class MeasurementFormBloc extends Bloc<MeasurementFormEvent, MeasurementFormStat
   ) async {
     emit(state.copyWith(customerId: event.customerId, categoriesStatus: ApiStatus.LOADING));
     final result = await _getGarmentCategoriesUsecase(NoParams());
-    result.fold(
-      (failure) => emit(state.copyWith(categoriesStatus: ApiStatus.FAILURE, failure: failure)),
-      (categories) =>
-          emit(state.copyWith(categoriesStatus: ApiStatus.SUCCESS, categories: categories)),
+    await result.fold(
+      (failure) async =>
+          emit(state.copyWith(categoriesStatus: ApiStatus.FAILURE, failure: failure)),
+      (categories) async {
+        emit(state.copyWith(categoriesStatus: ApiStatus.SUCCESS, categories: categories));
+        // Default to the first category in display priority order (Shalwar
+        // Kameez) instead of leaving the picker unselected on first load.
+        final ordered = categories.sortedByDisplayPriority();
+        if (ordered.isNotEmpty) await _selectCategory(ordered.first.id, emit);
+      },
     );
   }
 
   Future<void> _onCategorySelected(
     CategorySelectedEvent event,
     Emitter<MeasurementFormState> emit,
-  ) async {
-    emit(state.copyWith(selectedCategoryId: event.categoryId, templateStatus: ApiStatus.LOADING));
-    final result = await _getTemplateForCategoryUsecase(event.categoryId);
+  ) => _selectCategory(event.categoryId, emit);
+
+  Future<void> _selectCategory(String categoryId, Emitter<MeasurementFormState> emit) async {
+    emit(state.copyWith(selectedCategoryId: categoryId, templateStatus: ApiStatus.LOADING));
+    final result = await _getTemplateForCategoryUsecase(categoryId);
     result.fold(
       (failure) => emit(state.copyWith(templateStatus: ApiStatus.FAILURE, failure: failure)),
       (template) {
