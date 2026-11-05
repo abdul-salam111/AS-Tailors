@@ -558,7 +558,7 @@ class _KpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      height: 64,
+      constraints: const BoxConstraints(minHeight: 64),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: context.surfaceElevated,
@@ -612,6 +612,7 @@ class _KpiCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       loading
                           ? ShimmerLoading(
