@@ -229,6 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get measurements => 'Measurements';
 
   @override
+  String get measurementFeatures => 'Features';
+
+  @override
   String get takeMeasurement => 'Take Measurement';
 
   @override

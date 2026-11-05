@@ -531,6 +531,12 @@ abstract class AppLocalizations {
   /// **'Measurements'**
   String get measurements;
 
+  /// No description provided for @measurementFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get measurementFeatures;
+
   /// No description provided for @takeMeasurement.
   ///
   /// In en, this message translates to:

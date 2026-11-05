@@ -83,6 +83,7 @@
   "cancel": "Cancel",
 
   "measurements": "Measurements",
+  "measurementFeatures": "Features",
   "takeMeasurement": "Take Measurement",
   "selectGarmentCategory": "Select garment category",
   "saveMeasurement": "Save Measurement",

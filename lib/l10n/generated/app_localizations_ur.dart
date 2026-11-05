@@ -229,6 +229,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get measurements => 'پیمائشیں';
 
   @override
+  String get measurementFeatures => 'خصوصیات';
+
+  @override
   String get takeMeasurement => 'پیمائش لیں';
 
   @override

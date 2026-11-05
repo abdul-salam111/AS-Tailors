@@ -203,13 +203,9 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                           ),
                         ],
                       ),
-                      if (state.sectionKeys.length > 1) ...[
-                        heightBox(14),
-                        _buildSectionTabs(context, state),
-                      ],
-                      heightBox(14),
-                      _buildFieldsCard(context, state),
-                      heightBox(28),
+                      heightBox(16),
+                      _buildFieldsArea(context, state),
+                      heightBox(24),
                       CustomTextFormField(
                         label: context.l10n.notes,
                         hintText: context.l10n.enterNotes,
@@ -255,158 +251,248 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
     MeasurementFormState state,
     List<GarmentCategoryEntity> categories,
   ) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: categories
-          .map(
-            (category) => _PickerCard(
-              selected: state.selectedCategoryId == category.id,
-              label: _displayLabel(context, en: category.name, ur: category.nameUr),
-              icon: Iconsax.ruler,
-              onTap: () =>
-                  context.read<MeasurementFormBloc>().add(CategorySelectedEvent(category.id)),
-            ),
-          )
-          .toList(),
+    return Column(
+      children: [
+        for (var i = 0; i < categories.length; i++) ...[
+          _PillHeader(
+            icon: Iconsax.ruler,
+            label: _displayLabel(context, en: categories[i].name, ur: categories[i].nameUr),
+            selected: state.selectedCategoryId == categories[i].id,
+            onTap: () =>
+                context.read<MeasurementFormBloc>().add(CategorySelectedEvent(categories[i].id)),
+          ),
+          if (i != categories.length - 1) heightBox(10),
+        ],
+      ],
     );
   }
 
-  Widget _buildSectionTabs(BuildContext context, MeasurementFormState state) {
-    final fieldsBySection = <String, MeasurementTemplateFieldEntity>{};
-    for (final field in state.template!.fields) {
-      if (field.sectionKey != null) fieldsBySection.putIfAbsent(field.sectionKey!, () => field);
-    }
-    return _SegmentedTabs(
-      items: state.sectionKeys.map((key) {
-        final field = fieldsBySection[key]!;
-        return (
-          key: key,
-          label: _displayLabel(context, en: field.sectionLabelEn ?? key, ur: field.sectionLabelUr),
-        );
-      }).toList(),
-      selectedKey: state.selectedSectionKey,
-      onSelected: (key) => context.read<MeasurementFormBloc>().add(SectionSelectedEvent(key)),
-    );
-  }
-
-  Widget _buildFieldsCard(BuildContext context, MeasurementFormState state) {
+  /// Renders every section of the active template in one continuous
+  /// scroll — e.g. Shalwar Kameez's "Qameez" fields followed by its
+  /// "Shalwar" fields — instead of hiding all but one behind a tab
+  /// switcher, so a tailor fills the whole template in one pass and
+  /// `_formKey.currentState!.validate()` genuinely checks every required
+  /// field, not just the currently-visible section's. Within each
+  /// section, number/counter fields ("measurements") render before
+  /// dropdown/checkbox fields ("features"), matching the reference
+  /// layout's own grouping. Fields sit in a responsive 2-column wrap of
+  /// individually-bordered boxes (not one shared card) so each field
+  /// reads as its own compact input, auto-sized to its own content.
+  Widget _buildFieldsArea(BuildContext context, MeasurementFormState state) {
     final fields = [...state.template!.fields]
       ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
-    final visibleFields = fields
-        .where((f) => f.sectionKey == null || f.sectionKey == state.selectedSectionKey)
-        .toList();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: context.divider),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        children: [
-          for (var i = 0; i < visibleFields.length; i++) ...[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: _buildField(context, state, visibleFields[i]),
-            ),
-            if (i != visibleFields.length - 1)
-              Divider(height: 1, thickness: 1, color: context.divider),
-          ],
-        ],
-      ),
+    final sectionOrder = <String?>[];
+    final bySection = <String?, List<MeasurementTemplateFieldEntity>>{};
+    for (final field in fields) {
+      bySection
+          .putIfAbsent(field.sectionKey, () {
+            sectionOrder.add(field.sectionKey);
+            return [];
+          })
+          .add(field);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - 12) / 2;
+        final children = <Widget>[];
+
+        for (var s = 0; s < sectionOrder.length; s++) {
+          final sectionKey = sectionOrder[s];
+          final sectionFields = bySection[sectionKey]!;
+
+          if (sectionKey != null) {
+            final header = sectionFields.first;
+            children.add(
+              _PillHeader(
+                icon: Iconsax.ruler,
+                label: _displayLabel(
+                  context,
+                  en: header.sectionLabelEn ?? sectionKey,
+                  ur: header.sectionLabelUr,
+                ),
+              ),
+            );
+            children.add(heightBox(12));
+          }
+
+          final measurementFields = sectionFields
+              .where(
+                (f) =>
+                    f.inputType == MeasurementFieldInputType.number ||
+                    f.inputType == MeasurementFieldInputType.counter,
+              )
+              .toList();
+          final featureFields = sectionFields
+              .where(
+                (f) =>
+                    f.inputType == MeasurementFieldInputType.dropdown ||
+                    f.inputType == MeasurementFieldInputType.checkbox,
+              )
+              .toList();
+
+          if (measurementFields.isNotEmpty) {
+            children.add(
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final field in measurementFields)
+                    _buildFieldBox(context, state, field, itemWidth),
+                ],
+              ),
+            );
+          }
+
+          if (featureFields.isNotEmpty) {
+            if (measurementFields.isNotEmpty) children.add(heightBox(16));
+            children.add(
+              _PillHeader(icon: Iconsax.tick_square, label: context.l10n.measurementFeatures),
+            );
+            children.add(heightBox(12));
+            children.add(
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final field in featureFields)
+                    _buildFieldBox(context, state, field, itemWidth),
+                ],
+              ),
+            );
+          }
+
+          if (s != sectionOrder.length - 1) children.add(heightBox(24));
+        }
+
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+      },
     );
   }
 
-  Widget _buildField(
+  Widget _buildFieldBox(
     BuildContext context,
     MeasurementFormState state,
     MeasurementTemplateFieldEntity field,
+    double width,
   ) {
     switch (field.inputType) {
       case MeasurementFieldInputType.number:
-        return CustomTextFormField(
+        return _FieldBox(
+          width: width,
           label: _fieldLabel(context, field),
           isRequired: field.isRequired,
-          hintText: context.l10n.measurementValueHint,
-          fillColor: AppColors.transparent,
-          borderColor: AppColors.transparent,
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Center(
-              widthFactor: 1,
-              child: Text(
-                state.unit,
-                style: context.bodySmall.copyWith(
-                  color: context.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          child: TextFormField(
+            controller: _numberControllerFor(field.id),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: context.bodyMedium.copyWith(fontWeight: FontWeight.w700),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+              hintText: context.l10n.measurementValueHint,
+              hintStyle: context.bodyMedium.copyWith(color: context.textDisabled),
+              suffixText: state.unit,
+              suffixStyle: context.labelSmall.copyWith(color: context.textSecondary),
+              errorStyle: context.labelSmall.copyWith(color: context.error),
             ),
+            validator: (value) => _validateNumberField(context, field, value),
+            onChanged: (value) {
+              final parsed = double.tryParse(value);
+              context.read<MeasurementFormBloc>().add(
+                FieldValueChangedEvent(
+                  field.id,
+                  MeasurementFieldValue(numericValue: parsed, unit: state.unit),
+                ),
+              );
+            },
           ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          controller: _numberControllerFor(field.id),
-          validator: (value) => _validateNumberField(context, field, value),
-          onChanged: (value) {
-            final parsed = double.tryParse(value);
-            context.read<MeasurementFormBloc>().add(
-              FieldValueChangedEvent(
-                field.id,
-                MeasurementFieldValue(numericValue: parsed, unit: state.unit),
-              ),
-            );
-          },
         );
       case MeasurementFieldInputType.counter:
         final current = state.fieldValues[field.id]?.numericValue?.toInt() ?? 0;
-        return _CounterField(
+        return _FieldBox(
+          width: width,
           label: _fieldLabel(context, field),
-          value: current,
-          onChanged: (next) => context.read<MeasurementFormBloc>().add(
-            FieldValueChangedEvent(field.id, MeasurementFieldValue(numericValue: next.toDouble())),
+          isRequired: false,
+          child: Row(
+            children: [
+              _StepperButton(
+                icon: Iconsax.minus,
+                onTap: current > 0
+                    ? () => context.read<MeasurementFormBloc>().add(
+                        FieldValueChangedEvent(
+                          field.id,
+                          MeasurementFieldValue(numericValue: (current - 1).toDouble()),
+                        ),
+                      )
+                    : null,
+              ),
+              widthBox(10),
+              Text('$current', style: context.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+              widthBox(10),
+              _StepperButton(
+                icon: Iconsax.add,
+                onTap: () => context.read<MeasurementFormBloc>().add(
+                  FieldValueChangedEvent(
+                    field.id,
+                    MeasurementFieldValue(numericValue: (current + 1).toDouble()),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       case MeasurementFieldInputType.dropdown:
         final selectedOptionId = state.fieldValues[field.id]?.selectedOptionId;
-        return _DropdownField(
+        return _FieldBox(
+          width: width,
           label: _fieldLabel(context, field),
           isRequired: field.isRequired,
-          value: selectedOptionId,
-          items: field.options
-              .map(
-                (o) => DropdownMenuItem(
-                  value: o.id,
-                  child: Text(_displayLabel(context, en: o.labelEn, ur: o.labelUr)),
-                ),
-              )
-              .toList(),
-          validator: (value) => _validateDropdownField(context, field, value),
-          onChanged: (value) => context.read<MeasurementFormBloc>().add(
-            FieldValueChangedEvent(field.id, MeasurementFieldValue(selectedOptionId: value)),
+          child: DropdownButtonFormField<String>(
+            initialValue: selectedOptionId,
+            isExpanded: true,
+            isDense: true,
+            icon: Icon(Iconsax.arrow_down, size: 14, color: context.grey500),
+            style: context.bodyMedium.copyWith(
+              color: context.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+            decoration: const InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+            ),
+            items: field.options
+                .map(
+                  (o) => DropdownMenuItem(
+                    value: o.id,
+                    child: Text(_displayLabel(context, en: o.labelEn, ur: o.labelUr)),
+                  ),
+                )
+                .toList(),
+            validator: (value) => _validateDropdownField(context, field, value),
+            onChanged: (value) => context.read<MeasurementFormBloc>().add(
+              FieldValueChangedEvent(field.id, MeasurementFieldValue(selectedOptionId: value)),
+            ),
           ),
         );
       case MeasurementFieldInputType.checkbox:
         final checked = (state.fieldValues[field.id]?.numericValue ?? 0) == 1;
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                _fieldLabel(context, field),
-                style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Switch(
-              value: checked,
-              activeTrackColor: context.primary,
-              onChanged: (value) => context.read<MeasurementFormBloc>().add(
-                FieldValueChangedEvent(
-                  field.id,
-                  MeasurementFieldValue(numericValue: value ? 1 : 0),
-                ),
-              ),
-            ),
-          ],
+        return _CheckboxFieldBox(
+          width: width,
+          label: _fieldLabel(context, field),
+          checked: checked,
+          onChanged: (value) => context.read<MeasurementFormBloc>().add(
+            FieldValueChangedEvent(field.id, MeasurementFieldValue(numericValue: value ? 1 : 0)),
+          ),
         );
     }
   }
@@ -428,73 +514,68 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
   }
 }
 
-/// A selectable card for the top-level garment-category picker — larger
-/// and more prominent than [_SegmentedTabs] since choosing a category is
-/// the primary decision on this screen, not a minor toggle.
-class _PickerCard extends StatelessWidget {
-  final bool selected;
-  final String label;
+/// Full-width selectable "pill" row — a small tinted icon badge plus a
+/// bold label on a lightly-tinted (selected) or plain (unselected)
+/// background. Used both interactively (the category picker, one row per
+/// garment category, [onTap] switches the selection) and as a plain
+/// divider (section/"Features" group headers below, always [selected]
+/// and not tappable) — one consistent "pill header" visual language for
+/// every kind of grouping on this screen, matching the reference design.
+class _PillHeader extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onTap;
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
 
-  const _PickerCard({
-    required this.selected,
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
+  const _PillHeader({required this.icon, required this.label, this.selected = true, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+    final bar = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: selected ? null : context.surfaceElevated,
-        gradient: selected
-            ? const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
-              )
-            : null,
-        borderRadius: BorderRadius.circular(16),
+        color: selected ? context.primary.withValues(alpha: 0.1) : context.surfaceElevated,
+        borderRadius: BorderRadius.circular(14),
         border: selected ? null : Border.all(color: context.divider),
-        boxShadow: [
-          BoxShadow(
-            color: selected ? AppColors.brandTeal.withValues(alpha: 0.28) : context.shadow,
-            blurRadius: selected ? 12 : 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          Icon(icon, size: 22, color: selected ? AppColors.white : context.primary),
-          heightBox(8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: context.labelMedium.copyWith(
-              color: selected ? AppColors.white : context.textPrimary,
-              fontWeight: FontWeight.w600,
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: selected
+                  ? context.primary.withValues(alpha: 0.16)
+                  : context.border.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 16, color: selected ? context.primary : context.textSecondary),
+          ),
+          widthBox(10),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.bodyMedium.copyWith(
+                color: selected ? context.primary : context.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
       ),
     );
-    return card.onTap(onTap);
+    return onTap == null ? bar : bar.onTap(onTap!);
   }
 }
 
-/// Compact tab bar used for both the sub-section picker (e.g. Qameez vs
-/// Shalwar) and the unit toggle — one bordered track, equal-width segments
-/// by default, or hugging content when [compact] (used for the 2-item unit
-/// toggle so it doesn't stretch across the whole row next to the section
-/// title).
+/// Compact segmented toggle — currently just the in/cm unit switch next to
+/// the "Measurements" section title, so it defaults to [compact] (hugging
+/// its content instead of stretching across the row). Still general enough
+/// for a future equal-width multi-segment use if one shows up.
 class _SegmentedTabs extends StatelessWidget {
   final List<({String key, String label})> items;
   final String? selectedKey;
@@ -549,46 +630,7 @@ class _SegmentedTabs extends StatelessWidget {
   }
 }
 
-/// Small +/- stepper for `counter`-type fields (e.g. pocket count) — plain
-/// widget, not a `FormField`, since counts have no meaningful "required"
-/// state (0 is always valid) and so don't participate in `Form` validation.
-class _CounterField extends StatelessWidget {
-  final String label;
-  final int value;
-  final ValueChanged<int> onChanged;
-
-  const _CounterField({required this.label, required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(label, style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-        ),
-        Row(
-          children: [
-            _StepperButton(
-              icon: Iconsax.minus,
-              onTap: value > 0 ? () => onChanged(value - 1) : null,
-            ),
-            SizedBox(
-              width: 32,
-              child: Text(
-                '$value',
-                textAlign: TextAlign.center,
-                style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            _StepperButton(icon: Iconsax.add, onTap: () => onChanged(value + 1)),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
+/// +/- stepper button for `counter`-type fields (e.g. pocket count).
 class _StepperButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
@@ -614,83 +656,120 @@ class _StepperButton extends StatelessWidget {
   }
 }
 
-/// Dropdown field styled to match [CustomTextFormField]'s label/border
-/// language (same radius, transparent-until-focused border) instead of
-/// the stock Material outline look, so it blends into the fields card
-/// exactly like its number/counter siblings.
-class _DropdownField extends StatelessWidget {
+/// Shared individually-bordered box for a number/counter/dropdown field —
+/// a small label (with a red `*` when required) above the type-specific
+/// [child] control, which renders borderless so the box itself supplies
+/// the only visible outline. Sized to [width] by the caller (half the
+/// available row width from the fields area's `LayoutBuilder`), height
+/// grows to fit its own content instead of being forced into a uniform
+/// grid-cell height.
+class _FieldBox extends StatelessWidget {
+  final double width;
   final String label;
   final bool isRequired;
-  final String? value;
-  final List<DropdownMenuItem<String>> items;
-  final String? Function(String?) validator;
-  final ValueChanged<String?> onChanged;
+  final Widget child;
 
-  const _DropdownField({
+  const _FieldBox({
+    required this.width,
     required this.label,
     required this.isRequired,
-    required this.value,
-    required this.items,
-    required this.validator,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: context.surfaceElevated,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.divider),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: label,
+                    style: context.labelSmall.copyWith(color: context.textSecondary),
+                  ),
+                  if (isRequired)
+                    TextSpan(
+                      text: ' *',
+                      style: context.labelSmall.copyWith(
+                        color: context.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            heightBox(4),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A `checkbox`-type field's own box — label (left, can wrap to two lines
+/// for a long option name) plus a trailing [Checkbox], instead of
+/// [_FieldBox]'s label-above-value layout, since this field has no
+/// separate "value line" to show. `materialTapTargetSize: shrinkWrap`
+/// avoids the same invisible-minimum-tap-target inflation `CustomButton`
+/// had — see CLAUDE.md's changelog — so the box's height tracks the
+/// label's actual height instead of a padded-out Checkbox.
+class _CheckboxFieldBox extends StatelessWidget {
+  final double width;
+  final String label;
+  final bool checked;
+  final ValueChanged<bool> onChanged;
+
+  const _CheckboxFieldBox({
+    required this.width,
+    required this.label,
+    required this.checked,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: label,
-                style: context.bodySmall.copyWith(color: context.textSecondary),
+    return SizedBox(
+      width: width,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: context.surfaceElevated,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: context.divider),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodySmall.copyWith(fontWeight: FontWeight.w600),
               ),
-              if (isRequired)
-                TextSpan(
-                  text: ' *',
-                  style: context.bodyMedium.copyWith(
-                    color: context.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-            ],
-          ),
+            ),
+            Checkbox(
+              value: checked,
+              activeColor: context.primary,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              onChanged: (value) => onChanged(value ?? false),
+            ),
+          ],
         ),
-        heightBox(5),
-        DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(Iconsax.arrow_down, size: 16, color: context.grey500),
-          style: context.bodySmall.copyWith(color: context.textPrimary),
-          decoration: InputDecoration(
-            isDense: true,
-            filled: true,
-            fillColor: AppColors.transparent,
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.transparent),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.transparent),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: context.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: context.error),
-            ),
-          ),
-          items: items,
-          validator: validator,
-          onChanged: onChanged,
-        ),
-      ],
+      ),
     );
   }
 }
