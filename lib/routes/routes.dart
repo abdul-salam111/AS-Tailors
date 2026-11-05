@@ -4,6 +4,7 @@ import '../core/services/session_manager.dart';
 import '../features/auth/auth_exports.dart';
 import '../features/customer/customer_exports.dart';
 import '../features/home/home_exports.dart';
+import '../features/measurement/measurement_exports.dart';
 import '../features/splash/splash_exports.dart';
 import 'route_names.dart';
 import 'route_paths.dart';
@@ -69,6 +70,12 @@ class AppRoutes {
         path: RoutePaths.editCustomer,
         name: RouteNames.editCustomer,
         builder: (context, state) => CustomerFormView(customer: state.extra as CustomerEntity?),
+      ),
+      GoRoute(
+        path: RoutePaths.addMeasurement,
+        name: RouteNames.addMeasurement,
+        builder: (context, state) =>
+            MeasurementFormView(customerId: state.pathParameters['id']!),
       ),
     ],
   );

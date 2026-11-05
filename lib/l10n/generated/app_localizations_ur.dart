@@ -39,7 +39,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get welcomeBack => 'خوش آمدید';
 
   @override
-  String get signInSubtitle => 'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
+  String get signInSubtitle =>
+      'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
 
   @override
   String get orContinueWith => 'یا جاری رکھیں';
@@ -111,7 +112,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get noCustomersYet => 'ابھی کوئی گاہک نہیں';
 
   @override
-  String get addYourFirstCustomer => 'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
+  String get addYourFirstCustomer =>
+      'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
 
   @override
   String get addCustomer => 'گاہک شامل کریں';
@@ -162,7 +164,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get customerCreatedSuccessfully => 'گاہک کامیابی سے شامل ہو گیا!';
 
   @override
-  String get customerUpdatedSuccessfully => 'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
+  String get customerUpdatedSuccessfully =>
+      'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
 
   @override
   String get archiveCustomer => 'گاہک کو آرکائیو کریں';
@@ -179,4 +182,55 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get cancel => 'منسوخ کریں';
+
+  @override
+  String get takeMeasurement => 'پیمائش لیں';
+
+  @override
+  String get selectGarmentCategory => 'ملبوسات کی قسم منتخب کریں';
+
+  @override
+  String get saveMeasurement => 'پیمائش محفوظ کریں';
+
+  @override
+  String get measurementValueHint => 'قدر درج کریں';
+
+  @override
+  String get unit => 'یونٹ';
+
+  @override
+  String get inches => 'انچ';
+
+  @override
+  String get centimeters => 'سینٹی میٹر';
+
+  @override
+  String get referencePhotos => 'حوالہ تصاویر';
+
+  @override
+  String get takePhoto => 'تصویر لیں';
+
+  @override
+  String get chooseFromGallery => 'گیلری سے منتخب کریں';
+
+  @override
+  String get measurementSavedSuccessfully => 'پیمائش کامیابی سے محفوظ ہو گئی!';
+
+  @override
+  String get addMeasurementBtn => 'پیمائش شامل کریں';
+
+  @override
+  String get failedToLoadMeasurements => 'پیمائش لوڈ کرنے میں ناکامی';
+
+  @override
+  String get noMeasurementsYet => 'ابھی کوئی پیمائش ریکارڈ نہیں';
+
+  @override
+  String get version => 'ورژن';
+
+  @override
+  String get yes => 'جی ہاں';
+
+  @override
+  String get no => 'نہیں';
 }

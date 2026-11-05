@@ -62,7 +62,8 @@ import 'app_localizations_ur.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -91,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('ur')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ur'),
+  ];
 
   /// The application's display name
   ///
@@ -434,9 +439,112 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @takeMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Measurement'**
+  String get takeMeasurement;
+
+  /// No description provided for @selectGarmentCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select garment category'**
+  String get selectGarmentCategory;
+
+  /// No description provided for @saveMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Measurement'**
+  String get saveMeasurement;
+
+  /// No description provided for @measurementValueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter value'**
+  String get measurementValueHint;
+
+  /// No description provided for @unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unit;
+
+  /// No description provided for @inches.
+  ///
+  /// In en, this message translates to:
+  /// **'Inches'**
+  String get inches;
+
+  /// No description provided for @centimeters.
+  ///
+  /// In en, this message translates to:
+  /// **'Centimeters'**
+  String get centimeters;
+
+  /// No description provided for @referencePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference Photos'**
+  String get referencePhotos;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @measurementSavedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement saved successfully!'**
+  String get measurementSavedSuccessfully;
+
+  /// No description provided for @addMeasurementBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Measurement'**
+  String get addMeasurementBtn;
+
+  /// No description provided for @failedToLoadMeasurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load measurements'**
+  String get failedToLoadMeasurements;
+
+  /// No description provided for @noMeasurementsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No measurements recorded yet'**
+  String get noMeasurementsYet;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -445,7 +553,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ur'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'ur'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

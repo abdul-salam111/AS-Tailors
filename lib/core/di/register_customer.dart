@@ -22,6 +22,10 @@ Future<void> registerCustomer() async {
     () => CustomerFormBloc(createCustomerUsecase: sl(), updateCustomerUsecase: sl()),
   );
   sl.registerFactory<CustomerDetailBloc>(
-    () => CustomerDetailBloc(getCustomerByIdUsecase: sl(), archiveCustomerUsecase: sl()),
+    () => CustomerDetailBloc(
+      getCustomerByIdUsecase: sl(),
+      archiveCustomerUsecase: sl(),
+      getProfilesForCustomerUsecase: sl(),
+    ),
   );
 }
