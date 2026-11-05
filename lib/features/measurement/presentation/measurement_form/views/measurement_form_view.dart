@@ -71,27 +71,47 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
   Future<void> _showImageSourceSheet(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
+      backgroundColor: context.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Iconsax.camera),
-              title: Text(context.l10n.takePhoto),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _pickImage(context, ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Iconsax.image),
-              title: Text(context.l10n.chooseFromGallery),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _pickImage(context, ImageSource.gallery);
-              },
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: context.divider,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              heightBox(18),
+              _SheetOption(
+                icon: Iconsax.camera,
+                label: context.l10n.takePhoto,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _pickImage(context, ImageSource.camera);
+                },
+              ),
+              heightBox(10),
+              _SheetOption(
+                icon: Iconsax.image,
+                label: context.l10n.chooseFromGallery,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _pickImage(context, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -144,6 +164,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
       builder: (context, state) {
         return UnfocusWrapper(
           child: Scaffold(
+            backgroundColor: context.background,
             appBar: CustomAppBar(title: context.l10n.takeMeasurement),
             body: ApiStatusBuilder<List<GarmentCategoryEntity>>(
               status: state.categoriesStatus,
@@ -156,22 +177,39 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               builder: (context, categories) => Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   children: [
-                    Text(context.l10n.selectGarmentCategory, style: context.titleMedium),
+                    _sectionLabel(context, context.l10n.selectGarmentCategory),
                     heightBox(12),
-                    _buildCategoryRow(context, state, categories),
-                    heightBox(24),
-                    if (state.templateStatus == ApiStatus.LOADING) const LoadingIndicator(),
+                    _buildCategoryPicker(context, state, categories),
+                    if (state.templateStatus == ApiStatus.LOADING) ...[
+                      heightBox(40),
+                      const Center(child: LoadingIndicator()),
+                    ],
                     if (state.templateStatus == ApiStatus.SUCCESS && state.template != null) ...[
+                      heightBox(28),
+                      Row(
+                        children: [
+                          Expanded(child: _sectionLabel(context, context.l10n.measurements)),
+                          _SegmentedTabs(
+                            compact: true,
+                            items: [
+                              (key: 'in', label: context.l10n.inches),
+                              (key: 'cm', label: context.l10n.centimeters),
+                            ],
+                            selectedKey: state.unit,
+                            onSelected: (unit) =>
+                                context.read<MeasurementFormBloc>().add(UnitChangedEvent(unit)),
+                          ),
+                        ],
+                      ),
                       if (state.sectionKeys.length > 1) ...[
-                        _buildSectionRow(context, state),
-                        heightBox(16),
+                        heightBox(14),
+                        _buildSectionTabs(context, state),
                       ],
-                      ..._buildFields(context, state),
-                      heightBox(8),
-                      _buildUnitToggle(context, state),
-                      heightBox(16),
+                      heightBox(14),
+                      _buildFieldsCard(context, state),
+                      heightBox(28),
                       CustomTextFormField(
                         label: context.l10n.notes,
                         hintText: context.l10n.enterNotes,
@@ -182,7 +220,9 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                           MeasurementNotesChangedEvent(value),
                         ),
                       ),
-                      heightBox(16),
+                      heightBox(28),
+                      _sectionLabel(context, context.l10n.referencePhotos),
+                      heightBox(12),
                       _buildImagesSection(context, state),
                       heightBox(32),
                       CustomButton(
@@ -195,6 +235,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                           }
                         },
                       ),
+                      heightBox(12),
                     ],
                   ],
                 ),
@@ -206,86 +247,76 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
     );
   }
 
-  Widget _buildCategoryRow(
+  Widget _sectionLabel(BuildContext context, String title) =>
+      Text(title, style: context.titleSmall.copyWith(fontWeight: FontWeight.bold));
+
+  Widget _buildCategoryPicker(
     BuildContext context,
     MeasurementFormState state,
     List<GarmentCategoryEntity> categories,
   ) {
-    return Row(
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
       children: categories
           .map(
-            (category) => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: state.selectedCategoryId == category.id
-                    ? CustomButton(
-                        label: _displayLabel(context, en: category.name, ur: category.nameUr),
-                        onPressed: () => context.read<MeasurementFormBloc>().add(
-                          CategorySelectedEvent(category.id),
-                        ),
-                      )
-                    : CustomButton.outline(
-                        label: _displayLabel(context, en: category.name, ur: category.nameUr),
-                        onPressed: () => context.read<MeasurementFormBloc>().add(
-                          CategorySelectedEvent(category.id),
-                        ),
-                      ),
-              ),
+            (category) => _PickerCard(
+              selected: state.selectedCategoryId == category.id,
+              label: _displayLabel(context, en: category.name, ur: category.nameUr),
+              icon: Iconsax.ruler,
+              onTap: () =>
+                  context.read<MeasurementFormBloc>().add(CategorySelectedEvent(category.id)),
             ),
           )
           .toList(),
     );
   }
 
-  Widget _buildSectionRow(BuildContext context, MeasurementFormState state) {
+  Widget _buildSectionTabs(BuildContext context, MeasurementFormState state) {
     final fieldsBySection = <String, MeasurementTemplateFieldEntity>{};
     for (final field in state.template!.fields) {
       if (field.sectionKey != null) fieldsBySection.putIfAbsent(field.sectionKey!, () => field);
     }
-    return Row(
-      children: state.sectionKeys.map((key) {
+    return _SegmentedTabs(
+      items: state.sectionKeys.map((key) {
         final field = fieldsBySection[key]!;
-        final label = _displayLabel(
-          context,
-          en: field.sectionLabelEn ?? key,
-          ur: field.sectionLabelUr,
-        );
-        final selected = state.selectedSectionKey == key;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: selected
-                ? CustomButton(
-                    label: label,
-                    onPressed: () =>
-                        context.read<MeasurementFormBloc>().add(SectionSelectedEvent(key)),
-                  )
-                : CustomButton.outline(
-                    label: label,
-                    onPressed: () =>
-                        context.read<MeasurementFormBloc>().add(SectionSelectedEvent(key)),
-                  ),
-          ),
+        return (
+          key: key,
+          label: _displayLabel(context, en: field.sectionLabelEn ?? key, ur: field.sectionLabelUr),
         );
       }).toList(),
+      selectedKey: state.selectedSectionKey,
+      onSelected: (key) => context.read<MeasurementFormBloc>().add(SectionSelectedEvent(key)),
     );
   }
 
-  List<Widget> _buildFields(BuildContext context, MeasurementFormState state) {
+  Widget _buildFieldsCard(BuildContext context, MeasurementFormState state) {
     final fields = [...state.template!.fields]
       ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
-    final visibleFields = fields.where(
-      (f) => f.sectionKey == null || f.sectionKey == state.selectedSectionKey,
-    );
-
-    return visibleFields
-        .map(
-          (field) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _buildField(context, state, field),
-          ),
-        )
+    final visibleFields = fields
+        .where((f) => f.sectionKey == null || f.sectionKey == state.selectedSectionKey)
         .toList();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: context.divider),
+        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < visibleFields.length; i++) ...[
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: _buildField(context, state, visibleFields[i]),
+            ),
+            if (i != visibleFields.length - 1)
+              Divider(height: 1, thickness: 1, color: context.divider),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildField(
@@ -298,7 +329,22 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         return CustomTextFormField(
           label: _fieldLabel(context, field),
           isRequired: field.isRequired,
-          hintText: '${context.l10n.measurementValueHint} (${state.unit})',
+          hintText: context.l10n.measurementValueHint,
+          fillColor: AppColors.transparent,
+          borderColor: AppColors.transparent,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Center(
+              widthFactor: 1,
+              child: Text(
+                state.unit,
+                style: context.bodySmall.copyWith(
+                  color: context.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           controller: _numberControllerFor(field.id),
           validator: (value) => _validateNumberField(context, field, value),
@@ -323,14 +369,10 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         );
       case MeasurementFieldInputType.dropdown:
         final selectedOptionId = state.fieldValues[field.id]?.selectedOptionId;
-        return DropdownButtonFormField<String>(
-          initialValue: selectedOptionId,
-          decoration: InputDecoration(
-            labelText: field.isRequired
-                ? '${_fieldLabel(context, field)} *'
-                : _fieldLabel(context, field),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
+        return _DropdownField(
+          label: _fieldLabel(context, field),
+          isRequired: field.isRequired,
+          value: selectedOptionId,
           items: field.options
               .map(
                 (o) => DropdownMenuItem(
@@ -346,90 +388,168 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         );
       case MeasurementFieldInputType.checkbox:
         final checked = (state.fieldValues[field.id]?.numericValue ?? 0) == 1;
-        return CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(_fieldLabel(context, field)),
-          value: checked,
-          onChanged: (value) => context.read<MeasurementFormBloc>().add(
-            FieldValueChangedEvent(
-              field.id,
-              MeasurementFieldValue(numericValue: (value ?? false) ? 1 : 0),
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                _fieldLabel(context, field),
+                style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
-          ),
+            Switch(
+              value: checked,
+              activeTrackColor: context.primary,
+              onChanged: (value) => context.read<MeasurementFormBloc>().add(
+                FieldValueChangedEvent(
+                  field.id,
+                  MeasurementFieldValue(numericValue: value ? 1 : 0),
+                ),
+              ),
+            ),
+          ],
         );
     }
   }
 
-  Widget _buildUnitToggle(BuildContext context, MeasurementFormState state) {
-    return Row(
-      children: [
-        Text(context.l10n.unit, style: context.bodyMedium),
-        widthBox(16),
-        ChoiceChip(
-          label: Text(context.l10n.inches),
-          selected: state.unit == 'in',
-          onSelected: (_) => context.read<MeasurementFormBloc>().add(UnitChangedEvent('in')),
-        ),
-        widthBox(8),
-        ChoiceChip(
-          label: Text(context.l10n.centimeters),
-          selected: state.unit == 'cm',
-          onSelected: (_) => context.read<MeasurementFormBloc>().add(UnitChangedEvent('cm')),
-        ),
-      ],
-    );
-  }
-
   Widget _buildImagesSection(BuildContext context, MeasurementFormState state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        Text(context.l10n.referencePhotos, style: context.bodyMedium),
-        heightBox(8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            ...state.imagePaths.map(
-              (path) => Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(File(path), width: 72, height: 72, fit: BoxFit.cover),
-                  ),
-                  Positioned(
-                    top: -8,
-                    right: -8,
-                    child: IconButton(
-                      icon: Icon(Iconsax.close_circle, color: context.error, size: 20),
-                      onPressed: () =>
-                          context.read<MeasurementFormBloc>().add(ImageRemovedEvent(path)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () => _showImageSourceSheet(context),
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  border: Border.all(color: context.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Iconsax.add, color: context.textSecondary),
-              ),
-            ),
-          ],
+        ...state.imagePaths.map(
+          (path) => _ImageThumb(
+            path: path,
+            onRemove: () => context.read<MeasurementFormBloc>().add(ImageRemovedEvent(path)),
+          ),
         ),
+        _AddImageTile(onTap: () => _showImageSourceSheet(context)),
       ],
     );
   }
 }
 
-/// Small stepper for `counter`-type fields (e.g. pocket count) — plain
+/// A selectable card for the top-level garment-category picker — larger
+/// and more prominent than [_SegmentedTabs] since choosing a category is
+/// the primary decision on this screen, not a minor toggle.
+class _PickerCard extends StatelessWidget {
+  final bool selected;
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _PickerCard({
+    required this.selected,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final card = Container(
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color: selected ? null : context.surfaceElevated,
+        gradient: selected
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+              )
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        border: selected ? null : Border.all(color: context.divider),
+        boxShadow: [
+          BoxShadow(
+            color: selected ? AppColors.brandTeal.withValues(alpha: 0.28) : context.shadow,
+            blurRadius: selected ? 12 : 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 22, color: selected ? AppColors.white : context.primary),
+          heightBox(8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.labelMedium.copyWith(
+              color: selected ? AppColors.white : context.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+    return card.onTap(onTap);
+  }
+}
+
+/// Compact tab bar used for both the sub-section picker (e.g. Qameez vs
+/// Shalwar) and the unit toggle — one bordered track, equal-width segments
+/// by default, or hugging content when [compact] (used for the 2-item unit
+/// toggle so it doesn't stretch across the whole row next to the section
+/// title).
+class _SegmentedTabs extends StatelessWidget {
+  final List<({String key, String label})> items;
+  final String? selectedKey;
+  final ValueChanged<String> onSelected;
+  final bool compact;
+
+  const _SegmentedTabs({
+    required this.items,
+    required this.selectedKey,
+    required this.onSelected,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final segments = items.map((item) => _buildSegment(context, item)).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: context.surfaceElevated,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.divider),
+      ),
+      child: Row(
+        mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
+        children: compact ? segments : segments.map((s) => Expanded(child: s)).toList(),
+      ),
+    );
+  }
+
+  Widget _buildSegment(BuildContext context, ({String key, String label}) item) {
+    final selected = item.key == selectedKey;
+    final segment = Container(
+      decoration: BoxDecoration(
+        color: selected ? context.primary : AppColors.transparent,
+        borderRadius: BorderRadius.circular(9),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 9, horizontal: compact ? 16 : 0),
+      alignment: Alignment.center,
+      child: Text(
+        item.label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.labelMedium.copyWith(
+          color: selected ? AppColors.white : context.textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    return segment.onTap(() => onSelected(item.key));
+  }
+}
+
+/// Small +/- stepper for `counter`-type fields (e.g. pocket count) — plain
 /// widget, not a `FormField`, since counts have no meaningful "required"
 /// state (0 is always valid) and so don't participate in `Form` validation.
 class _CounterField extends StatelessWidget {
@@ -444,18 +564,235 @@ class _CounterField extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: context.bodyMedium),
+        Expanded(
+          child: Text(label, style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+        ),
         Row(
           children: [
-            IconButton(
-              icon: const Icon(Iconsax.minus_cirlce),
-              onPressed: value > 0 ? () => onChanged(value - 1) : null,
+            _StepperButton(
+              icon: Iconsax.minus,
+              onTap: value > 0 ? () => onChanged(value - 1) : null,
             ),
-            Text('$value', style: context.titleMedium),
-            IconButton(icon: const Icon(Iconsax.add_circle), onPressed: () => onChanged(value + 1)),
+            SizedBox(
+              width: 32,
+              child: Text(
+                '$value',
+                textAlign: TextAlign.center,
+                style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            _StepperButton(icon: Iconsax.add, onTap: () => onChanged(value + 1)),
           ],
         ),
       ],
     );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _StepperButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    final button = Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: enabled
+            ? context.primary.withValues(alpha: 0.12)
+            : context.border.withValues(alpha: 0.5),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Icon(icon, size: 15, color: enabled ? context.primary : context.textDisabled),
+    );
+    return onTap == null ? button : button.onTap(onTap!);
+  }
+}
+
+/// Dropdown field styled to match [CustomTextFormField]'s label/border
+/// language (same radius, transparent-until-focused border) instead of
+/// the stock Material outline look, so it blends into the fields card
+/// exactly like its number/counter siblings.
+class _DropdownField extends StatelessWidget {
+  final String label;
+  final bool isRequired;
+  final String? value;
+  final List<DropdownMenuItem<String>> items;
+  final String? Function(String?) validator;
+  final ValueChanged<String?> onChanged;
+
+  const _DropdownField({
+    required this.label,
+    required this.isRequired,
+    required this.value,
+    required this.items,
+    required this.validator,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: label,
+                style: context.bodySmall.copyWith(color: context.textSecondary),
+              ),
+              if (isRequired)
+                TextSpan(
+                  text: ' *',
+                  style: context.bodyMedium.copyWith(
+                    color: context.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        heightBox(5),
+        DropdownButtonFormField<String>(
+          initialValue: value,
+          isExpanded: true,
+          icon: Icon(Iconsax.arrow_down, size: 16, color: context.grey500),
+          style: context.bodySmall.copyWith(color: context.textPrimary),
+          decoration: InputDecoration(
+            isDense: true,
+            filled: true,
+            fillColor: AppColors.transparent,
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.transparent),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.transparent),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.primary, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.error),
+            ),
+          ),
+          items: items,
+          validator: validator,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _ImageThumb extends StatelessWidget {
+  final String path;
+  final VoidCallback onRemove;
+
+  const _ImageThumb({required this.path, required this.onRemove});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 76,
+      height: 76,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.file(File(path), width: 76, height: 76, fit: BoxFit.cover),
+          ),
+          PositionedDirectional(
+            top: 4,
+            end: 4,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: AppColors.black.withValues(alpha: 0.55),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.close_circle, color: AppColors.white, size: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddImageTile extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddImageTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final tile = Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        color: context.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: context.primary.withValues(alpha: 0.3), width: 1.2),
+      ),
+      alignment: Alignment.center,
+      child: Icon(Iconsax.add, color: context.primary, size: 22),
+    );
+    return tile.onTap(onTap);
+  }
+}
+
+class _SheetOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _SheetOption({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: context.divider),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: context.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, color: context.primary, size: 18),
+          ),
+          widthBox(12),
+          Expanded(
+            child: Text(label, style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+          ),
+          Icon(Iconsax.arrow_right_3, size: 16, color: context.textSecondary),
+        ],
+      ),
+    );
+    return row.onTap(onTap);
   }
 }
