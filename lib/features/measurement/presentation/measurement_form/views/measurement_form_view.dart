@@ -148,6 +148,10 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
             body: ApiStatusBuilder<List<GarmentCategoryEntity>>(
               status: state.categoriesStatus,
               data: state.categories,
+              failure: state.failure,
+              onRetry: () => context.read<MeasurementFormBloc>().add(
+                MeasurementFormInitialized(state.customerId!),
+              ),
               isEmpty: (categories) => categories.isEmpty,
               builder: (context, categories) => Form(
                 key: _formKey,
