@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../networks/exceptions/app_exceptions.dart';
 import '../../networks/exceptions/supabase_exception_mapper.dart';
@@ -70,6 +71,27 @@ abstract class BaseSupabaseDatasource {
   /// A write with no meaningful return value (e.g. `.update()`/`.delete()`
   /// without a trailing `.select()`).
   Future<void> mutate(Future<void> Function() query) => guard(query);
+
+  /// Uploads bytes to a Storage bucket and returns the storage path on
+  /// success (the same [path] passed in — callers persist it, e.g. onto a
+  /// `*_reference_images` row, rather than a public URL, since buckets in
+  /// this app are private; resolve a usable URL later via [createSignedUrl]).
+  Future<String> uploadToStorage({
+    required String bucket,
+    required String path,
+    required Uint8List bytes,
+  }) => guard(() async {
+    await client.storage.from(bucket).uploadBinary(path, bytes);
+    return path;
+  });
+
+  /// A time-limited URL for a private bucket object — never use
+  /// `getPublicUrl()` on a non-public bucket, it returns an unusable link.
+  Future<String> createSignedUrl({
+    required String bucket,
+    required String path,
+    int expiresInSeconds = 3600,
+  }) => guard(() => client.storage.from(bucket).createSignedUrl(path, expiresInSeconds));
 
   /// Exception-mapping wrapper for anything the helpers above don't cover
   /// — `client.auth.*`, `client.storage.*`, or any call shaped

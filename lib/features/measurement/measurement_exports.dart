@@ -1,0 +1,19 @@
+// Measurement feature barrel — public API for other layers/features to import.
+export 'data/datasources/measurement_remote_datasource/measurement_remote_datasource.dart';
+export 'data/repositories_impl/measurement_repository_impl.dart';
+export 'domain/entities/create_measurement_profile_params.dart';
+export 'domain/entities/garment_category_entity.dart';
+export 'domain/entities/measurement_profile_entity.dart';
+export 'domain/entities/measurement_template_entity.dart';
+export 'domain/entities/measurement_template_field_entity.dart';
+export 'domain/entities/measurement_value_entity.dart';
+export 'domain/repositories/measurement_repository.dart';
+export 'domain/usecases/create_measurement_profile_usecase.dart';
+export 'domain/usecases/get_garment_categories_usecase.dart';
+export 'domain/usecases/get_profile_detail_usecase.dart';
+export 'domain/usecases/get_profiles_for_customer_usecase.dart';
+export 'domain/usecases/get_template_for_category_usecase.dart';
+export 'presentation/measurement_form/blocs/measurement_form_bloc.dart';
+export 'presentation/measurement_form/blocs/measurement_form_event.dart';
+export 'presentation/measurement_form/blocs/measurement_form_state.dart';
+export 'presentation/measurement_form/views/measurement_form_view.dart';

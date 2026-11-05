@@ -1,4 +1,6 @@
+import '../../../../../core/constants/app_enums.dart';
 import '../../../../../core/shared/shared_exports.dart';
+import '../../../../measurement/domain/usecases/get_profiles_for_customer_usecase.dart';
 import '../../../domain/usecases/archive_customer_usecase.dart';
 import '../../../domain/usecases/get_customer_by_id_usecase.dart';
 import 'customer_detail_event.dart';
@@ -8,15 +10,19 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState>
     with UsecaseExecuterMixin {
   final GetCustomerByIdUsecase _getCustomerByIdUsecase;
   final ArchiveCustomerUsecase _archiveCustomerUsecase;
+  final GetProfilesForCustomerUsecase _getProfilesForCustomerUsecase;
 
   CustomerDetailBloc({
     required GetCustomerByIdUsecase getCustomerByIdUsecase,
     required ArchiveCustomerUsecase archiveCustomerUsecase,
+    required GetProfilesForCustomerUsecase getProfilesForCustomerUsecase,
   }) : _getCustomerByIdUsecase = getCustomerByIdUsecase,
        _archiveCustomerUsecase = archiveCustomerUsecase,
+       _getProfilesForCustomerUsecase = getProfilesForCustomerUsecase,
        super(const CustomerDetailState()) {
     on<LoadCustomerEvent>(_onLoad);
     on<ArchiveCustomerRequested>(_onArchive);
+    on<LoadMeasurementsEvent>(_onLoadMeasurements);
   }
 
   Future<void> _onLoad(LoadCustomerEvent event, Emitter<CustomerDetailState> emit) {
@@ -44,9 +50,32 @@ class CustomerDetailBloc extends Bloc<CustomerDetailEvent, CustomerDetailState>
           customer: state.customer,
           failure: failure,
           message: failure.message,
+          measurementProfiles: state.measurementProfiles,
+          measurementsStatus: state.measurementsStatus,
         ),
       ),
-      (customer) => emit(CustomerDetailState(apiStatus: state.apiStatus, customer: customer)),
+      (customer) => emit(
+        CustomerDetailState(
+          apiStatus: state.apiStatus,
+          customer: customer,
+          measurementProfiles: state.measurementProfiles,
+          measurementsStatus: state.measurementsStatus,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onLoadMeasurements(
+    LoadMeasurementsEvent event,
+    Emitter<CustomerDetailState> emit,
+  ) async {
+    emit(state.copyWith(measurementsStatus: ApiStatus.LOADING));
+    final result = await _getProfilesForCustomerUsecase(event.customerId);
+    result.fold(
+      (failure) => emit(state.copyWith(measurementsStatus: ApiStatus.FAILURE, failure: failure)),
+      (profiles) => emit(
+        state.copyWith(measurementsStatus: ApiStatus.SUCCESS, measurementProfiles: profiles),
+      ),
     );
   }
 }

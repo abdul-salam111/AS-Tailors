@@ -39,7 +39,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle =>
+      'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
@@ -224,4 +225,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get takeMeasurement => 'Take Measurement';
+
+  @override
+  String get selectGarmentCategory => 'Select garment category';
+
+  @override
+  String get saveMeasurement => 'Save Measurement';
+
+  @override
+  String get measurementValueHint => 'Enter value';
+
+  @override
+  String get unit => 'Unit';
+
+  @override
+  String get inches => 'Inches';
+
+  @override
+  String get centimeters => 'Centimeters';
+
+  @override
+  String get referencePhotos => 'Reference Photos';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get measurementSavedSuccessfully => 'Measurement saved successfully!';
+
+  @override
+  String get addMeasurementBtn => 'Add Measurement';
+
+  @override
+  String get failedToLoadMeasurements => 'Failed to load measurements';
+
+  @override
+  String get noMeasurementsYet => 'No measurements recorded yet';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
 }

@@ -76,5 +76,23 @@
   "archiveCustomerConfirmation": "آرکائیو شدہ گاہک ڈائریکٹری سے چھپ جاتے ہیں لیکن ان کی آرڈر ہسٹری محفوظ رہتی ہے۔ یہ عمل یہاں سے واپس نہیں کیا جا سکتا۔",
   "customerArchivedSuccessfully": "گاہک آرکائیو کر دیا گیا",
   "archived": "آرکائیو شدہ",
-  "cancel": "منسوخ کریں"
+  "cancel": "منسوخ کریں",
+
+  "takeMeasurement": "پیمائش لیں",
+  "selectGarmentCategory": "ملبوسات کی قسم منتخب کریں",
+  "saveMeasurement": "پیمائش محفوظ کریں",
+  "measurementValueHint": "قدر درج کریں",
+  "unit": "یونٹ",
+  "inches": "انچ",
+  "centimeters": "سینٹی میٹر",
+  "referencePhotos": "حوالہ تصاویر",
+  "takePhoto": "تصویر لیں",
+  "chooseFromGallery": "گیلری سے منتخب کریں",
+  "measurementSavedSuccessfully": "پیمائش کامیابی سے محفوظ ہو گئی!",
+  "addMeasurementBtn": "پیمائش شامل کریں",
+  "failedToLoadMeasurements": "پیمائش لوڈ کرنے میں ناکامی",
+  "noMeasurementsYet": "ابھی کوئی پیمائش ریکارڈ نہیں",
+  "version": "ورژن",
+  "yes": "جی ہاں",
+  "no": "نہیں"
 }

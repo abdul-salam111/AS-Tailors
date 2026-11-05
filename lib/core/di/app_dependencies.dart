@@ -7,6 +7,7 @@ import 'register_auth.dart';
 import 'register_core.dart';
 import 'register_customer.dart';
 import 'register_home.dart';
+import 'register_measurement.dart';
 import 'register_network.dart';
 import 'register_splash.dart';
 import 'register_supabase.dart';
@@ -29,6 +30,7 @@ Future<void> setupLocator() async {
   );
 
   await registerAuth();
+  await registerMeasurement();
   await registerCustomer();
   await registerHome();
   await registerSplash();

@@ -80,5 +80,23 @@
   "archiveCustomerConfirmation": "Archived customers are hidden from the directory but their order history is kept. You can't undo this from here.",
   "customerArchivedSuccessfully": "Customer archived",
   "archived": "Archived",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+
+  "takeMeasurement": "Take Measurement",
+  "selectGarmentCategory": "Select garment category",
+  "saveMeasurement": "Save Measurement",
+  "measurementValueHint": "Enter value",
+  "unit": "Unit",
+  "inches": "Inches",
+  "centimeters": "Centimeters",
+  "referencePhotos": "Reference Photos",
+  "takePhoto": "Take Photo",
+  "chooseFromGallery": "Choose from Gallery",
+  "measurementSavedSuccessfully": "Measurement saved successfully!",
+  "addMeasurementBtn": "Add Measurement",
+  "failedToLoadMeasurements": "Failed to load measurements",
+  "noMeasurementsYet": "No measurements recorded yet",
+  "version": "Version",
+  "yes": "Yes",
+  "no": "No"
 }

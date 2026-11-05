@@ -4,6 +4,7 @@ import '../../../../../core/di/di_exports.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/utils/utils_exports.dart';
 import '../../../../../core/widgets/widgets_exports.dart';
+import '../../../../../routes/routes_exports.dart';
 import '../../../domain/entities/customer_entity.dart';
 import '../blocs/customer_form_bloc.dart';
 import '../blocs/customer_form_event.dart';
@@ -67,7 +68,16 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
                 ? context.l10n.customerUpdatedSuccessfully
                 : context.l10n.customerCreatedSuccessfully,
           );
-          Navigator.of(context).pop(state.customer);
+          if (state.isEditing) {
+            Navigator.of(context).pop(state.customer);
+          } else {
+            // Decoupled flow: the customer is already saved, so go straight
+            // into taking their measurement instead of back to the list —
+            // measurements are optional and can always be added later from
+            // the customer's detail screen, but most new walk-ins get
+            // measured on the spot.
+            context.pushReplacement(RoutePaths.addMeasurementPath(state.customer!.id));
+          }
         }
         if (state.apiStatus == ApiStatus.FAILURE && state.failure != null) {
           AppToastsUtils.showErrorTop(context, AppFailureMapper.map(state.failure!).message);

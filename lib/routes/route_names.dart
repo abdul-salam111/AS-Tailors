@@ -9,4 +9,5 @@ class RouteNames {
   static const String addCustomer = 'addCustomer';
   static const String customerDetail = 'customerDetail';
   static const String editCustomer = 'editCustomer';
+  static const String addMeasurement = 'addMeasurement';
 }
