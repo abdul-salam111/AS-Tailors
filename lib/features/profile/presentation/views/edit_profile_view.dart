@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/di/di_exports.dart';
 import '../../../../core/services/session_manager.dart';
 import '../../../../core/theme/theme_exports.dart';
@@ -199,7 +200,15 @@ class _AvatarPicker extends StatelessWidget {
                   : null,
             ),
             alignment: Alignment.center,
-            child: avatarUrl == null ? Icon(Iconsax.user, size: 40, color: context.primary) : null,
+            child: avatarUrl == null
+                ? Image.asset(
+                    AppIcons.profile,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.contain,
+                    color: context.primary,
+                  )
+                : null,
           ),
           if (uploading)
             Positioned.fill(

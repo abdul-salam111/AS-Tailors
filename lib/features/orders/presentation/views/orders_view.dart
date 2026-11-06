@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/const_exports.dart';
 import '../../../../core/theme/theme_exports.dart';
 import '../../../../core/utils/utils_exports.dart';
 import '../../../../core/widgets/widgets_exports.dart';
@@ -15,7 +16,7 @@ class OrdersView extends StatelessWidget {
       backgroundColor: context.background,
       appBar: CustomAppBar(title: context.l10n.orders, centerTitle: false),
       body: EmptyStateWidget(
-        icon: Iconsax.receipt_2,
+        iconAsset: AppIcons.orders,
         title: context.l10n.orders,
         subtitle: context.l10n.featureComingSoonMessage,
       ),

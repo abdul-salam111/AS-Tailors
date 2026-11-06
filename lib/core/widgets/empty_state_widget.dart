@@ -9,6 +9,11 @@ class EmptyStateWidget extends StatelessWidget {
   final String title;
   final String? subtitle;
   final IconData icon;
+  // Overrides [icon] with one of the app's own custom asset icons
+  // (`AppIcons.*`, see core/constants/app_icons.dart) when the empty state
+  // matches a branded section (Customers, Orders, ...) rather than a
+  // generic Iconsax glyph.
+  final String? iconAsset;
   final Widget? action;
 
   const EmptyStateWidget({
@@ -16,6 +21,7 @@ class EmptyStateWidget extends StatelessWidget {
     this.title = 'Nothing here yet',
     this.subtitle,
     this.icon = Iconsax.document,
+    this.iconAsset,
     this.action,
   });
 
@@ -27,7 +33,15 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: context.textDisabled),
+            iconAsset != null
+                ? Image.asset(
+                    iconAsset!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.contain,
+                    color: context.textDisabled,
+                  )
+                : Icon(icon, size: 48, color: context.textDisabled),
             heightBox(12),
             Text(title, style: context.titleMedium, textAlign: TextAlign.center),
             if (subtitle != null) ...[

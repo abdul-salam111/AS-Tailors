@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../../core/constants/const_exports.dart';
 import '../../../../../core/di/di_exports.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/theme/theme_exports.dart';
@@ -58,7 +59,18 @@ class _CustomerListViewState extends State<CustomerListView> {
         // bar's own "Create Order" FAB already occupies that spot now
         // that the app has a persistent shell (see routes/app_shell.dart);
         // a second FAB here would float right next to it.
-        actions: [IconButton(onPressed: _openAddCustomer, icon: const Icon(Iconsax.user_add))],
+        actions: [
+          IconButton(
+            onPressed: _openAddCustomer,
+            icon: Image.asset(
+              AppIcons.addCustomer,
+              width: 22,
+              height: 22,
+              fit: BoxFit.contain,
+              color: AppColors.white,
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -72,7 +84,7 @@ class _CustomerListViewState extends State<CustomerListView> {
               cubit: _cubit,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               emptyWidget: EmptyStateWidget(
-                icon: Iconsax.people,
+                iconAsset: AppIcons.customers,
                 title: context.l10n.noCustomersYet,
                 subtitle: context.l10n.addYourFirstCustomer,
               ),

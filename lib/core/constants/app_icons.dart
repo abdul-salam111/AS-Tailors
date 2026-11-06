@@ -11,6 +11,8 @@
 class AppIcons {
   AppIcons._();
 
+  static const String addCustomer = 'assets/icons/add_customer.png';
+
   static const String homeIcon = 'assets/icons/home_icon.png';
 
   static const String logo = 'assets/icons/logo.png';

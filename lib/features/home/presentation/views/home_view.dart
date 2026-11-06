@@ -506,6 +506,7 @@ class _KpiGrid extends StatelessWidget {
                 Expanded(
                   child: _KpiCard(
                     icon: Iconsax.people,
+                    iconAsset: AppIcons.customers,
                     color: context.primary,
                     label: context.l10n.totalCustomers,
                     value: '${state.totalCustomers ?? 0}',
@@ -521,6 +522,7 @@ class _KpiGrid extends StatelessWidget {
                 Expanded(
                   child: _KpiCard(
                     icon: Iconsax.bag_timer,
+                    iconAsset: AppIcons.orders,
                     color: AppColors.brandGoldDark,
                     label: context.l10n.activeOrders,
                     value: '$_dummyActiveOrders',
@@ -589,6 +591,10 @@ class _KpiGrid extends StatelessWidget {
 /// value/label column — a trailing chevron only when the card is tappable.
 class _KpiCard extends StatelessWidget {
   final IconData icon;
+  // Overrides [icon] with one of the app's own custom asset icons
+  // (`AppIcons.*`) for cards that map to a branded section (Customers,
+  // Orders).
+  final String? iconAsset;
   final Color color;
   final String label;
   final String value;
@@ -597,6 +603,7 @@ class _KpiCard extends StatelessWidget {
 
   const _KpiCard({
     required this.icon,
+    this.iconAsset,
     required this.color,
     required this.label,
     required this.value,
@@ -654,7 +661,15 @@ class _KpiCard extends StatelessWidget {
                     color: color.withValues(alpha: 0.1),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(icon, size: 16, color: color),
+                  child: iconAsset != null
+                      ? Image.asset(
+                          iconAsset!,
+                          width: 16,
+                          height: 16,
+                          fit: BoxFit.contain,
+                          color: color,
+                        )
+                      : Icon(icon, size: 16, color: color),
                 ),
                 widthBox(10),
                 Expanded(
@@ -851,6 +866,7 @@ class _QuickActionsGrid extends StatelessWidget {
             Expanded(
               child: _ActionTile(
                 icon: Iconsax.user_add,
+                iconAsset: AppIcons.addCustomer,
                 color: context.primary,
                 label: context.l10n.addCustomer,
                 onTap: () => context.push(RoutePaths.addCustomer),
@@ -860,6 +876,7 @@ class _QuickActionsGrid extends StatelessWidget {
             Expanded(
               child: _ActionTile(
                 icon: Iconsax.people,
+                iconAsset: AppIcons.customers,
                 color: AppColors.brandGoldDark,
                 label: context.l10n.customers,
                 onTap: () => context.go(RoutePaths.customers),
@@ -873,6 +890,7 @@ class _QuickActionsGrid extends StatelessWidget {
             Expanded(
               child: _ActionTile(
                 icon: Iconsax.bag_timer,
+                iconAsset: AppIcons.createOrder,
                 color: context.success,
                 label: context.l10n.newOrder,
                 onTap: () => context.push(RoutePaths.addOrder),
@@ -882,6 +900,7 @@ class _QuickActionsGrid extends StatelessWidget {
             Expanded(
               child: _ActionTile(
                 icon: Iconsax.bag_2,
+                iconAsset: AppIcons.orders,
                 color: context.warning,
                 label: context.l10n.orders,
                 // `go`, not `push` — Orders is a bottom-nav branch (see
@@ -904,12 +923,16 @@ class _QuickActionsGrid extends StatelessWidget {
 /// text.
 class _ActionTile extends StatelessWidget {
   final IconData icon;
+  // Overrides [icon] with one of the app's own custom asset icons
+  // (`AppIcons.*`) for tiles that map to a branded section/action.
+  final String? iconAsset;
   final Color color;
   final String label;
   final VoidCallback onTap;
 
   const _ActionTile({
     required this.icon,
+    this.iconAsset,
     required this.color,
     required this.label,
     required this.onTap,
@@ -941,7 +964,9 @@ class _ActionTile extends StatelessWidget {
               ],
             ),
             alignment: Alignment.center,
-            child: Icon(icon, size: 20, color: color),
+            child: iconAsset != null
+                ? Image.asset(iconAsset!, width: 20, height: 20, fit: BoxFit.contain, color: color)
+                : Icon(icon, size: 20, color: color),
           ),
           heightBox(6),
           Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_enums.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/di/di_exports.dart';
 import '../../../../core/services/session_manager.dart';
 import '../../../../core/shared/shared_exports.dart';
@@ -150,7 +151,13 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: avatarUrl == null
-                    ? const Icon(Iconsax.user, color: AppColors.white, size: 34)
+                    ? Image.asset(
+                        AppIcons.profile,
+                        width: 34,
+                        height: 34,
+                        fit: BoxFit.contain,
+                        color: AppColors.white,
+                      )
                     : null,
               ),
               heightBox(14),

@@ -161,12 +161,20 @@ class _CreateOrderFab extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           customBorder: const CircleBorder(),
-          child: Image.asset(
-            AppIcons.createOrder,
-            width: 16,
-            height: 16,
-            fit: BoxFit.contain,
-            color: AppColors.white,
+          // Center loosens the Container's tight 58x58 constraint before it
+          // reaches Image — without it, Image's own width/height request
+          // gets clamped straight back up to 58x58 (RenderImage enforces
+          // its requested size against the incoming constraints, and a
+          // tight incoming constraint always wins), so the icon filled the
+          // whole FAB no matter how small width/height were set.
+          child: Center(
+            child: Image.asset(
+              AppIcons.createOrder,
+              width: 30,
+              height: 30,
+              fit: BoxFit.contain,
+              color: AppColors.white,
+            ),
           ),
         ),
       ),

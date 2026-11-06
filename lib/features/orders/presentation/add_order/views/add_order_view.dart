@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../core/constants/app_enums.dart';
+import '../../../../../core/constants/app_icons.dart';
 import '../../../../../core/di/di_exports.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/theme/theme_exports.dart';
@@ -510,7 +511,7 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
                 cubit: _cubit,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 emptyWidget: EmptyStateWidget(
-                  icon: Iconsax.people,
+                  iconAsset: AppIcons.customers,
                   title: context.l10n.noCustomersYet,
                 ),
                 itemBuilder: (context, customer) => ListTile(
