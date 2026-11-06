@@ -11,5 +11,15 @@
 class AppIcons {
   AppIcons._();
 
+  static const String homeIcon = 'assets/icons/home_icon.png';
+
   static const String logo = 'assets/icons/logo.png';
+
+  static const String profile = 'assets/icons/profile.png';
+
+  static const String customers = 'assets/icons/customers.png';
+
+  static const String createOrder = 'assets/icons/create_order.png';
+
+  static const String orders = 'assets/icons/orders.png';
 }
