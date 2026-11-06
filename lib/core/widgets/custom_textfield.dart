@@ -40,6 +40,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool isRequired;
   final int labelFontSize;
   final bool readOnly;
+  final double borderRadius;
 
   const CustomTextFormField({
     super.key,
@@ -51,6 +52,7 @@ class CustomTextFormField extends StatefulWidget {
     this.isRequired = false,
     this.fillColor,
     this.borderColor,
+    this.borderRadius = 10,
     this.controller,
     this.focusNode,
     this.labelColor,
@@ -190,23 +192,23 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         fillColor: widget.fillColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
           borderSide: BorderSide(color: defaultBorderColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
           borderSide: BorderSide(color: defaultBorderColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
           borderSide: BorderSide(color: context.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
           borderSide: BorderSide(color: context.error, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
           borderSide: BorderSide(color: context.error, width: 2),
         ),
       ),
