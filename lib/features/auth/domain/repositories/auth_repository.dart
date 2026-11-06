@@ -12,4 +12,10 @@ abstract interface class IAuthRepository {
   /// including shop membership. `Right(null)` means nobody is signed in —
   /// that's a valid outcome, not a failure.
   Future<Either<Failure, AuthEntity?>> getCurrentSession();
+
+  /// Updates the signed-in user's display name (`auth.users.user_metadata
+  /// .full_name` — the same field `_buildEntity`/`AuthEntity.fullName`
+  /// reads, so this is the one value that actually needs changing for the
+  /// name shown around the app to update).
+  Future<Either<Failure, AuthEntity>> updateProfile({required String fullName});
 }

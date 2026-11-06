@@ -115,6 +115,11 @@ class AppRoutes {
         name: RouteNames.addMeasurement,
         builder: (context, state) => MeasurementFormView(customerId: state.pathParameters['id']!),
       ),
+      GoRoute(
+        path: RoutePaths.editProfile,
+        name: RouteNames.editProfile,
+        builder: (context, state) => const EditProfileView(),
+      ),
     ],
   );
 }

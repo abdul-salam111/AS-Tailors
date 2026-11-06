@@ -49,6 +49,15 @@ class AppLocalizationsUr extends AppLocalizations {
   String get account => 'اکاؤنٹ';
 
   @override
+  String get editProfile => 'پروفائل میں ترمیم کریں';
+
+  @override
+  String get fullName => 'مکمل نام';
+
+  @override
+  String get profileUpdatedSuccessfully => 'پروفائل کامیابی سے اپڈیٹ ہو گئی!';
+
+  @override
   String get home => 'ہوم';
 
   @override

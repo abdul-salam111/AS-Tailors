@@ -14,3 +14,4 @@ export './domain/usecases/sign_out_usecase.dart';
 export './domain/usecases/signin_usecase.dart';
 export './domain/usecases/signin_with_apple_usecase.dart';
 export './domain/usecases/signin_with_google_usecase.dart';
+export './domain/usecases/update_profile_usecase.dart';

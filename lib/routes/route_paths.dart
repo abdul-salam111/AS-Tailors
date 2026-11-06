@@ -2,6 +2,7 @@ class RoutePaths {
   static const String signin = '/signin';
   static const String splash = '/splash';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
   static const String home = '/home';
   static const String orders = '/orders';
   static const String customers = '/customers';

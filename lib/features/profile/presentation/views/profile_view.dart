@@ -23,6 +23,13 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   bool _signingOut = false;
 
+  Future<void> _openEditProfile() async {
+    final updated = await context.push<bool>(RoutePaths.editProfile);
+    // EditProfileView already wrote the new name into SessionController
+    // before popping — this just forces a rebuild to read it back.
+    if (updated == true && mounted) setState(() {});
+  }
+
   Future<void> _signOut() async {
     setState(() => _signingOut = true);
     final result = await sl<SignOutUsecase>()(NoParams());
@@ -49,7 +56,12 @@ class _ProfileViewState extends State<ProfileView> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            _ProfileHeaderCard(name: name, email: session.email, role: session.role),
+            _ProfileHeaderCard(
+              name: name,
+              email: session.email,
+              role: session.role,
+              onEdit: _openEditProfile,
+            ),
             heightBox(24),
             Text(
               context.l10n.settings,
@@ -76,78 +88,111 @@ class _ProfileHeaderCard extends StatelessWidget {
   final String name;
   final String email;
   final ShopRole? role;
-  const _ProfileHeaderCard({required this.name, required this.email, required this.role});
+  final VoidCallback onEdit;
+  const _ProfileHeaderCard({
+    required this.name,
+    required this.email,
+    required this.role,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-      decoration: BoxDecoration(
-        color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: context.divider),
-        boxShadow: [BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6))],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 76,
-            height: 76,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+          decoration: BoxDecoration(
+            color: context.surfaceElevated,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: context.divider),
+            boxShadow: [
+              BoxShadow(color: context.shadow, blurRadius: 14, offset: const Offset(0, 6)),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.brandTeal.withValues(alpha: 0.3),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.user, color: AppColors.white, size: 34),
               ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.brandTeal.withValues(alpha: 0.3),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
+              heightBox(14),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
+              ),
+              heightBox(4),
+              Text(
+                email,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodySmall.copyWith(color: context.textSecondary),
+              ),
+              if (role != null) ...[
+                heightBox(10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: context.primaryLight,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _roleLabel(context, role!),
+                    style: context.labelSmall.copyWith(
+                      color: context.primaryDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Iconsax.user, color: AppColors.white, size: 34),
+            ],
           ),
-          heightBox(14),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.titleLarge.copyWith(fontWeight: FontWeight.bold),
-          ),
-          heightBox(4),
-          Text(
-            email,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.bodySmall.copyWith(color: context.textSecondary),
-          ),
-          if (role != null) ...[
-            heightBox(10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: context.primaryLight,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                _roleLabel(context, role!),
-                style: context.labelSmall.copyWith(
-                  color: context.primaryDark,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
+        ),
+        PositionedDirectional(top: 12, end: 12, child: _EditProfileButton(onTap: onEdit)),
+      ],
     );
+  }
+}
+
+class _EditProfileButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _EditProfileButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final button = Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: context.primary.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Icon(Iconsax.user_edit, size: 17, color: context.primary),
+    );
+    return button.onTap(onTap);
   }
 }
 

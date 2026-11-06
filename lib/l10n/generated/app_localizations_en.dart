@@ -49,6 +49,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get account => 'Account';
 
   @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully!';
+
+  @override
   String get home => 'Home';
 
   @override

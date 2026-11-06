@@ -62,6 +62,18 @@ class AuthRepositoryImpl extends BaseRepository implements IAuthRepository {
     },
   );
 
+  @override
+  Future<Either<Failure, AuthEntity>> updateProfile({required String fullName}) => execute(
+    call: () async {
+      final response = await _dataSource.updateFullName(fullName);
+      final user = response.user;
+      if (user == null) {
+        throw const UnauthorizedException('Profile update did not return a user.');
+      }
+      return _buildEntity(user);
+    },
+  );
+
   Future<AuthEntity> _buildEntity(User user) async {
     final membership = await _dataSource.fetchMembership(user.id);
     return AuthEntity(

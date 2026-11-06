@@ -32,6 +32,9 @@ abstract interface class IAuthRemoteDatasource {
 
   /// This user's `shop_members` row, if they belong to a shop yet.
   Future<ShopMembershipModel?> fetchMembership(String userId);
+
+  /// Updates `auth.users.user_metadata.full_name` for the signed-in user.
+  Future<UserResponse> updateFullName(String fullName);
 }
 
 class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRemoteDatasource {
@@ -104,6 +107,10 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
         .maybeSingle(),
     parser: ShopMembershipModel.fromJson,
   );
+
+  @override
+  Future<UserResponse> updateFullName(String fullName) =>
+      guard(() => client.auth.updateUser(UserAttributes(data: {'full_name': fullName})));
 }
 
 const _nonceCharset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
