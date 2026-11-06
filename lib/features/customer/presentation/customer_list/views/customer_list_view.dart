@@ -102,9 +102,30 @@ class _CustomerListItem extends StatelessWidget {
         ),
       ),
       title: Text(customer.fullName, style: context.bodyLarge),
-      subtitle: customer.phone != null ? Text(customer.phone!, style: context.bodySmall) : null,
+      subtitle: _buildSubtitle(context),
       trailing: const Icon(Iconsax.arrow_right_3, size: 18),
       onTap: () => context.push(RoutePaths.customerDetailPath(customer.id)),
     ).withPadding(const EdgeInsets.symmetric(vertical: 4));
+  }
+
+  Widget? _buildSubtitle(BuildContext context) {
+    final phone = customer.phone;
+    final address = customer.address;
+    if ((phone == null || phone.isEmpty) && (address == null || address.isEmpty)) return null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (phone != null && phone.isNotEmpty) Text(phone, style: context.bodySmall),
+        if (address != null && address.isNotEmpty)
+          Text(
+            address,
+            style: context.bodySmall.copyWith(color: context.textSecondary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+      ],
+    );
   }
 }
