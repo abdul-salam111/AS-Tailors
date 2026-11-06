@@ -80,7 +80,6 @@
   "takeMeasurement": "Take Measurement",
   "selectGarmentCategory": "Select garment category",
   "saveMeasurement": "Save Measurement",
-  "measurementValueHint": "Enter value",
   "unit": "Unit",
   "inches": "Inches",
   "centimeters": "Centimeters",

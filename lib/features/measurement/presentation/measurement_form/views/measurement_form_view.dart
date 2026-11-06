@@ -125,6 +125,12 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
   String _fieldLabel(BuildContext context, MeasurementTemplateFieldEntity field) =>
       _displayLabel(context, en: field.labelEn, ur: field.labelUr);
 
+  /// Label plus a required-marker, used as the field's hint text instead
+  /// of a separate label row above it (same reasoning as
+  /// `CustomTextFormField` — see its own changelog entry).
+  String _fieldHint(BuildContext context, MeasurementTemplateFieldEntity field) =>
+      '${_fieldLabel(context, field)}${field.isRequired ? ' *' : ''}';
+
   String? _validateNumberField(
     BuildContext context,
     MeasurementTemplateFieldEntity field,
@@ -371,8 +377,6 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
       case MeasurementFieldInputType.number:
         return _FieldBox(
           width: width,
-          label: _fieldLabel(context, field),
-          isRequired: field.isRequired,
           child: TextFormField(
             controller: _numberControllerFor(field.id),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -385,7 +389,13 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               focusedBorder: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedErrorBorder: InputBorder.none,
-              hintText: context.l10n.measurementValueHint,
+              // Explicitly unfilled — the app-wide InputDecorationTheme
+              // defaults to `filled: true, fillColor: grey50`, which
+              // painted a small grey strip inside this field's own white
+              // _FieldBox card (the bug this comment is here to prevent
+              // regressing).
+              filled: false,
+              hintText: _fieldHint(context, field),
               hintStyle: context.bodyMedium.copyWith(color: context.textDisabled),
               suffixText: state.unit,
               suffixStyle: context.labelSmall.copyWith(color: context.textSecondary),
@@ -408,7 +418,6 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         return _FieldBox(
           width: width,
           label: _fieldLabel(context, field),
-          isRequired: false,
           child: Row(
             children: [
               _StepperButton(
@@ -445,8 +454,6 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         final selectedOptionId = state.fieldValues[field.id]?.selectedOptionId;
         return _FieldBox(
           width: width,
-          label: _fieldLabel(context, field),
-          isRequired: field.isRequired,
           child: DropdownButtonFormField<String>(
             initialValue: selectedOptionId,
             isExpanded: true,
@@ -456,6 +463,10 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               color: context.textPrimary,
               fontWeight: FontWeight.w700,
             ),
+            hint: Text(
+              _fieldHint(context, field),
+              style: context.bodyMedium.copyWith(color: context.textDisabled),
+            ),
             decoration: const InputDecoration(
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -463,6 +474,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               errorBorder: InputBorder.none,
+              filled: false,
             ),
             items: field.options
                 .map(
@@ -592,25 +604,22 @@ class _StepperButton extends StatelessWidget {
   }
 }
 
-/// Shared individually-bordered box for a number/counter/dropdown field —
-/// a small label (with a red `*` when required) above the type-specific
-/// [child] control, which renders borderless so the box itself supplies
-/// the only visible outline. Sized to [width] by the caller (half the
-/// available row width from the fields area's `LayoutBuilder`), height
-/// grows to fit its own content instead of being forced into a uniform
-/// grid-cell height.
+/// Shared individually-bordered box for a number/counter/dropdown field.
+/// [label] is optional: number and dropdown fields pass null and instead
+/// put their label in the [child] control's own hint text (one line, no
+/// redundant label-above-input), the same reasoning as
+/// `CustomTextFormField` — see its changelog entry. Only `counter`
+/// (a stepper has no hint-capable control to carry a label) still passes
+/// [label] to render it above [child]. Sized to [width] by the caller
+/// (half the available row width from the fields area's `LayoutBuilder`),
+/// height grows to fit its own content instead of being forced into a
+/// uniform grid-cell height.
 class _FieldBox extends StatelessWidget {
   final double width;
-  final String label;
-  final bool isRequired;
+  final String? label;
   final Widget child;
 
-  const _FieldBox({
-    required this.width,
-    required this.label,
-    required this.isRequired,
-    required this.child,
-  });
+  const _FieldBox({required this.width, this.label, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -623,32 +632,17 @@ class _FieldBox extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: context.divider),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RichText(
-              text: TextSpan(
+        child: label == null
+            ? child
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextSpan(
-                    text: label,
-                    style: context.labelSmall.copyWith(color: context.textSecondary),
-                  ),
-                  if (isRequired)
-                    TextSpan(
-                      text: ' *',
-                      style: context.labelSmall.copyWith(
-                        color: context.error,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  Text(label!, style: context.labelSmall.copyWith(color: context.textSecondary)),
+                  heightBox(4),
+                  child,
                 ],
               ),
-            ),
-            heightBox(4),
-            child,
-          ],
-        ),
       ),
     );
   }

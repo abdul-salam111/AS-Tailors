@@ -33,8 +33,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle =>
-      'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
@@ -219,9 +218,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveMeasurement => 'Save Measurement';
-
-  @override
-  String get measurementValueHint => 'Enter value';
 
   @override
   String get unit => 'Unit';
