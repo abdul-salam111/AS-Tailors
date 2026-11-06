@@ -26,6 +26,7 @@ Future<void> registerAuth() async {
     () => GetCurrentSessionUsecase(repository: sl()),
   );
   sl.registerLazySingleton<UpdateProfileUsecase>(() => UpdateProfileUsecase(repository: sl()));
+  sl.registerLazySingleton<UpdateAvatarUsecase>(() => UpdateAvatarUsecase(repository: sl()));
 
   // BLoC — factory so each screen gets a fresh instance
   sl.registerFactory<SignInBloc>(() => SignInBloc(signinUsecase: sl()));

@@ -25,9 +25,18 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _openEditProfile() async {
     final updated = await context.push<bool>(RoutePaths.editProfile);
-    // EditProfileView already wrote the new name into SessionController
-    // before popping — this just forces a rebuild to read it back.
-    if (updated == true && mounted) setState(() {});
+    if (!mounted) return;
+    // Always refresh, not just when `updated == true` — an avatar change
+    // uploads and updates SessionController immediately on pick (no
+    // separate save step), so it can reach here via a plain back
+    // navigation that never sets that flag. `updated == true` only
+    // reflects whether the name was explicitly saved, which is what
+    // gates the toast below (the avatar's own success toast already
+    // fired inline, in EditProfileView, at upload time).
+    setState(() {});
+    if (updated == true) {
+      AppToastsUtils.showSuccessTop(context, context.l10n.profileUpdatedSuccessfully);
+    }
   }
 
   Future<void> _signOut() async {
@@ -60,6 +69,7 @@ class _ProfileViewState extends State<ProfileView> {
               name: name,
               email: session.email,
               role: session.role,
+              avatarUrl: session.avatarUrl,
               onEdit: _openEditProfile,
             ),
             heightBox(24),
@@ -88,11 +98,13 @@ class _ProfileHeaderCard extends StatelessWidget {
   final String name;
   final String email;
   final ShopRole? role;
+  final String? avatarUrl;
   final VoidCallback onEdit;
   const _ProfileHeaderCard({
     required this.name,
     required this.email,
     required this.role,
+    required this.avatarUrl,
     required this.onEdit,
   });
 
@@ -117,11 +129,16 @@ class _ProfileHeaderCard extends StatelessWidget {
                 width: 76,
                 height: 76,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.brandTeal, AppColors.brandTealDeep],
-                  ),
+                  gradient: avatarUrl == null
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+                        )
+                      : null,
+                  image: avatarUrl != null
+                      ? DecorationImage(image: NetworkImage(avatarUrl!), fit: BoxFit.cover)
+                      : null,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -132,7 +149,9 @@ class _ProfileHeaderCard extends StatelessWidget {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Iconsax.user, color: AppColors.white, size: 34),
+                child: avatarUrl == null
+                    ? const Icon(Iconsax.user, color: AppColors.white, size: 34)
+                    : null,
               ),
               heightBox(14),
               Text(

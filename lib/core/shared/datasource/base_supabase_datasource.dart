@@ -76,12 +76,23 @@ abstract class BaseSupabaseDatasource {
   /// success (the same [path] passed in — callers persist it, e.g. onto a
   /// `*_reference_images` row, rather than a public URL, since buckets in
   /// this app are private; resolve a usable URL later via [createSignedUrl]).
+  /// [upsert] overwrites an existing object at the same path instead of
+  /// failing with a duplicate error — use it for a fixed, always-current
+  /// path (e.g. one avatar per user) rather than a per-upload unique path.
   Future<String> uploadToStorage({
     required String bucket,
     required String path,
     required Uint8List bytes,
+    bool upsert = false,
+    String? contentType,
   }) => guard(() async {
-    await client.storage.from(bucket).uploadBinary(path, bytes);
+    await client.storage
+        .from(bucket)
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(upsert: upsert, contentType: contentType),
+        );
     return path;
   });
 
@@ -92,6 +103,12 @@ abstract class BaseSupabaseDatasource {
     required String path,
     int expiresInSeconds = 3600,
   }) => guard(() => client.storage.from(bucket).createSignedUrl(path, expiresInSeconds));
+
+  /// A stable, permanent URL for an object in a *public* bucket — never use
+  /// this on a private bucket, the link won't actually be servable; use
+  /// [createSignedUrl] there instead.
+  String getPublicUrl({required String bucket, required String path}) =>
+      client.storage.from(bucket).getPublicUrl(path);
 
   /// Exception-mapping wrapper for anything the helpers above don't cover
   /// — `client.auth.*`, `client.storage.*`, or any call shaped

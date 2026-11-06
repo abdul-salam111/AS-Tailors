@@ -10,6 +10,7 @@ class SessionEntity extends Equatable {
   final String userId;
   final String email;
   final String? fullName;
+  final String? avatarUrl;
   final String? shopId;
   final ShopRole? role;
 
@@ -17,6 +18,7 @@ class SessionEntity extends Equatable {
     required this.userId,
     required this.email,
     this.fullName,
+    this.avatarUrl,
     this.shopId,
     this.role,
   });
@@ -30,6 +32,7 @@ class SessionEntity extends Equatable {
     String? userId,
     String? email,
     String? fullName,
+    String? avatarUrl,
     String? shopId,
     ShopRole? role,
   }) {
@@ -37,11 +40,12 @@ class SessionEntity extends Equatable {
       userId: userId ?? this.userId,
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       shopId: shopId ?? this.shopId,
       role: role ?? this.role,
     );
   }
 
   @override
-  List<Object?> get props => [userId, email, fullName, shopId, role];
+  List<Object?> get props => [userId, email, fullName, avatarUrl, shopId, role];
 }

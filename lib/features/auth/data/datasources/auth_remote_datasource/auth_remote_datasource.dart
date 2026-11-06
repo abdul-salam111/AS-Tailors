@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -33,8 +34,18 @@ abstract interface class IAuthRemoteDatasource {
   /// This user's `shop_members` row, if they belong to a shop yet.
   Future<ShopMembershipModel?> fetchMembership(String userId);
 
-  /// Updates `auth.users.user_metadata.full_name` for the signed-in user.
-  Future<UserResponse> updateFullName(String fullName);
+  /// Replaces `auth.users.user_metadata` wholesale with [data] for the
+  /// signed-in user. Callers (`AuthRepositoryImpl`) merge onto
+  /// `currentUser?.userMetadata` first rather than passing a partial map
+  /// — Supabase's `updateUser` isn't guaranteed to shallow-merge
+  /// server-side, so relying on that would risk a `full_name` edit
+  /// silently wiping `avatar_url` or vice versa.
+  Future<UserResponse> updateUserMetadata(Map<String, dynamic> data);
+
+  /// Uploads the image at [filePath] as this user's avatar (bucket
+  /// `avatars`, path `{userId}/avatar.jpg`, always overwritten) and
+  /// returns its public URL.
+  Future<String> uploadAvatar({required String userId, required String filePath});
 }
 
 class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRemoteDatasource {
@@ -109,8 +120,22 @@ class AuthRemoteDatasourceImpl extends BaseSupabaseDatasource implements IAuthRe
   );
 
   @override
-  Future<UserResponse> updateFullName(String fullName) =>
-      guard(() => client.auth.updateUser(UserAttributes(data: {'full_name': fullName})));
+  Future<UserResponse> updateUserMetadata(Map<String, dynamic> data) =>
+      guard(() => client.auth.updateUser(UserAttributes(data: data)));
+
+  @override
+  Future<String> uploadAvatar({required String userId, required String filePath}) =>
+      guard(() async {
+        final bytes = await File(filePath).readAsBytes();
+        final path = await uploadToStorage(
+          bucket: 'avatars',
+          path: '$userId/avatar.jpg',
+          bytes: bytes,
+          upsert: true,
+          contentType: 'image/jpeg',
+        );
+        return getPublicUrl(bucket: 'avatars', path: path);
+      });
 }
 
 const _nonceCharset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';

@@ -65,14 +65,38 @@ class AuthRepositoryImpl extends BaseRepository implements IAuthRepository {
   @override
   Future<Either<Failure, AuthEntity>> updateProfile({required String fullName}) => execute(
     call: () async {
-      final response = await _dataSource.updateFullName(fullName);
-      final user = response.user;
-      if (user == null) {
-        throw const UnauthorizedException('Profile update did not return a user.');
-      }
+      final user = await _updateMetadata({'full_name': fullName});
       return _buildEntity(user);
     },
   );
+
+  @override
+  Future<Either<Failure, AuthEntity>> updateAvatar({required String filePath}) => execute(
+    call: () async {
+      final currentUser = _dataSource.currentUser;
+      if (currentUser == null) {
+        throw const UnauthorizedException('No signed-in user.');
+      }
+      final avatarUrl = await _dataSource.uploadAvatar(userId: currentUser.id, filePath: filePath);
+      final user = await _updateMetadata({'avatar_url': avatarUrl});
+      return _buildEntity(user);
+    },
+  );
+
+  /// Merges [partialData] onto the current `user_metadata` client-side
+  /// before sending the full map — see `updateUserMetadata`'s doc comment
+  /// for why a partial map isn't passed directly.
+  Future<User> _updateMetadata(Map<String, dynamic> partialData) async {
+    final response = await _dataSource.updateUserMetadata({
+      ...?_dataSource.currentUser?.userMetadata,
+      ...partialData,
+    });
+    final user = response.user;
+    if (user == null) {
+      throw const UnauthorizedException('Profile update did not return a user.');
+    }
+    return user;
+  }
 
   Future<AuthEntity> _buildEntity(User user) async {
     final membership = await _dataSource.fetchMembership(user.id);
@@ -80,6 +104,7 @@ class AuthRepositoryImpl extends BaseRepository implements IAuthRepository {
       userId: user.id,
       email: user.email ?? '',
       fullName: user.userMetadata?['full_name'] as String?,
+      avatarUrl: user.userMetadata?['avatar_url'] as String?,
       shopId: membership?.shopId,
       role: membership?.role,
     );

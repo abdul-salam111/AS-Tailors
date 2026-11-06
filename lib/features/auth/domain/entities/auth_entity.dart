@@ -9,6 +9,7 @@ class AuthEntity extends Equatable {
   final String userId;
   final String email;
   final String? fullName;
+  final String? avatarUrl;
   final String? shopId;
   final ShopRole? role;
 
@@ -16,6 +17,7 @@ class AuthEntity extends Equatable {
     required this.userId,
     required this.email,
     this.fullName,
+    this.avatarUrl,
     this.shopId,
     this.role,
   });
@@ -23,5 +25,5 @@ class AuthEntity extends Equatable {
   bool get hasShop => shopId != null;
 
   @override
-  List<Object?> get props => [userId, email, fullName, shopId, role];
+  List<Object?> get props => [userId, email, fullName, avatarUrl, shopId, role];
 }

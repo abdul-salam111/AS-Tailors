@@ -18,4 +18,8 @@ abstract interface class IAuthRepository {
   /// reads, so this is the one value that actually needs changing for the
   /// name shown around the app to update).
   Future<Either<Failure, AuthEntity>> updateProfile({required String fullName});
+
+  /// Uploads the image at [filePath] as the signed-in user's avatar and
+  /// updates `user_metadata.avatar_url` to point at it.
+  Future<Either<Failure, AuthEntity>> updateAvatar({required String filePath});
 }

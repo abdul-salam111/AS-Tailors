@@ -21,6 +21,7 @@ class SessionResolverImpl implements ISessionResolver {
               userId: auth.userId,
               email: auth.email,
               fullName: auth.fullName,
+              avatarUrl: auth.avatarUrl,
               shopId: auth.shopId,
               role: auth.role,
             ),
