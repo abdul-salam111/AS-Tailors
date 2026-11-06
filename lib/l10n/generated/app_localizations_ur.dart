@@ -33,7 +33,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get welcomeBack => 'خوش آمدید';
 
   @override
-  String get signInSubtitle => 'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
+  String get signInSubtitle =>
+      'آرڈرز، گاہکوں اور ادائیگیوں کو منظم کرنے کے لیے سائن ان کریں۔';
 
   @override
   String get orContinueWith => 'یا جاری رکھیں';
@@ -150,7 +151,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get noCustomersYet => 'ابھی کوئی گاہک نہیں';
 
   @override
-  String get addYourFirstCustomer => 'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
+  String get addYourFirstCustomer =>
+      'شروع کرنے کے لیے اپنا پہلا گاہک شامل کریں';
 
   @override
   String get addCustomer => 'گاہک شامل کریں';
@@ -186,7 +188,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get customerCreatedSuccessfully => 'گاہک کامیابی سے شامل ہو گیا!';
 
   @override
-  String get customerUpdatedSuccessfully => 'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
+  String get customerUpdatedSuccessfully =>
+      'گاہک کی معلومات کامیابی سے اپڈیٹ ہو گئیں!';
 
   @override
   String get archiveCustomer => 'گاہک کو آرکائیو کریں';

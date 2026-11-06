@@ -256,7 +256,7 @@ class _DashboardHeader extends StatelessWidget {
                     opacity: expandedOpacity,
                     child: const Align(
                       alignment: AlignmentDirectional.centerStart,
-                      child: AppLogo(height: 46, width: 46),
+                      child: AppLogo(height: 64, width: 64),
                     ),
                   ),
                 ),
