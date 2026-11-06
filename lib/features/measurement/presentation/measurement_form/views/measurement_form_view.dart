@@ -205,13 +205,8 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                         label: context.l10n.notes,
                         prefixIcon: Iconsax.note,
                         maxLines: 3,
-                        // Matches _FieldBox's card look (white fill,
-                        // divider border, 16px radius) instead of this
-                        // widget's plainer app-wide default, so it reads
-                        // as part of the same set of field cards above it
-                        // rather than a visually distinct generic field.
-                        fillColor: context.surfaceElevated,
-                        borderColor: context.divider,
+                        // 16px to match _FieldBox's card radius above it
+                        // (fill/border color now match by default).
                         borderRadius: 16,
                         controller: _notesController,
                         onChanged: (value) => context.read<MeasurementFormBloc>().add(

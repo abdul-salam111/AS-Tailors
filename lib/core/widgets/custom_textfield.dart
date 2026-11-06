@@ -137,12 +137,16 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   Widget build(BuildContext context) {
     final defaultBorderColor = widget.borderColor ?? context.border;
     final defaultLabelColor = widget.labelColor ?? context.textSecondary;
-    // [label] renders as the field's hint instead of a separate line above
-    // it — saves the vertical space a dedicated label row used to take.
-    // [hintText] is only a fallback for the rare field with no label.
-    final effectiveHint = widget.label != null
+    final defaultFillColor = widget.fillColor ?? context.surfaceElevated;
+    // [label] is a floating label, not a separate row above the field —
+    // it sits inline like a hint when the field is empty and unfocused,
+    // then floats above the value once focused or filled, so the field's
+    // identity stays visible after typing instead of vanishing the way a
+    // plain hint would. [hintText] is only a fallback for the rare field
+    // with no label at all.
+    final effectiveLabel = widget.label != null
         ? '${widget.label}${widget.isRequired ? ' *' : ''}'
-        : widget.hintText;
+        : null;
 
     // Priority: password toggle > validating spinner > custom suffixIcon.
     Widget? effectiveSuffix;
@@ -174,7 +178,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       inputFormatters: widget.inputFormatters,
       maxLines: widget.obscureText ? 1 : widget.maxLines,
       decoration: InputDecoration(
-        hintText: effectiveHint,
+        labelText: effectiveLabel,
+        hintText: effectiveLabel == null ? widget.hintText : null,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        labelStyle: context.bodySmall.copyWith(
+          color: defaultLabelColor,
+          fontSize: widget.labelFontSize.toDouble(),
+        ),
         hintStyle: context.bodySmall.copyWith(
           color: defaultLabelColor,
           fontSize: widget.labelFontSize.toDouble(),
@@ -183,13 +193,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             ? Icon(widget.prefixIcon, color: context.grey500, size: 20)
             : null,
         suffixIcon: effectiveSuffix,
-        // Unfilled by default — a border alone is enough definition, and
-        // the fill color this used to default to (`context.surface`)
-        // matched the screen background exactly, reading as an odd grey
-        // smudge rather than an intentional box. Pass [fillColor]
-        // explicitly to opt back into a filled look.
-        filled: widget.fillColor != null,
-        fillColor: widget.fillColor,
+        // Filled with `context.surfaceElevated` (white in light mode) by
+        // default — this used to default to `context.surface`, which was
+        // the exact same grey as the screen background and read as an
+        // unintentional smudge rather than a card. Pass [fillColor]
+        // explicitly to override.
+        filled: true,
+        fillColor: defaultFillColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(widget.borderRadius),
