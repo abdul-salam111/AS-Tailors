@@ -58,15 +58,17 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
       listenWhen: (previous, current) => previous.apiStatus != current.apiStatus,
       listener: (context, state) {
         if (state.apiStatus == ApiStatus.SUCCESS && state.customer != null) {
-          AppToastsUtils.showSuccessTop(
-            context,
-            state.isEditing
-                ? context.l10n.customerUpdatedSuccessfully
-                : context.l10n.customerCreatedSuccessfully,
-          );
           if (state.isEditing) {
+            // Don't show the success toast here — `another_flushbar` pushes
+            // itself as a route onto this screen's Navigator, the same one
+            // `pop()` below pops from. Doing both in the same frame races
+            // the Navigator and crashes with a '_debugLocked'/'popping'
+            // assertion (see edit_profile_view.dart for the same issue).
+            // CustomerDetailView, which pushed this screen, shows the
+            // toast once this screen is actually gone instead.
             Navigator.of(context).pop(state.customer);
           } else {
+            AppToastsUtils.showSuccessTop(context, context.l10n.customerCreatedSuccessfully);
             // Decoupled flow: the customer is already saved, so go straight
             // into taking their measurement instead of back to the list —
             // measurements are optional and can always be added later from

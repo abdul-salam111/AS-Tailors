@@ -93,9 +93,24 @@ class _CustomerDetailBody extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Iconsax.edit, color: AppColors.white),
                   onPressed: () async {
-                    await context.push(RoutePaths.editCustomerPath(customer.id), extra: customer);
+                    // CustomerFormView pops with the updated CustomerEntity
+                    // on save, or null on a plain back navigation — only
+                    // show the toast when something was actually saved, and
+                    // only after that screen's own pop has fully resolved
+                    // (showing it earlier races that screen's Navigator,
+                    // see the comment in customer_form_view.dart).
+                    final updated = await context.push<CustomerEntity>(
+                      RoutePaths.editCustomerPath(customer.id),
+                      extra: customer,
+                    );
                     if (context.mounted) {
                       context.read<CustomerDetailBloc>().add(LoadCustomerEvent(customerId));
+                      if (updated != null) {
+                        AppToastsUtils.showSuccessTop(
+                          context,
+                          context.l10n.customerUpdatedSuccessfully,
+                        );
+                      }
                     }
                   },
                 ),
