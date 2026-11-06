@@ -322,4 +322,39 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get pleaseAddAtLeastOneGarment =>
       'آرڈر میں کم از کم ایک ملبوسہ شامل کریں';
+
+  @override
+  String get stepCustomerInfo => 'کسٹمر کی معلومات';
+
+  @override
+  String get stepCustomerInfoSubtitle => 'پہلے ان کی بنیادی تفصیلات درج کریں';
+
+  @override
+  String get stepMeasurementInfo => 'پیمائش';
+
+  @override
+  String get stepOrderInfo => 'آرڈر';
+
+  @override
+  String get stepSummary => 'خلاصہ';
+
+  @override
+  String get reviewBeforeConfirming => 'تصدیق سے پہلے سب کچھ جائزہ لیں';
+
+  @override
+  String get pleaseSelectGarmentCategoryToContinue =>
+      'جاری رکھنے کے لیے ملبوسات کی قسم منتخب کریں';
+
+  @override
+  String get customerOrderCreatedSuccessfully =>
+      'کسٹمر، پیمائش اور آرڈر کامیابی سے بن گئے!';
+
+  @override
+  String get back => 'پیچھے';
+
+  @override
+  String get next => 'آگے';
+
+  @override
+  String get confirmAndCreate => 'تصدیق کریں اور بنائیں';
 }

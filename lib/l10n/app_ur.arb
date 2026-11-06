@@ -109,5 +109,17 @@
   "createOrder": "آرڈر بنائیں",
   "orderCreatedSuccessfully": "آرڈر کامیابی سے بن گیا!",
   "pleaseSelectCustomerFirst": "پہلے کسٹمر منتخب کریں",
-  "pleaseAddAtLeastOneGarment": "آرڈر میں کم از کم ایک ملبوسہ شامل کریں"
+  "pleaseAddAtLeastOneGarment": "آرڈر میں کم از کم ایک ملبوسہ شامل کریں",
+
+  "stepCustomerInfo": "کسٹمر کی معلومات",
+  "stepCustomerInfoSubtitle": "پہلے ان کی بنیادی تفصیلات درج کریں",
+  "stepMeasurementInfo": "پیمائش",
+  "stepOrderInfo": "آرڈر",
+  "stepSummary": "خلاصہ",
+  "reviewBeforeConfirming": "تصدیق سے پہلے سب کچھ جائزہ لیں",
+  "pleaseSelectGarmentCategoryToContinue": "جاری رکھنے کے لیے ملبوسات کی قسم منتخب کریں",
+  "customerOrderCreatedSuccessfully": "کسٹمر، پیمائش اور آرڈر کامیابی سے بن گئے!",
+  "back": "پیچھے",
+  "next": "آگے",
+  "confirmAndCreate": "تصدیق کریں اور بنائیں"
 }

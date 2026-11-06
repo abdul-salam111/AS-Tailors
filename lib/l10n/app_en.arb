@@ -113,5 +113,17 @@
   "createOrder": "Create Order",
   "orderCreatedSuccessfully": "Order created successfully!",
   "pleaseSelectCustomerFirst": "Please select a customer first",
-  "pleaseAddAtLeastOneGarment": "Add at least one garment to the order"
+  "pleaseAddAtLeastOneGarment": "Add at least one garment to the order",
+
+  "stepCustomerInfo": "Customer Info",
+  "stepCustomerInfoSubtitle": "Let's start with their basic details",
+  "stepMeasurementInfo": "Measurement",
+  "stepOrderInfo": "Order",
+  "stepSummary": "Summary",
+  "reviewBeforeConfirming": "Review everything before confirming",
+  "pleaseSelectGarmentCategoryToContinue": "Select a garment category to continue",
+  "customerOrderCreatedSuccessfully": "Customer, measurement and order created successfully!",
+  "back": "Back",
+  "next": "Next",
+  "confirmAndCreate": "Confirm & Create"
 }

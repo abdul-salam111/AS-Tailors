@@ -98,7 +98,7 @@ class AppRoutes {
       GoRoute(
         path: RoutePaths.addCustomer,
         name: RouteNames.addCustomer,
-        builder: (context, state) => const CustomerFormView(),
+        builder: (context, state) => const AddCustomerWizardView(),
       ),
       GoRoute(
         path: RoutePaths.customerDetail,

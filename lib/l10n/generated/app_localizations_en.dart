@@ -320,4 +320,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pleaseAddAtLeastOneGarment =>
       'Add at least one garment to the order';
+
+  @override
+  String get stepCustomerInfo => 'Customer Info';
+
+  @override
+  String get stepCustomerInfoSubtitle =>
+      'Let\'s start with their basic details';
+
+  @override
+  String get stepMeasurementInfo => 'Measurement';
+
+  @override
+  String get stepOrderInfo => 'Order';
+
+  @override
+  String get stepSummary => 'Summary';
+
+  @override
+  String get reviewBeforeConfirming => 'Review everything before confirming';
+
+  @override
+  String get pleaseSelectGarmentCategoryToContinue =>
+      'Select a garment category to continue';
+
+  @override
+  String get customerOrderCreatedSuccessfully =>
+      'Customer, measurement and order created successfully!';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get confirmAndCreate => 'Confirm & Create';
 }

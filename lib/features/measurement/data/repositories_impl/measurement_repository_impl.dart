@@ -7,7 +7,6 @@ import '../../domain/entities/measurement_profile_entity.dart';
 import '../../domain/entities/measurement_template_entity.dart';
 import '../../domain/entities/measurement_template_field_entity.dart';
 import '../../domain/entities/measurement_template_field_option_entity.dart';
-import '../../domain/entities/measurement_value_entity.dart';
 import '../../domain/repositories/measurement_repository.dart';
 import '../datasources/measurement_remote_datasource/measurement_remote_datasource.dart';
 import '../models/garment_category_model.dart';
@@ -72,37 +71,6 @@ class MeasurementRepositoryImpl extends BaseRepository implements IMeasurementRe
             .toList(),
       );
 
-  MeasurementProfileEntity _toProfileEntity(MeasurementProfileModel model) =>
-      MeasurementProfileEntity(
-        id: model.id,
-        shopId: model.shopId,
-        customerId: model.customerId,
-        templateId: model.templateId,
-        name: model.name,
-        version: model.version,
-        unit: model.unit,
-        measuredAt: model.measuredAt,
-        notes: model.notes,
-        createdAt: model.createdAt,
-        templateName: model.templateName,
-        values: model.values
-            .map(
-              (v) => MeasurementValueEntity(
-                fieldId: v.fieldId,
-                fieldKey: v.fieldKey,
-                labelEn: v.labelEn,
-                labelUr: v.labelUr,
-                inputType: v.inputType,
-                value: v.value,
-                unit: v.unit,
-                selectedOptionLabelEn: v.selectedOptionLabelEn,
-                selectedOptionLabelUr: v.selectedOptionLabelUr,
-              ),
-            )
-            .toList(),
-        imageUrls: model.imageUrls,
-      );
-
   @override
   Future<Either<Failure, List<GarmentCategoryEntity>>> getGarmentCategories() => execute(
     call: () async => (await _dataSource.getGarmentCategories()).map(_toCategoryEntity).toList(),
@@ -138,7 +106,7 @@ class MeasurementRepositoryImpl extends BaseRepository implements IMeasurementRe
         );
       }
 
-      return _toProfileEntity(model);
+      return model.toEntity();
     },
   );
 
@@ -146,11 +114,12 @@ class MeasurementRepositoryImpl extends BaseRepository implements IMeasurementRe
   Future<Either<Failure, List<MeasurementProfileEntity>>> getProfilesForCustomer(
     String customerId,
   ) => execute(
-    call: () async =>
-        (await _dataSource.getProfilesForCustomer(customerId)).map(_toProfileEntity).toList(),
+    call: () async => (await _dataSource.getProfilesForCustomer(
+      customerId,
+    )).map((model) => model.toEntity()).toList(),
   );
 
   @override
   Future<Either<Failure, MeasurementProfileEntity>> getProfileDetail(String profileId) =>
-      execute(call: () async => _toProfileEntity(await _dataSource.getProfileDetail(profileId)));
+      execute(call: () async => (await _dataSource.getProfileDetail(profileId)).toEntity());
 }

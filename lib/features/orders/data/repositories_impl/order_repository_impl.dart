@@ -25,18 +25,6 @@ class OrderRepositoryImpl extends BaseRepository implements IOrderRepository {
     return shopId;
   }
 
-  OrderEntity _toEntity(OrderModel model) => OrderEntity(
-    id: model.id,
-    shopId: model.shopId,
-    customerId: model.customerId,
-    orderNumber: model.orderNumber,
-    status: model.status,
-    dueDate: model.dueDate,
-    notes: model.notes,
-    totalAmount: model.totalAmount,
-    createdAt: model.createdAt,
-  );
-
   @override
   Future<Either<Failure, OrderEntity>> createOrder(CreateOrderParams params) => execute(
     call: () async {
@@ -57,7 +45,7 @@ class OrderRepositoryImpl extends BaseRepository implements IOrderRepository {
             )
             .toList(),
       );
-      return _toEntity(model);
+      return model.toEntity();
     },
   );
 }

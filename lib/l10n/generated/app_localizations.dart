@@ -715,6 +715,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add at least one garment to the order'**
   String get pleaseAddAtLeastOneGarment;
+
+  /// No description provided for @stepCustomerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Info'**
+  String get stepCustomerInfo;
+
+  /// No description provided for @stepCustomerInfoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s start with their basic details'**
+  String get stepCustomerInfoSubtitle;
+
+  /// No description provided for @stepMeasurementInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement'**
+  String get stepMeasurementInfo;
+
+  /// No description provided for @stepOrderInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get stepOrderInfo;
+
+  /// No description provided for @stepSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get stepSummary;
+
+  /// No description provided for @reviewBeforeConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Review everything before confirming'**
+  String get reviewBeforeConfirming;
+
+  /// No description provided for @pleaseSelectGarmentCategoryToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a garment category to continue'**
+  String get pleaseSelectGarmentCategoryToContinue;
+
+  /// No description provided for @customerOrderCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer, measurement and order created successfully!'**
+  String get customerOrderCreatedSuccessfully;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @confirmAndCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Create'**
+  String get confirmAndCreate;
 }
 
 class _AppLocalizationsDelegate

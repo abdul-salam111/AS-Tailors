@@ -1,9 +1,13 @@
 import '../../../../core/networks/exceptions/app_exceptions.dart';
 import '../../../../core/services/session_manager.dart';
 import '../../../../core/shared/shared_exports.dart';
+import '../../../measurement/data/models/measurement_profile_model.dart';
+import '../../../orders/data/models/order_model.dart';
 import '../../domain/entities/create_customer_params.dart';
 import '../../domain/entities/customer_entity.dart';
 import '../../domain/entities/get_customers_params.dart';
+import '../../domain/entities/new_customer_order_params.dart';
+import '../../domain/entities/new_customer_order_result.dart';
 import '../../domain/entities/update_customer_params.dart';
 import '../../domain/repositories/customer_repository.dart';
 import '../datasources/customer_remote_datasource/customer_remote_datasource.dart';
@@ -100,5 +104,47 @@ class CustomerRepositoryImpl extends BaseRepository implements ICustomerReposito
   @override
   Future<Either<Failure, int>> getCustomerCount({DateTime? since}) => execute(
     call: () => _dataSource.getCustomerCount(shopId: _requireShopId(), since: since),
+  );
+
+  @override
+  Future<Either<Failure, NewCustomerOrderResult>> createCustomerWithOrder(
+    NewCustomerOrderParams params,
+  ) => execute(
+    call: () async {
+      final json = await _dataSource.createCustomerWithOrder(
+        shopId: _requireShopId(),
+        fullName: params.fullName,
+        whatsapp: params.whatsapp,
+        address: params.address,
+        customerNotes: params.customerNotes,
+        templateId: params.templateId,
+        measurementName: params.measurementName,
+        unit: params.unit,
+        measurementNotes: params.measurementNotes,
+        measurementValues: params.measurementValues.entries
+            .map(
+              (e) => {
+                'field_id': e.key,
+                'value': e.value.numericValue,
+                'unit': e.value.unit,
+                'selected_option_id': e.value.selectedOptionId,
+              },
+            )
+            .toList(),
+        quantity: params.quantity,
+        unitPrice: params.unitPrice,
+        dueDate: params.dueDate,
+        orderNotes: params.orderNotes,
+        itemNotes: params.itemNotes,
+      );
+
+      return NewCustomerOrderResult(
+        customer: _toEntity(CustomerModel.fromJson(json['customer'] as Map<String, dynamic>)),
+        measurementProfile: MeasurementProfileModel.fromJson(
+          json['measurement_profile'] as Map<String, dynamic>,
+        ).toEntity(),
+        order: OrderModel.fromJson(json['order'] as Map<String, dynamic>).toEntity(),
+      );
+    },
   );
 }

@@ -13,6 +13,7 @@ import '../../../../../routes/routes_exports.dart';
 import '../../../domain/entities/garment_category_entity.dart';
 import '../../../domain/entities/measurement_field_value.dart';
 import '../../../domain/entities/measurement_template_field_entity.dart';
+import '../../widgets/measurement_field_widgets.dart';
 import '../blocs/measurement_form_bloc.dart';
 import '../blocs/measurement_form_event.dart';
 import '../blocs/measurement_form_state.dart';
@@ -253,7 +254,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
       children: [
         for (var i = 0; i < ordered.length; i++) ...[
           Expanded(
-            child: _PillHeader(
+            child: PillHeader(
               icon: Iconsax.ruler,
               label: _displayLabel(context, en: ordered[i].name, ur: ordered[i].nameUr),
               selected: state.selectedCategoryId == ordered[i].id,
@@ -348,7 +349,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               units.add(
                 StickyHeader(
                   header: stickyHeader(
-                    _PillHeader(
+                    PillHeader(
                       icon: Iconsax.ruler,
                       label: _displayLabel(
                         context,
@@ -367,7 +368,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
             units.add(
               StickyHeader(
                 header: stickyHeader(
-                  _PillHeader(icon: Iconsax.tick_square, label: context.l10n.measurementFeatures),
+                  PillHeader(icon: Iconsax.tick_square, label: context.l10n.measurementFeatures),
                 ),
                 content: paddedContent(featureFields),
               ),
@@ -388,7 +389,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
   ) {
     switch (field.inputType) {
       case MeasurementFieldInputType.number:
-        return _FieldBox(
+        return FieldBox(
           width: width,
           child: TextFormField(
             controller: _numberControllerFor(field.id),
@@ -428,12 +429,12 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         );
       case MeasurementFieldInputType.counter:
         final current = state.fieldValues[field.id]?.numericValue?.toInt() ?? 0;
-        return _FieldBox(
+        return FieldBox(
           width: width,
           label: _fieldLabel(context, field),
           child: Row(
             children: [
-              _StepperButton(
+              StepperButton(
                 icon: Iconsax.minus,
                 onTap: current > 0
                     ? () => context.read<MeasurementFormBloc>().add(
@@ -451,7 +452,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                   style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
-              _StepperButton(
+              StepperButton(
                 icon: Iconsax.add,
                 onTap: () => context.read<MeasurementFormBloc>().add(
                   FieldValueChangedEvent(
@@ -465,7 +466,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         );
       case MeasurementFieldInputType.dropdown:
         final selectedOptionId = state.fieldValues[field.id]?.selectedOptionId;
-        return _FieldBox(
+        return FieldBox(
           width: width,
           child: DropdownButtonFormField<String>(
             initialValue: selectedOptionId,
@@ -505,7 +506,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         );
       case MeasurementFieldInputType.checkbox:
         final checked = (state.fieldValues[field.id]?.numericValue ?? 0) == 1;
-        return _CheckboxFieldBox(
+        return CheckboxFieldBox(
           width: width,
           label: _fieldLabel(context, field),
           checked: checked,
@@ -529,190 +530,6 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
         ),
         _AddImageTile(onTap: () => _showImageSourceSheet(context)),
       ],
-    );
-  }
-}
-
-/// Full-width selectable "pill" row — a small tinted icon badge plus a
-/// bold label on a lightly-tinted (selected) or plain (unselected)
-/// background. Used both interactively (the category picker, one row per
-/// garment category, [onTap] switches the selection) and as a plain
-/// divider (section/"Features" group headers below, always [selected]
-/// and not tappable) — one consistent "pill header" visual language for
-/// every kind of grouping on this screen, matching the reference design.
-class _PillHeader extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  const _PillHeader({required this.icon, required this.label, this.selected = true, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final bar = Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: selected ? context.primary.withValues(alpha: 0.1) : context.surfaceElevated,
-        borderRadius: BorderRadius.circular(14),
-        border: selected ? null : Border.all(color: context.divider),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: selected
-                  ? context.primary.withValues(alpha: 0.16)
-                  : context.border.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            alignment: Alignment.center,
-            child: Icon(icon, size: 16, color: selected ? context.primary : context.textSecondary),
-          ),
-          widthBox(10),
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.bodyMedium.copyWith(
-                color: selected ? context.primary : context.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    return onTap == null ? bar : bar.onTap(onTap!);
-  }
-}
-
-/// +/- stepper button for `counter`-type fields (e.g. pocket count).
-class _StepperButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _StepperButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = onTap != null;
-    final button = Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: enabled
-            ? context.primary.withValues(alpha: 0.12)
-            : context.border.withValues(alpha: 0.5),
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Icon(icon, size: 15, color: enabled ? context.primary : context.textDisabled),
-    );
-    return onTap == null ? button : button.onTap(onTap!);
-  }
-}
-
-/// Shared individually-bordered box for a number/counter/dropdown field.
-/// [label] is optional: number and dropdown fields pass null and instead
-/// put their label in the [child] control's own hint text (one line, no
-/// redundant label-above-input), the same reasoning as
-/// `CustomTextFormField` — see its changelog entry. Only `counter`
-/// (a stepper has no hint-capable control to carry a label) still passes
-/// [label] to render it above [child]. Sized to [width] by the caller
-/// (half the available row width from the fields area's `LayoutBuilder`),
-/// height grows to fit its own content instead of being forced into a
-/// uniform grid-cell height.
-class _FieldBox extends StatelessWidget {
-  final double width;
-  final String? label;
-  final Widget child;
-
-  const _FieldBox({required this.width, this.label, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: context.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.divider),
-        ),
-        child: label == null
-            ? child
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(label!, style: context.labelSmall.copyWith(color: context.textSecondary)),
-                  heightBox(4),
-                  child,
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-/// A `checkbox`-type field's own box — label (left, can wrap to two lines
-/// for a long option name) plus a trailing [Checkbox], instead of
-/// [_FieldBox]'s label-above-value layout, since this field has no
-/// separate "value line" to show. `materialTapTargetSize: shrinkWrap`
-/// avoids the same invisible-minimum-tap-target inflation `CustomButton`
-/// had — see CLAUDE.md's changelog — so the box's height tracks the
-/// label's actual height instead of a padded-out Checkbox.
-class _CheckboxFieldBox extends StatelessWidget {
-  final double width;
-  final String label;
-  final bool checked;
-  final ValueChanged<bool> onChanged;
-
-  const _CheckboxFieldBox({
-    required this.width,
-    required this.label,
-    required this.checked,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: context.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.divider),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: context.bodySmall.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Checkbox(
-              value: checked,
-              activeColor: context.primary,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-              onChanged: (value) => onChanged(value ?? false),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

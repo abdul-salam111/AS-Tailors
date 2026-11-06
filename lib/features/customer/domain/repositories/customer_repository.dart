@@ -2,6 +2,8 @@ import '../../../../core/shared/shared_exports.dart';
 import '../entities/create_customer_params.dart';
 import '../entities/customer_entity.dart';
 import '../entities/get_customers_params.dart';
+import '../entities/new_customer_order_params.dart';
+import '../entities/new_customer_order_result.dart';
 import '../entities/update_customer_params.dart';
 
 abstract interface class ICustomerRepository {
@@ -24,4 +26,12 @@ abstract interface class ICustomerRepository {
   /// Count of active customers in the signed-in user's shop, optionally
   /// restricted to ones created on/after [since].
   Future<Either<Failure, int>> getCustomerCount({DateTime? since});
+
+  /// Atomic "new customer" wizard submit (`AddCustomerWizardView`) —
+  /// creates the customer, their first measurement profile and their
+  /// first order together in one transaction. See
+  /// `create_customer_with_order()` in `0010_create_customer_with_order.sql`.
+  Future<Either<Failure, NewCustomerOrderResult>> createCustomerWithOrder(
+    NewCustomerOrderParams params,
+  );
 }

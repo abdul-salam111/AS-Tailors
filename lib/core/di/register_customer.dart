@@ -1,6 +1,7 @@
 import 'app_dependencies.dart';
 import '../services/session_manager.dart';
 import '../../features/customer/customer_exports.dart';
+import '../../features/measurement/measurement_exports.dart';
 
 Future<void> registerCustomer() async {
   sl.registerLazySingleton<ICustomerRemoteDatasource>(
@@ -17,6 +18,9 @@ Future<void> registerCustomer() async {
   sl.registerLazySingleton<GetCustomerCountUsecase>(
     () => GetCustomerCountUsecase(repository: sl()),
   );
+  sl.registerLazySingleton<CreateCustomerWithOrderUsecase>(
+    () => CreateCustomerWithOrderUsecase(repository: sl()),
+  );
 
   sl.registerFactory<CustomerFormBloc>(
     () => CustomerFormBloc(createCustomerUsecase: sl(), updateCustomerUsecase: sl()),
@@ -26,6 +30,13 @@ Future<void> registerCustomer() async {
       getCustomerByIdUsecase: sl(),
       archiveCustomerUsecase: sl(),
       getProfilesForCustomerUsecase: sl(),
+    ),
+  );
+  sl.registerFactory<AddCustomerWizardBloc>(
+    () => AddCustomerWizardBloc(
+      getGarmentCategoriesUsecase: sl<GetGarmentCategoriesUsecase>(),
+      getTemplateForCategoryUsecase: sl<GetTemplateForCategoryUsecase>(),
+      createCustomerWithOrderUsecase: sl(),
     ),
   );
 }
