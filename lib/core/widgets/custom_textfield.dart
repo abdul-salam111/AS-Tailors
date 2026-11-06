@@ -167,6 +167,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return TextFormField(
       key: _fieldKey,
       autofocus: false,
+      // Off everywhere in this app on purpose: with suggestions on, the
+      // keyboard can silently swap in its own word (e.g. a contact's name
+      // saved in a different script/language) the moment you hit space or
+      // enter, replacing exactly what you typed — not something any field
+      // here (names, phone, address, notes) benefits from.
+      autocorrect: false,
+      enableSuggestions: false,
       textCapitalization: widget.textCapitalization,
       textAlign: widget.textAlign,
       readOnly: widget.readOnly,
