@@ -13,6 +13,7 @@ export 'error_state_widget.dart';
 export 'language_toggle_button.dart';
 export 'loading_indicator.dart';
 export 'loading_popup.dart';
+export 'measurement_unit_toggle_button.dart';
 export 'paginated_list_view.dart';
 export 'theme_toggle_button.dart';
 export 'widgets.dart';

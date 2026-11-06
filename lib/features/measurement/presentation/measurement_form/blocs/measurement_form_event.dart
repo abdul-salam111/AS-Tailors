@@ -3,10 +3,14 @@ import '../../../domain/entities/measurement_field_value.dart';
 abstract class MeasurementFormEvent {}
 
 /// Dispatched once, right after the bloc is created, carrying the customer
-/// this measurement profile will belong to — triggers the category list load.
+/// this measurement profile will belong to — triggers the category list
+/// load. [initialUnit] seeds the form with the shop's default measurement
+/// unit (Account → Settings, see `MeasurementUnitCubit`) — there's no
+/// in-form unit toggle; it's a shop-level preference, not a per-form one.
 class MeasurementFormInitialized extends MeasurementFormEvent {
   final String customerId;
-  MeasurementFormInitialized(this.customerId);
+  final String initialUnit;
+  MeasurementFormInitialized(this.customerId, this.initialUnit);
 }
 
 class CategorySelectedEvent extends MeasurementFormEvent {
@@ -25,11 +29,6 @@ class FieldValueChangedEvent extends MeasurementFormEvent {
   final String fieldId;
   final MeasurementFieldValue value;
   FieldValueChangedEvent(this.fieldId, this.value);
-}
-
-class UnitChangedEvent extends MeasurementFormEvent {
-  final String unit;
-  UnitChangedEvent(this.unit);
 }
 
 class MeasurementNotesChangedEvent extends MeasurementFormEvent {

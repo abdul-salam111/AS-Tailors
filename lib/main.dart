@@ -7,6 +7,7 @@ import 'core/di/di_exports.dart';
 import 'core/localization/locale_cubit.dart';
 import 'core/services/connectivity_cubit.dart';
 import 'core/services/connectivity_service.dart';
+import 'core/services/measurement_unit_cubit.dart';
 import 'core/shared/presentation/bloc_observer/app_bloc_observer.dart';
 import 'core/shared/shared_exports.dart';
 import 'core/theme/theme_exports.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => ThemeBloc(localStorage: sl())..add(const LoadTheme())),
         BlocProvider(create: (context) => LocaleCubit(localStorage: sl())..loadLocale()),
+        BlocProvider(create: (context) => MeasurementUnitCubit(localStorage: sl())..loadUnit()),
         BlocProvider(
           create: (context) => ConnectivityCubit(connectivityService: sl<ConnectivityService>()),
         ),

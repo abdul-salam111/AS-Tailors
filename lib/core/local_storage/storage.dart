@@ -138,4 +138,5 @@ class LocalStorage {
 class StorageKeys {
   static const String isDarkMode = AppConstants.keyIsDarkMode;
   static const String locale = AppConstants.keyLocale;
+  static const String measurementUnit = AppConstants.keyMeasurementUnit;
 }

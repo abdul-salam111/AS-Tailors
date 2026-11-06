@@ -30,7 +30,6 @@ class MeasurementFormBloc extends Bloc<MeasurementFormEvent, MeasurementFormStat
       (event, emit) =>
           emit(state.copyWith(fieldValues: {...state.fieldValues, event.fieldId: event.value})),
     );
-    on<UnitChangedEvent>((event, emit) => emit(state.copyWith(unit: event.unit)));
     on<MeasurementNotesChangedEvent>((event, emit) => emit(state.copyWith(notes: event.value)));
     on<ImageAddedEvent>(
       (event, emit) => emit(state.copyWith(imagePaths: [...state.imagePaths, event.filePath])),
@@ -47,7 +46,13 @@ class MeasurementFormBloc extends Bloc<MeasurementFormEvent, MeasurementFormStat
     MeasurementFormInitialized event,
     Emitter<MeasurementFormState> emit,
   ) async {
-    emit(state.copyWith(customerId: event.customerId, categoriesStatus: ApiStatus.LOADING));
+    emit(
+      state.copyWith(
+        customerId: event.customerId,
+        unit: event.initialUnit,
+        categoriesStatus: ApiStatus.LOADING,
+      ),
+    );
     final result = await _getGarmentCategoriesUsecase(NoParams());
     await result.fold(
       (failure) async =>

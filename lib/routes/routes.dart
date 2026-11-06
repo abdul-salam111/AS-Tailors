@@ -113,8 +113,7 @@ class AppRoutes {
       GoRoute(
         path: RoutePaths.addMeasurement,
         name: RouteNames.addMeasurement,
-        builder: (context, state) =>
-            MeasurementFormView(customerId: state.pathParameters['id']!),
+        builder: (context, state) => MeasurementFormView(customerId: state.pathParameters['id']!),
       ),
     ],
   );

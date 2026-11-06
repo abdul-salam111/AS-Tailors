@@ -12,12 +12,8 @@ _ShopMembershipModel _$ShopMembershipModelFromJson(Map<String, dynamic> json) =>
       role: $enumDecode(_$ShopRoleEnumMap, json['role']),
     );
 
-Map<String, dynamic> _$ShopMembershipModelToJson(
-  _ShopMembershipModel instance,
-) => <String, dynamic>{
-  'shop_id': instance.shopId,
-  'role': _$ShopRoleEnumMap[instance.role]!,
-};
+Map<String, dynamic> _$ShopMembershipModelToJson(_ShopMembershipModel instance) =>
+    <String, dynamic>{'shop_id': instance.shopId, 'role': _$ShopRoleEnumMap[instance.role]!};
 
 const _$ShopRoleEnumMap = {
   ShopRole.owner: 'owner',

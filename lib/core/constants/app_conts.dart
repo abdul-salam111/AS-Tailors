@@ -35,6 +35,7 @@ class AppConstants {
   // Auth session keys were removed — Supabase Auth owns session storage.
   static const String keyIsDarkMode = 'isDarkMode';
   static const String keyLocale = 'locale';
+  static const String keyMeasurementUnit = 'measurementUnit';
 
   // ─── Network Exceptions ────────────────────────────────
   static const String unexpectedError = 'An unexpected error occurred';

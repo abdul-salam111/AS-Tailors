@@ -10,9 +10,9 @@ import '../../../../features/auth/auth_exports.dart';
 import '../../../../routes/routes_exports.dart';
 
 /// Account tab — identity card, app settings (language/theme — moved here
-/// from the home header, see home_view.dart's `_DashboardHeader`), and
-/// sign out. The quick-glance profile bottom sheet on Home still exists
-/// as a shortcut; this is the full page.
+/// from the home header, see home_view.dart's `_DashboardHeader`; plus
+/// the default measurement unit, read by `MeasurementFormView` at
+/// screen-open time rather than toggled per form), and sign out.
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
 
@@ -175,6 +175,12 @@ class _SettingsSection extends StatelessWidget {
             icon: Iconsax.moon,
             label: context.l10n.appearance,
             trailing: const ThemeToggleButton(),
+          ),
+          Divider(height: 1, thickness: 1, color: context.divider, indent: 58),
+          _SettingsRow(
+            icon: Iconsax.ruler,
+            label: context.l10n.unit,
+            trailing: const MeasurementUnitToggleButton(),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../../core/constants/app_enums.dart';
 import '../../../../../core/di/di_exports.dart';
+import '../../../../../core/services/measurement_unit_cubit.dart';
 import '../../../../../core/shared/shared_exports.dart';
 import '../../../../../core/theme/theme_exports.dart';
 import '../../../../../core/utils/utils_exports.dart';
@@ -30,7 +31,8 @@ class MeasurementFormView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<MeasurementFormBloc>()..add(MeasurementFormInitialized(customerId)),
+      create: (context) => sl<MeasurementFormBloc>()
+        ..add(MeasurementFormInitialized(customerId, context.read<MeasurementUnitCubit>().state)),
       child: const _MeasurementFormBody(),
     );
   }
@@ -171,7 +173,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               data: state.categories,
               failure: state.failure,
               onRetry: () => context.read<MeasurementFormBloc>().add(
-                MeasurementFormInitialized(state.customerId!),
+                MeasurementFormInitialized(state.customerId!, state.unit),
               ),
               isEmpty: (categories) => categories.isEmpty,
               builder: (context, categories) => Form(
@@ -188,21 +190,7 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                     ],
                     if (state.templateStatus == ApiStatus.SUCCESS && state.template != null) ...[
                       heightBox(28),
-                      Row(
-                        children: [
-                          Expanded(child: _sectionLabel(context, context.l10n.measurements)),
-                          _SegmentedTabs(
-                            compact: true,
-                            items: [
-                              (key: 'in', label: context.l10n.inches),
-                              (key: 'cm', label: context.l10n.centimeters),
-                            ],
-                            selectedKey: state.unit,
-                            onSelected: (unit) =>
-                                context.read<MeasurementFormBloc>().add(UnitChangedEvent(unit)),
-                          ),
-                        ],
-                      ),
+                      _sectionLabel(context, context.l10n.measurements),
                       heightBox(16),
                       _buildFieldsArea(context, state),
                       heightBox(24),
@@ -435,9 +423,13 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                       )
                     : null,
               ),
-              widthBox(10),
-              Text('$current', style: context.titleSmall.copyWith(fontWeight: FontWeight.bold)),
-              widthBox(10),
+              Expanded(
+                child: Text(
+                  '$current',
+                  textAlign: TextAlign.center,
+                  style: context.titleMedium.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
               _StepperButton(
                 icon: Iconsax.add,
                 onTap: () => context.read<MeasurementFormBloc>().add(
@@ -572,64 +564,6 @@ class _PillHeader extends StatelessWidget {
       ),
     );
     return onTap == null ? bar : bar.onTap(onTap!);
-  }
-}
-
-/// Compact segmented toggle — currently just the in/cm unit switch next to
-/// the "Measurements" section title, so it defaults to [compact] (hugging
-/// its content instead of stretching across the row). Still general enough
-/// for a future equal-width multi-segment use if one shows up.
-class _SegmentedTabs extends StatelessWidget {
-  final List<({String key, String label})> items;
-  final String? selectedKey;
-  final ValueChanged<String> onSelected;
-  final bool compact;
-
-  const _SegmentedTabs({
-    required this.items,
-    required this.selectedKey,
-    required this.onSelected,
-    this.compact = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final segments = items.map((item) => _buildSegment(context, item)).toList();
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: context.surfaceElevated,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.divider),
-      ),
-      child: Row(
-        mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
-        children: compact ? segments : segments.map((s) => Expanded(child: s)).toList(),
-      ),
-    );
-  }
-
-  Widget _buildSegment(BuildContext context, ({String key, String label}) item) {
-    final selected = item.key == selectedKey;
-    final segment = Container(
-      decoration: BoxDecoration(
-        color: selected ? context.primary : AppColors.transparent,
-        borderRadius: BorderRadius.circular(9),
-      ),
-      padding: EdgeInsets.symmetric(vertical: 9, horizontal: compact ? 16 : 0),
-      alignment: Alignment.center,
-      child: Text(
-        item.label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: context.labelMedium.copyWith(
-          color: selected ? AppColors.white : context.textSecondary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    return segment.onTap(() => onSelected(item.key));
   }
 }
 
