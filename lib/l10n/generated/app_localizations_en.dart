@@ -267,4 +267,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no => 'No';
+
+  @override
+  String get selectCustomer => 'Select Customer';
+
+  @override
+  String get dueDate => 'Due Date';
+
+  @override
+  String get noDueDateSet => 'No due date set';
+
+  @override
+  String get garments => 'Garments';
+
+  @override
+  String get addGarment => 'Add Garment';
+
+  @override
+  String get noGarmentsAddedYet => 'No garments added yet';
+
+  @override
+  String get measurementProfile => 'Measurement Profile';
+
+  @override
+  String get noMeasurementProfilesForCategory =>
+      'This customer has no saved measurements for this category yet';
+
+  @override
+  String get noMeasurementProfileOption => 'No measurement profile';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String get unitPrice => 'Unit Price';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get orderTotal => 'Order Total';
+
+  @override
+  String get createOrder => 'Create Order';
+
+  @override
+  String get orderCreatedSuccessfully => 'Order created successfully!';
+
+  @override
+  String get pleaseSelectCustomerFirst => 'Please select a customer first';
+
+  @override
+  String get pleaseAddAtLeastOneGarment =>
+      'Add at least one garment to the order';
 }

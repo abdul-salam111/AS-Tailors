@@ -613,6 +613,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No'**
   String get no;
+
+  /// No description provided for @selectCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Customer'**
+  String get selectCustomer;
+
+  /// No description provided for @dueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Date'**
+  String get dueDate;
+
+  /// No description provided for @noDueDateSet.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date set'**
+  String get noDueDateSet;
+
+  /// No description provided for @garments.
+  ///
+  /// In en, this message translates to:
+  /// **'Garments'**
+  String get garments;
+
+  /// No description provided for @addGarment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Garment'**
+  String get addGarment;
+
+  /// No description provided for @noGarmentsAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No garments added yet'**
+  String get noGarmentsAddedYet;
+
+  /// No description provided for @measurementProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement Profile'**
+  String get measurementProfile;
+
+  /// No description provided for @noMeasurementProfilesForCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer has no saved measurements for this category yet'**
+  String get noMeasurementProfilesForCategory;
+
+  /// No description provided for @noMeasurementProfileOption.
+  ///
+  /// In en, this message translates to:
+  /// **'No measurement profile'**
+  String get noMeasurementProfileOption;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @unitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit Price'**
+  String get unitPrice;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @orderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Total'**
+  String get orderTotal;
+
+  /// No description provided for @createOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Order'**
+  String get createOrder;
+
+  /// No description provided for @orderCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Order created successfully!'**
+  String get orderCreatedSuccessfully;
+
+  /// No description provided for @pleaseSelectCustomerFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a customer first'**
+  String get pleaseSelectCustomerFirst;
+
+  /// No description provided for @pleaseAddAtLeastOneGarment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one garment to the order'**
+  String get pleaseAddAtLeastOneGarment;
 }
 
 class _AppLocalizationsDelegate

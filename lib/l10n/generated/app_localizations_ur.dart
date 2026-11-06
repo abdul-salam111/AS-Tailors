@@ -269,4 +269,57 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get no => 'نہیں';
+
+  @override
+  String get selectCustomer => 'کسٹمر منتخب کریں';
+
+  @override
+  String get dueDate => 'ڈیلیوری تاریخ';
+
+  @override
+  String get noDueDateSet => 'کوئی ڈیلیوری تاریخ مقرر نہیں';
+
+  @override
+  String get garments => 'ملبوسات';
+
+  @override
+  String get addGarment => 'ملبوسات شامل کریں';
+
+  @override
+  String get noGarmentsAddedYet => 'ابھی کوئی ملبوسات شامل نہیں کیے گئے';
+
+  @override
+  String get measurementProfile => 'پیمائش پروفائل';
+
+  @override
+  String get noMeasurementProfilesForCategory =>
+      'اس کسٹمر کی اس قسم کے لیے کوئی محفوظ پیمائش نہیں ہے';
+
+  @override
+  String get noMeasurementProfileOption => 'کوئی پیمائش پروفائل نہیں';
+
+  @override
+  String get quantity => 'تعداد';
+
+  @override
+  String get unitPrice => 'فی یونٹ قیمت';
+
+  @override
+  String get add => 'شامل کریں';
+
+  @override
+  String get orderTotal => 'آرڈر کی کل رقم';
+
+  @override
+  String get createOrder => 'آرڈر بنائیں';
+
+  @override
+  String get orderCreatedSuccessfully => 'آرڈر کامیابی سے بن گیا!';
+
+  @override
+  String get pleaseSelectCustomerFirst => 'پہلے کسٹمر منتخب کریں';
+
+  @override
+  String get pleaseAddAtLeastOneGarment =>
+      'آرڈر میں کم از کم ایک ملبوسہ شامل کریں';
 }

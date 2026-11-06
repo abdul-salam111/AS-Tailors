@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../core/constants/const_exports.dart';
 import '../core/theme/theme_exports.dart';
 import '../core/utils/utils_exports.dart';
-import '../core/widgets/widgets_exports.dart';
+import 'route_paths.dart';
 
 /// Persistent bottom-nav chrome for the four tabbed branches (Home,
 /// Customers, Orders, Account) plus a center "Create Order" action that
-/// isn't a branch at all — there's no `orders` feature to create one
-/// against yet (see CLAUDE.md §1a), so it surfaces the same
-/// "coming soon" toast as the dashboard's other not-yet-built actions.
-/// Each branch keeps its own Navigator/state via [StatefulNavigationShell]
-/// (wired in routes.dart), so switching tabs doesn't rebuild the others.
+/// pushes the Add Order screen outside the shell (full-screen, no bottom
+/// nav) with no pre-selected customer — the form's own customer picker
+/// handles that. Each branch keeps its own Navigator/state via
+/// [StatefulNavigationShell] (wired in routes.dart), so switching tabs
+/// doesn't rebuild the others.
 class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const AppShell({super.key, required this.navigationShell});
@@ -23,9 +24,7 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      floatingActionButton: _CreateOrderFab(
-        onTap: () => AppToastsUtils.showInfoTop(context, context.l10n.featureComingSoonMessage),
-      ),
+      floatingActionButton: _CreateOrderFab(onTap: () => context.push(RoutePaths.addOrder)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _AppBottomBar(
         currentIndex: navigationShell.currentIndex,
@@ -53,7 +52,7 @@ class _AppBottomBar extends StatelessWidget {
         children: [
           Expanded(
             child: _NavBarItem(
-              icon: Iconsax.home_2,
+              iconAsset: AppIcons.homeIcon,
               label: context.l10n.home,
               selected: currentIndex == 0,
               onTap: () => onTap(0),
@@ -61,7 +60,7 @@ class _AppBottomBar extends StatelessWidget {
           ),
           Expanded(
             child: _NavBarItem(
-              icon: Iconsax.people,
+              iconAsset: AppIcons.customers,
               label: context.l10n.customers,
               selected: currentIndex == 1,
               onTap: () => onTap(1),
@@ -70,7 +69,7 @@ class _AppBottomBar extends StatelessWidget {
           const SizedBox(width: 60),
           Expanded(
             child: _NavBarItem(
-              icon: Iconsax.receipt_2,
+              iconAsset: AppIcons.orders,
               label: context.l10n.orders,
               selected: currentIndex == 2,
               onTap: () => onTap(2),
@@ -78,7 +77,7 @@ class _AppBottomBar extends StatelessWidget {
           ),
           Expanded(
             child: _NavBarItem(
-              icon: Iconsax.user,
+              iconAsset: AppIcons.profile,
               label: context.l10n.account,
               selected: currentIndex == 3,
               onTap: () => onTap(3),
@@ -91,13 +90,13 @@ class _AppBottomBar extends StatelessWidget {
 }
 
 class _NavBarItem extends StatelessWidget {
-  final IconData icon;
+  final String iconAsset;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   const _NavBarItem({
-    required this.icon,
+    required this.iconAsset,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -114,7 +113,7 @@ class _NavBarItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: color),
+            Image.asset(iconAsset, width: 22, height: 22, color: color),
             heightBox(4),
             Text(
               label,
@@ -162,7 +161,13 @@ class _CreateOrderFab extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           customBorder: const CircleBorder(),
-          child: const Icon(Iconsax.add, color: AppColors.white, size: 26),
+          child: Image.asset(
+            AppIcons.createOrder,
+            width: 16,
+            height: 16,
+            fit: BoxFit.contain,
+            color: AppColors.white,
+          ),
         ),
       ),
     );

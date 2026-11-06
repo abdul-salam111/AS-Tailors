@@ -5,6 +5,7 @@ class RoutePaths {
   static const String editProfile = '/profile/edit';
   static const String home = '/home';
   static const String orders = '/orders';
+  static const String addOrder = '/orders/add';
   static const String customers = '/customers';
   static const String addCustomer = '/customers/add';
   static const String customerDetail = '/customers/:id';

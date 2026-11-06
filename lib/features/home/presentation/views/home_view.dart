@@ -141,7 +141,7 @@ class _HomeBodyState extends State<_HomeBody> with TickerProviderStateMixin {
                     heightBox(8),
                     _entrance.fadeSlideUp(
                       _entrance.interval(0.38, 0.76),
-                      _QuickActionsGrid(onComingSoon: _comingSoon),
+                      const _QuickActionsGrid(),
                     ),
                     heightBox(28),
                     _entrance.fadeSlideUp(
@@ -237,15 +237,64 @@ class _DashboardHeader extends StatelessWidget {
           return Container(
             clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              // A third, lighter stop (instead of a flat two-color
+              // diagonal) is what makes this read as a soft, smooth wash
+              // rather than a hard tint — the lightened start blends into
+              // the deep end gradually instead of snapping between two
+              // flat colors.
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.brandTeal, AppColors.brandTealDeep],
+                colors: [
+                  Color.lerp(AppColors.brandTeal, AppColors.white, 0.16)!,
+                  AppColors.brandTeal,
+                  AppColors.brandTealDeep,
+                ],
+                stops: const [0.0, 0.55, 1.0],
               ),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(28 * t)),
             ),
             child: Stack(
               children: [
+                // Soft decorative glow blobs — large, soft-edged radial
+                // gradients (not hard-edged circles like _KpiCard's) that
+                // fade all the way to transparent, giving the gradient
+                // depth without competing with the text on top.
+                PositionedDirectional(
+                  top: -50,
+                  end: -40,
+                  child: Container(
+                    width: 190,
+                    height: 190,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.brandGoldLight.withValues(alpha: 0.28),
+                          AppColors.brandGoldLight.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                PositionedDirectional(
+                  bottom: -70,
+                  start: -50,
+                  child: Container(
+                    width: 220,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.white.withValues(alpha: 0.12),
+                          AppColors.white.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
                 // Toolbar-row title — expanded state shows the brand logo.
                 PositionedDirectional(
                   top: top,
@@ -791,8 +840,7 @@ class _DeliveryAlertCard extends StatelessWidget {
 }
 
 class _QuickActionsGrid extends StatelessWidget {
-  final VoidCallback onComingSoon;
-  const _QuickActionsGrid({required this.onComingSoon});
+  const _QuickActionsGrid();
 
   @override
   Widget build(BuildContext context) {
@@ -827,16 +875,19 @@ class _QuickActionsGrid extends StatelessWidget {
                 icon: Iconsax.bag_timer,
                 color: context.success,
                 label: context.l10n.newOrder,
-                onTap: onComingSoon,
+                onTap: () => context.push(RoutePaths.addOrder),
               ),
             ),
             widthBox(14),
             Expanded(
               child: _ActionTile(
-                icon: Iconsax.wallet_money,
+                icon: Iconsax.bag_2,
                 color: context.warning,
-                label: context.l10n.recordPayment,
-                onTap: onComingSoon,
+                label: context.l10n.orders,
+                // `go`, not `push` — Orders is a bottom-nav branch (see
+                // routes/app_shell.dart), same reasoning as the
+                // "Customers" tile above.
+                onTap: () => context.go(RoutePaths.orders),
               ),
             ),
           ],

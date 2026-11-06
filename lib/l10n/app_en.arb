@@ -95,5 +95,23 @@
   "noMeasurementsYet": "No measurements recorded yet",
   "version": "Version",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+
+  "selectCustomer": "Select Customer",
+  "dueDate": "Due Date",
+  "noDueDateSet": "No due date set",
+  "garments": "Garments",
+  "addGarment": "Add Garment",
+  "noGarmentsAddedYet": "No garments added yet",
+  "measurementProfile": "Measurement Profile",
+  "noMeasurementProfilesForCategory": "This customer has no saved measurements for this category yet",
+  "noMeasurementProfileOption": "No measurement profile",
+  "quantity": "Quantity",
+  "unitPrice": "Unit Price",
+  "add": "Add",
+  "orderTotal": "Order Total",
+  "createOrder": "Create Order",
+  "orderCreatedSuccessfully": "Order created successfully!",
+  "pleaseSelectCustomerFirst": "Please select a customer first",
+  "pleaseAddAtLeastOneGarment": "Add at least one garment to the order"
 }

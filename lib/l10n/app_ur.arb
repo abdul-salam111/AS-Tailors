@@ -91,5 +91,23 @@
   "noMeasurementsYet": "ابھی کوئی پیمائش ریکارڈ نہیں",
   "version": "ورژن",
   "yes": "جی ہاں",
-  "no": "نہیں"
+  "no": "نہیں",
+
+  "selectCustomer": "کسٹمر منتخب کریں",
+  "dueDate": "ڈیلیوری تاریخ",
+  "noDueDateSet": "کوئی ڈیلیوری تاریخ مقرر نہیں",
+  "garments": "ملبوسات",
+  "addGarment": "ملبوسات شامل کریں",
+  "noGarmentsAddedYet": "ابھی کوئی ملبوسات شامل نہیں کیے گئے",
+  "measurementProfile": "پیمائش پروفائل",
+  "noMeasurementProfilesForCategory": "اس کسٹمر کی اس قسم کے لیے کوئی محفوظ پیمائش نہیں ہے",
+  "noMeasurementProfileOption": "کوئی پیمائش پروفائل نہیں",
+  "quantity": "تعداد",
+  "unitPrice": "فی یونٹ قیمت",
+  "add": "شامل کریں",
+  "orderTotal": "آرڈر کی کل رقم",
+  "createOrder": "آرڈر بنائیں",
+  "orderCreatedSuccessfully": "آرڈر کامیابی سے بن گیا!",
+  "pleaseSelectCustomerFirst": "پہلے کسٹمر منتخب کریں",
+  "pleaseAddAtLeastOneGarment": "آرڈر میں کم از کم ایک ملبوسہ شامل کریں"
 }
