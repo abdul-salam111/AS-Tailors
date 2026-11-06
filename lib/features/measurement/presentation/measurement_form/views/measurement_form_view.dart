@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 import '../../../../../core/constants/app_enums.dart';
 import '../../../../../core/di/di_exports.dart';
 import '../../../../../core/services/measurement_unit_cubit.dart';
@@ -271,7 +272,12 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
   /// field, not just the currently-visible section's. Within each
   /// section, number/counter fields ("measurements") render before
   /// dropdown/checkbox fields ("features"), matching the reference
-  /// layout's own grouping. Fields sit in a responsive 2-column wrap of
+  /// layout's own grouping. Each section/features group is wrapped in a
+  /// `StickyHeader` so its pill header pins to the top of the screen
+  /// while that group's fields scroll beneath it, handing off to the
+  /// next group's header once it scrolls up to take over — e.g. "Qameez"
+  /// stays pinned until "Features" arrives, which stays pinned until
+  /// "Shalwar" arrives. Fields sit in a responsive 2-column wrap of
   /// individually-bordered boxes (not one shared card) so each field
   /// reads as its own compact input, auto-sized to its own content.
   Widget _buildFieldsArea(BuildContext context, MeasurementFormState state) {
@@ -292,26 +298,29 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final itemWidth = (constraints.maxWidth - 12) / 2;
-        final children = <Widget>[];
 
-        for (var s = 0; s < sectionOrder.length; s++) {
-          final sectionKey = sectionOrder[s];
+        Widget fieldsWrap(List<MeasurementTemplateFieldEntity> group) => Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [for (final field in group) _buildFieldBox(context, state, field, itemWidth)],
+        );
+
+        Widget paddedContent(List<MeasurementTemplateFieldEntity> group) =>
+            Padding(padding: const EdgeInsets.only(top: 12, bottom: 20), child: fieldsWrap(group));
+
+        // Opaque backing behind a pinned pill header — `_PillHeader`'s own
+        // fill is a translucent tint, so without this the fields
+        // scrolling underneath would show faintly through it once stuck.
+        Widget stickyHeader(Widget pill) => Container(
+          color: context.background,
+          padding: const EdgeInsets.only(bottom: 6),
+          child: pill,
+        );
+
+        final units = <Widget>[];
+
+        for (final sectionKey in sectionOrder) {
           final sectionFields = bySection[sectionKey]!;
-
-          if (sectionKey != null) {
-            final header = sectionFields.first;
-            children.add(
-              _PillHeader(
-                icon: Iconsax.ruler,
-                label: _displayLabel(
-                  context,
-                  en: header.sectionLabelEn ?? sectionKey,
-                  ur: header.sectionLabelUr,
-                ),
-              ),
-            );
-            children.add(heightBox(12));
-          }
 
           final measurementFields = sectionFields
               .where(
@@ -329,40 +338,41 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
               .toList();
 
           if (measurementFields.isNotEmpty) {
-            children.add(
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final field in measurementFields)
-                    _buildFieldBox(context, state, field, itemWidth),
-                ],
-              ),
-            );
+            if (sectionKey == null) {
+              units.add(paddedContent(measurementFields));
+            } else {
+              final header = sectionFields.first;
+              units.add(
+                StickyHeader(
+                  header: stickyHeader(
+                    _PillHeader(
+                      icon: Iconsax.ruler,
+                      label: _displayLabel(
+                        context,
+                        en: header.sectionLabelEn ?? sectionKey,
+                        ur: header.sectionLabelUr,
+                      ),
+                    ),
+                  ),
+                  content: paddedContent(measurementFields),
+                ),
+              );
+            }
           }
 
           if (featureFields.isNotEmpty) {
-            if (measurementFields.isNotEmpty) children.add(heightBox(16));
-            children.add(
-              _PillHeader(icon: Iconsax.tick_square, label: context.l10n.measurementFeatures),
-            );
-            children.add(heightBox(12));
-            children.add(
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final field in featureFields)
-                    _buildFieldBox(context, state, field, itemWidth),
-                ],
+            units.add(
+              StickyHeader(
+                header: stickyHeader(
+                  _PillHeader(icon: Iconsax.tick_square, label: context.l10n.measurementFeatures),
+                ),
+                content: paddedContent(featureFields),
               ),
             );
           }
-
-          if (s != sectionOrder.length - 1) children.add(heightBox(24));
         }
 
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: units);
       },
     );
   }
