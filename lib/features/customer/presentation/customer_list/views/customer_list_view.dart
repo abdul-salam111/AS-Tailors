@@ -109,15 +109,23 @@ class _CustomerListItem extends StatelessWidget {
   }
 
   Widget? _buildSubtitle(BuildContext context) {
-    final phone = customer.phone;
+    // WhatsApp is the only number the add/edit form collects now (see
+    // customer_form_view.dart) — phone only still exists on customers
+    // added back when that field was collected, so it's a fallback here,
+    // not the primary line.
+    final whatsapp = customer.whatsapp;
+    final contactNumber = (whatsapp != null && whatsapp.isNotEmpty) ? whatsapp : customer.phone;
     final address = customer.address;
-    if ((phone == null || phone.isEmpty) && (address == null || address.isEmpty)) return null;
+    if ((contactNumber == null || contactNumber.isEmpty) && (address == null || address.isEmpty)) {
+      return null;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (phone != null && phone.isNotEmpty) Text(phone, style: context.bodySmall),
+        if (contactNumber != null && contactNumber.isNotEmpty)
+          Text(contactNumber, style: context.bodySmall),
         if (address != null && address.isNotEmpty)
           Text(
             address,
