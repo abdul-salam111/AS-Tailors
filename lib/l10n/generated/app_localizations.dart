@@ -62,7 +62,8 @@ import 'app_localizations_ur.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -91,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('ur')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ur'),
+  ];
 
   /// The application's display name
   ///
@@ -122,18 +127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
-
-  /// No description provided for @enterYourEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your email'**
-  String get enterYourEmail;
-
-  /// No description provided for @enterYourPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your password'**
-  String get enterYourPassword;
 
   /// No description provided for @youHaveLoggedInSuccessfully.
   ///
@@ -423,23 +416,11 @@ abstract class AppLocalizations {
   /// **'Full Name'**
   String get customerFullName;
 
-  /// No description provided for @enterCustomerFullName.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter customer\'s full name'**
-  String get enterCustomerFullName;
-
   /// No description provided for @phone.
   ///
   /// In en, this message translates to:
   /// **'Phone'**
   String get phone;
-
-  /// No description provided for @enterPhoneNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter phone number'**
-  String get enterPhoneNumber;
 
   /// No description provided for @whatsapp.
   ///
@@ -447,35 +428,17 @@ abstract class AppLocalizations {
   /// **'WhatsApp'**
   String get whatsapp;
 
-  /// No description provided for @enterWhatsappNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter WhatsApp number'**
-  String get enterWhatsappNumber;
-
   /// No description provided for @address.
   ///
   /// In en, this message translates to:
   /// **'Address'**
   String get address;
 
-  /// No description provided for @enterAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter address'**
-  String get enterAddress;
-
   /// No description provided for @notes.
   ///
   /// In en, this message translates to:
   /// **'Notes'**
   String get notes;
-
-  /// No description provided for @enterNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'Add any notes'**
-  String get enterNotes;
 
   /// No description provided for @saveChanges.
   ///
@@ -640,7 +603,8 @@ abstract class AppLocalizations {
   String get no;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -649,7 +613,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ur'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'ur'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

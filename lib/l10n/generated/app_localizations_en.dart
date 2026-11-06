@@ -24,12 +24,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get enterYourEmail => 'Enter your email';
-
-  @override
-  String get enterYourPassword => 'Enter your password';
-
-  @override
   String get youHaveLoggedInSuccessfully => 'You have logged in successfully!';
 
   @override
@@ -39,7 +33,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBack => 'Welcome back';
 
   @override
-  String get signInSubtitle => 'Sign in to manage orders, customers and payments.';
+  String get signInSubtitle =>
+      'Sign in to manage orders, customers and payments.';
 
   @override
   String get orContinueWith => 'Or continue with';
@@ -174,31 +169,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customerFullName => 'Full Name';
 
   @override
-  String get enterCustomerFullName => 'Enter customer\'s full name';
-
-  @override
   String get phone => 'Phone';
-
-  @override
-  String get enterPhoneNumber => 'Enter phone number';
 
   @override
   String get whatsapp => 'WhatsApp';
 
   @override
-  String get enterWhatsappNumber => 'Enter WhatsApp number';
-
-  @override
   String get address => 'Address';
 
   @override
-  String get enterAddress => 'Enter address';
-
-  @override
   String get notes => 'Notes';
-
-  @override
-  String get enterNotes => 'Add any notes';
 
   @override
   String get saveChanges => 'Save Changes';

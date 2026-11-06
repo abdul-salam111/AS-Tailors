@@ -39,18 +39,14 @@ class _CustomerFormBody extends StatefulWidget {
 class _CustomerFormBodyState extends State<_CustomerFormBody> {
   final _formKey = GlobalKey<FormState>();
   late final _fullNameController = TextEditingController(text: widget.customer?.fullName);
-  late final _phoneController = TextEditingController(text: widget.customer?.phone);
   late final _whatsappController = TextEditingController(text: widget.customer?.whatsapp);
-  late final _emailController = TextEditingController(text: widget.customer?.email);
   late final _addressController = TextEditingController(text: widget.customer?.address);
   late final _notesController = TextEditingController(text: widget.customer?.notes);
 
   @override
   void dispose() {
     _fullNameController.dispose();
-    _phoneController.dispose();
     _whatsappController.dispose();
-    _emailController.dispose();
     _addressController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -96,7 +92,6 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
                 children: [
                   CustomTextFormField(
                     label: context.l10n.customerFullName,
-                    hintText: context.l10n.enterCustomerFullName,
                     prefixIcon: Iconsax.user,
                     controller: _fullNameController,
                     validator: (v) =>
@@ -106,18 +101,7 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
                   ),
                   heightBox(16),
                   CustomTextFormField(
-                    label: context.l10n.phone,
-                    hintText: context.l10n.enterPhoneNumber,
-                    prefixIcon: Iconsax.call,
-                    keyboardType: TextInputType.phone,
-                    controller: _phoneController,
-                    onChanged: (value) =>
-                        context.read<CustomerFormBloc>().add(PhoneChangedEvent(value)),
-                  ),
-                  heightBox(16),
-                  CustomTextFormField(
                     label: context.l10n.whatsapp,
-                    hintText: context.l10n.enterWhatsappNumber,
                     prefixIcon: Iconsax.message,
                     keyboardType: TextInputType.phone,
                     controller: _whatsappController,
@@ -126,18 +110,7 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
                   ),
                   heightBox(16),
                   CustomTextFormField(
-                    label: context.l10n.email,
-                    hintText: context.l10n.enterYourEmail,
-                    prefixIcon: Iconsax.sms,
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _emailController,
-                    onChanged: (value) =>
-                        context.read<CustomerFormBloc>().add(EmailChangedEvent(value)),
-                  ),
-                  heightBox(16),
-                  CustomTextFormField(
                     label: context.l10n.address,
-                    hintText: context.l10n.enterAddress,
                     prefixIcon: Iconsax.location,
                     maxLines: 2,
                     controller: _addressController,
@@ -147,7 +120,6 @@ class _CustomerFormBodyState extends State<_CustomerFormBody> {
                   heightBox(16),
                   CustomTextFormField(
                     label: context.l10n.notes,
-                    hintText: context.l10n.enterNotes,
                     prefixIcon: Iconsax.note,
                     maxLines: 3,
                     controller: _notesController,

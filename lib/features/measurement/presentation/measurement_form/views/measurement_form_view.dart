@@ -196,7 +196,6 @@ class _MeasurementFormBodyState extends State<_MeasurementFormBody> {
                       heightBox(24),
                       CustomTextFormField(
                         label: context.l10n.notes,
-                        hintText: context.l10n.enterNotes,
                         prefixIcon: Iconsax.note,
                         maxLines: 3,
                         controller: _notesController,

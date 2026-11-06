@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
-import '../utils/extensions.dart';
 import '../theme/theme_utils.dart';
 
 class CustomTextFormField extends StatefulWidget {
@@ -134,9 +133,14 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultFillColor = widget.fillColor ?? context.surface;
     final defaultBorderColor = widget.borderColor ?? context.border;
     final defaultLabelColor = widget.labelColor ?? context.textSecondary;
+    // [label] renders as the field's hint instead of a separate line above
+    // it — saves the vertical space a dedicated label row used to take.
+    // [hintText] is only a fallback for the rare field with no label.
+    final effectiveHint = widget.label != null
+        ? '${widget.label}${widget.isRequired ? ' *' : ''}'
+        : widget.hintText;
 
     // Priority: password toggle > validating spinner > custom suffixIcon.
     Widget? effectiveSuffix;
@@ -154,85 +158,62 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       effectiveSuffix = widget.suffixIcon;
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null)
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: widget.label!,
-                  style: context.bodySmall.copyWith(
-                    color: defaultLabelColor,
-                    fontSize: widget.labelFontSize.toDouble(),
-                  ),
-                ),
-                if (widget.isRequired)
-                  TextSpan(
-                    text: ' *',
-                    style: context.bodyMedium.copyWith(
-                      color: context.error,
-                      fontWeight: FontWeight.bold,
-                      fontSize: widget.labelFontSize.toDouble(),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-        if (widget.label != null) heightBox(5),
-
-        TextFormField(
-          key: _fieldKey,
-          autofocus: false,
-          textCapitalization: widget.textCapitalization,
-          textAlign: widget.textAlign,
-          readOnly: widget.readOnly,
-          focusNode: widget.focusNode,
-          style: context.bodySmall.copyWith(color: context.textPrimary),
-          controller: widget.controller,
-          obscureText: isObscure,
-          keyboardType: widget.keyboardType,
-          inputFormatters: widget.inputFormatters,
-          maxLines: widget.obscureText ? 1 : widget.maxLines,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: context.bodySmall.copyWith(color: context.textSecondary),
-            prefixIcon: widget.prefixIcon != null
-                ? Icon(widget.prefixIcon, color: context.grey500, size: 20)
-                : null,
-            suffixIcon: effectiveSuffix,
-            fillColor: defaultFillColor,
-            filled: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: defaultBorderColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: defaultBorderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: context.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: context.error, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: context.error, width: 2),
-            ),
-          ),
-          validator: _validate,
-          onChanged: _handleChanged,
-          onFieldSubmitted: widget.onFieldSubmitted,
-          onTap: widget.onTap,
+    return TextFormField(
+      key: _fieldKey,
+      autofocus: false,
+      textCapitalization: widget.textCapitalization,
+      textAlign: widget.textAlign,
+      readOnly: widget.readOnly,
+      focusNode: widget.focusNode,
+      style: context.bodySmall.copyWith(color: context.textPrimary),
+      controller: widget.controller,
+      obscureText: isObscure,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      maxLines: widget.obscureText ? 1 : widget.maxLines,
+      decoration: InputDecoration(
+        hintText: effectiveHint,
+        hintStyle: context.bodySmall.copyWith(
+          color: defaultLabelColor,
+          fontSize: widget.labelFontSize.toDouble(),
         ),
-      ],
+        prefixIcon: widget.prefixIcon != null
+            ? Icon(widget.prefixIcon, color: context.grey500, size: 20)
+            : null,
+        suffixIcon: effectiveSuffix,
+        // Unfilled by default — a border alone is enough definition, and
+        // the fill color this used to default to (`context.surface`)
+        // matched the screen background exactly, reading as an odd grey
+        // smudge rather than an intentional box. Pass [fillColor]
+        // explicitly to opt back into a filled look.
+        filled: widget.fillColor != null,
+        fillColor: widget.fillColor,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: defaultBorderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: defaultBorderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: context.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: context.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: context.error, width: 2),
+        ),
+      ),
+      validator: _validate,
+      onChanged: _handleChanged,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      onTap: widget.onTap,
     );
   }
 }
